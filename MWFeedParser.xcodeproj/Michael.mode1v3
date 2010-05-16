@@ -330,10 +330,9 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>4CBB32F6119FF17800F021F6</string>
+										<string>4C7F67C111A007E300D6DF99</string>
 										<key>history</key>
 										<array>
-											<string>4CC89639119F0E1500ED61B6</string>
 											<string>4CC8964A119F0F1400ED61B6</string>
 											<string>4CE6546D119F1121000A93D8</string>
 											<string>4CE65483119F116D000A93D8</string>
@@ -343,8 +342,9 @@
 											<string>4C46CC59119F2BC9005CE427</string>
 											<string>4C46CC5A119F2BC9005CE427</string>
 											<string>4C46CC60119F2ED4005CE427</string>
-											<string>4C46CC61119F2ED4005CE427</string>
-											<string>4C46CC65119F2EF2005CE427</string>
+											<string>4C7F67BE11A007E300D6DF99</string>
+											<string>4C7F67BF11A007E300D6DF99</string>
+											<string>4C7F67C011A007E300D6DF99</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -402,9 +402,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>4CBB32E5119FF14800F021F6</string>
+				<string>4C7F67C211A007E300D6DF99</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>4CBB32E6119FF14800F021F6</string>
+				<string>4C7F67C311A007E300D6DF99</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -542,10 +542,6 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
-		<string>4CBB32F5119FF16700F021F6</string>
-		<string>4CBB32F0119FF14800F021F6</string>
-		<string>1C78EAAD065D492600B07095</string>
-		<string>1CD10A99069EF8BA00B06720</string>
 		<string>4CC895FE119F0CCB00ED61B6</string>
 		<string>/Users/Michael/My Work/d3i/Projects/Git Projects/MWFeedParser/MWFeedParser.xcodeproj</string>
 	</array>
@@ -627,7 +623,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>4CC895FE119F0CCB00ED61B6</string>
-				<string>4CBB32E7119FF14800F021F6</string>
+				<string>4C7F67C411A007E300D6DF99</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>
