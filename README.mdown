@@ -1,0 +1,111 @@
+MWFeedParser
+===============
+
+MWFeedParser is an RSS 2.0 and Atom feed parser for the iPhone.
+
+It is a very simple implementation and only parses the bare essential information about a feed and it's items, such as titles, links, dates, and descriptions / content.
+
+
+Setting up the parser
+===============
+
+Create parser:
+
+	// Create feed parser and pass the URL of the feed
+	feedParser = [[MWFeedParser alloc] initWithFeedURL:@"feed://www.shoutfilm.com/rss/staff-blog/"];
+
+Set delegate:
+
+	// Delegate must conform to `MWFeedParserDelegate`
+	feedParser.delegate = self;
+	
+Set the parsing type. Options are `ParseTypeFull`, `ParseTypeInfoOnly`, `ParseTypeItemsOnly`. Info refers to the information about the feed, such as it's title and description. Items are the individual items or stories.
+
+	// Parse the feeds info (title, link) and all feed items
+	feedParser.feedParseType = ParseTypeFull;
+	
+Set whether the parser should connect and download the feed data synchronously or asynchronously:
+
+	// Connection type
+	feedParser.connectionType = ConnectionTypeSynchronously;
+	
+Initiate parsing:
+
+	[feedParser parse];
+
+
+Reading the feed data
+===============
+
+Once parsing has been initiated, the delegate will receive the feed data as it is parsed.
+
+	- (void)feedParserDidStart:(MWFeedParser *)parser;
+	- (void)feedParser:(MWFeedParser *)parser didParseFeedInfo:(MWFeedInfo *)info; // Info about the feed
+	- (void)feedParser:(MWFeedParser *)parser didParseFeedItem:(MWFeedItem *)item; // Info about a feed item
+	- (void)feedParserDidFinish:(MWFeedParser *)parser;
+	- (void)feedParser:(MWFeedParser *)parser didFailWithError:(NSError *)error;
+
+`MWFeedInfo` and `MWFeedItem` contains properties (title, link, summary, etc.) that will hold the parsed data.
+
+For a usage example, please see `RootViewController.m` in the demo project.
+
+
+Using the data
+===============
+
+The data returned, specifically in the `summary` and `content` properties, may contain HTML elements and encoded characters. An NSString category called XMLEntities has been provided which will allow you to manipulate this data. The methods available for your convenience are:
+
+	- (NSString *)stringByStrippingTags;
+	- (NSString *)stringByDecodingXMLEntities;
+	- (NSString *)stringByEncodingXMLEntities;
+	- (NSString *)stringWithNewLinesAsBRs;
+	- (NSString *)stringByRemovingNewLinesAndWhitespace;
+
+
+Adding to your project
+===============
+
+1. Open `MWFeedParser.xcodeproj`.
+2. Drag the `MWFeedParser` & `Categories` groups into your project, ensuring you check **Copy items into destination group's folder**.
+3. Import `MWFeedParser.h` into your source as required.
+
+
+Still To Do
+===============
+
+* Better error handling
+* Further parsing optimisation
+* Parsing of more feed data and elements if required
+
+
+License
+===============
+
+Copyright (c) 2010 Michael Waterfall
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+
+Contact
+===============
+
+Twitter <http://twitter.com/mwaterfall>
