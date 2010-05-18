@@ -56,8 +56,8 @@
 					PBXFileDataSource_Target_ColumnID,
 				);
 			};
-			PBXPerProjectTemplateStateSaveDate = 295699398;
-			PBXWorkspaceStateSaveDate = 295699398;
+			PBXPerProjectTemplateStateSaveDate = 295885561;
+			PBXWorkspaceStateSaveDate = 295885561;
 		};
 		perUserProjectItems = {
 			4C46CC36119F1668005CE427 /* PBXTextBookmark */ = 4C46CC36119F1668005CE427 /* PBXTextBookmark */;
@@ -65,10 +65,10 @@
 			4C46CC59119F2BC9005CE427 /* PBXTextBookmark */ = 4C46CC59119F2BC9005CE427 /* PBXTextBookmark */;
 			4C46CC5A119F2BC9005CE427 /* PBXTextBookmark */ = 4C46CC5A119F2BC9005CE427 /* PBXTextBookmark */;
 			4C46CC60119F2ED4005CE427 /* PBXTextBookmark */ = 4C46CC60119F2ED4005CE427 /* PBXTextBookmark */;
-			4C7F67BE11A007E300D6DF99 /* PBXTextBookmark */ = 4C7F67BE11A007E300D6DF99 /* PBXTextBookmark */;
+			4C582B4411A2DE240097BEB5 /* PBXTextBookmark */ = 4C582B4411A2DE240097BEB5 /* PBXTextBookmark */;
+			4C582B4511A2DE240097BEB5 /* PBXTextBookmark */ = 4C582B4511A2DE240097BEB5 /* PBXTextBookmark */;
+			4C582B4611A2DE240097BEB5 /* PBXTextBookmark */ = 4C582B4611A2DE240097BEB5 /* PBXTextBookmark */;
 			4C7F67BF11A007E300D6DF99 /* PBXTextBookmark */ = 4C7F67BF11A007E300D6DF99 /* PBXTextBookmark */;
-			4C7F67C011A007E300D6DF99 /* PBXTextBookmark */ = 4C7F67C011A007E300D6DF99 /* PBXTextBookmark */;
-			4C7F67C111A007E300D6DF99 /* PBXTextBookmark */ = 4C7F67C111A007E300D6DF99 /* PBXTextBookmark */;
 			4CC8964A119F0F1400ED61B6 /* PBXTextBookmark */ = 4CC8964A119F0F1400ED61B6 /* PBXTextBookmark */;
 			4CE6546D119F1121000A93D8 /* PBXTextBookmark */ = 4CE6546D119F1121000A93D8 /* PBXTextBookmark */;
 			4CE65483119F116D000A93D8 /* PBXTextBookmark */ = 4CE65483119F116D000A93D8 /* PBXTextBookmark */;
@@ -128,14 +128,34 @@
 		vrLen = 2300;
 		vrLoc = 0;
 	};
-	4C7F67BE11A007E300D6DF99 /* PBXTextBookmark */ = {
+	4C582B4411A2DE240097BEB5 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 4CC8960E119F0CFB00ED61B6 /* NSString+XMLEntities.m */;
-		name = "NSString+XMLEntities.m: 1";
+		name = "NSString+XMLEntities.m: 35";
 		rLen = 0;
-		rLoc = 0;
+		rLoc = 1151;
 		rType = 0;
-		vrLen = 3100;
+		vrLen = 3096;
+		vrLoc = 38;
+	};
+	4C582B4511A2DE240097BEB5 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4CC89611119F0D0C00ED61B6 /* RootViewController.m */;
+		name = "RootViewController.m: 45";
+		rLen = 0;
+		rLoc = 899;
+		rType = 0;
+		vrLen = 2122;
+		vrLoc = 0;
+	};
+	4C582B4611A2DE240097BEB5 /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 4CC89611119F0D0C00ED61B6 /* RootViewController.m */;
+		name = "RootViewController.m: 32";
+		rLen = 0;
+		rLoc = 746;
+		rType = 0;
+		vrLen = 2133;
 		vrLoc = 0;
 	};
 	4C7F67BF11A007E300D6DF99 /* PBXTextBookmark */ = {
@@ -146,26 +166,6 @@
 		rLoc = 449;
 		rType = 0;
 		vrLen = 449;
-		vrLoc = 0;
-	};
-	4C7F67C011A007E300D6DF99 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4CC89611119F0D0C00ED61B6 /* RootViewController.m */;
-		name = "RootViewController.m: 31";
-		rLen = 0;
-		rLoc = 724;
-		rType = 0;
-		vrLen = 2133;
-		vrLoc = 0;
-	};
-	4C7F67C111A007E300D6DF99 /* PBXTextBookmark */ = {
-		isa = PBXTextBookmark;
-		fRef = 4CC89611119F0D0C00ED61B6 /* RootViewController.m */;
-		name = "RootViewController.m: 26";
-		rLen = 0;
-		rLoc = 445;
-		rType = 0;
-		vrLen = 2133;
 		vrLoc = 0;
 	};
 	4CC895F1119F0CC900ED61B6 /* MWFeedParser */ = {
@@ -265,9 +265,9 @@
 	};
 	4CC8960E119F0CFB00ED61B6 /* NSString+XMLEntities.m */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {1578, 9724}}";
-			sepNavSelRange = "{0, 0}";
-			sepNavVisRange = "{0, 3100}";
+			sepNavIntBoundsRect = "{{0, 0}, {1578, 10582}}";
+			sepNavSelRange = "{1151, 0}";
+			sepNavVisRange = "{38, 3096}";
 		};
 	};
 	4CC89610119F0D0C00ED61B6 /* RootViewController.h */ = {
@@ -280,8 +280,8 @@
 	4CC89611119F0D0C00ED61B6 /* RootViewController.m */ = {
 		uiCtxt = {
 			sepNavFolds = "{\n    c =     (\n                {\n            l = DetailViewController;\n            r = \"{3978, 24}\";\n            s = 1;\n        },\n                {\n            l = DetailViewController;\n            r = \"{4029, 24}\";\n            s = 1;\n        },\n                {\n            l = \"Nib name\";\n            r = \"{4079, 12}\";\n            s = 1;\n        }\n    );\n    r = \"{0, 4814}\";\n    s = 0;\n}";
-			sepNavIntBoundsRect = "{{0, 0}, {1578, 2249}}";
-			sepNavSelRange = "{445, 0}";
+			sepNavIntBoundsRect = "{{0, 0}, {1578, 2262}}";
+			sepNavSelRange = "{746, 0}";
 			sepNavVisRange = "{0, 2133}";
 		};
 	};

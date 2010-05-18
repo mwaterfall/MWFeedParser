@@ -32,6 +32,7 @@
 	// First iteration doesn't need to scan to & since we did that already, but for code simplicity's sake we'll do it again with the scanner.
 	NSScanner *scanner = [NSScanner scannerWithString:self];
 	[scanner setCharactersToBeSkipped:nil];
+	[scanner setCaseSensitive:YES];
 	
 	// Boundary characters for scanning unexpected &#... pattern
 	NSCharacterSet *boundaryCharacterSet = [NSCharacterSet characterSetWithCharactersInString:@" \t\n\r;"];
