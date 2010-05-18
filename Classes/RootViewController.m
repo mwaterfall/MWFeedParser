@@ -25,7 +25,7 @@
 	items = [[NSMutableArray alloc] init];
 
 	// Create parser
-	feedParser = [[MWFeedParser alloc] initWithFeedURL:@"feed://www.shoutfilm.com/rss/staff-blog/"];
+	feedParser = [[MWFeedParser alloc] initWithFeedURL:@"http://www.shoutfilm.com/rss/staff-blog/"];
 	feedParser.delegate = self;
 	feedParser.feedParseType = ParseTypeFull; // Parse feed info and all items
 	feedParser.connectionType = ConnectionTypeAsynchronously;
