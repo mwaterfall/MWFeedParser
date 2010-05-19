@@ -12,7 +12,7 @@ Setting up the parser
 Create parser:
 
 	// Create feed parser and pass the URL of the feed
-	feedParser = [[MWFeedParser alloc] initWithFeedURL:@"feed://www.shoutfilm.com/rss/staff-blog/"];
+	feedParser = [[MWFeedParser alloc] initWithFeedURL:@"http://www.shoutfilm.com/rss/staff-blog/"];
 
 Set delegate:
 
