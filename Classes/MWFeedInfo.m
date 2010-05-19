@@ -1,6 +1,6 @@
 //
 //  MWFeedInfo.m
-//  XML
+//  MWFeedParser
 //
 //  Created by Michael Waterfall on 10/05/2010.
 //  Copyright 2010 d3i. All rights reserved.

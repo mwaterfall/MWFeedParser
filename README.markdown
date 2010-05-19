@@ -1,9 +1,7 @@
 MWFeedParser
 ===============
 
-MWFeedParser is an RSS 2.0 and Atom feed parser for the iPhone.
-
-It is a very simple implementation and only parses the bare essential information about a feed and it's items, such as titles, links, dates, and descriptions / content.
+MWFeedParser is an RSS 2.0 and Atom feed parser for the iPhone. It is a very simple implementation and only parses the bare essential information about a feed and it's items, such as titles, links, dates, and descriptions / content.
 
 
 Setting up the parser
@@ -31,21 +29,37 @@ Set whether the parser should connect and download the feed data synchronously o
 	
 Initiate parsing:
 
+	// Begin parsing
 	[feedParser parse];
+	
+The parser will then download and parse the feed. If at any time you wish to stop the parsing, you can call:
 
+	// Stop feed download / parsing
+	[feedParser stopParsing];
+	
+The `stopParsing` method will stop the downloading and parsing of the feed immediately.
+	
 
 Reading the feed data
 ===============
 
 Once parsing has been initiated, the delegate will receive the feed data as it is parsed.
 
-	- (void)feedParserDidStart:(MWFeedParser *)parser;
-	- (void)feedParser:(MWFeedParser *)parser didParseFeedInfo:(MWFeedInfo *)info; // Info about the feed
-	- (void)feedParser:(MWFeedParser *)parser didParseFeedItem:(MWFeedItem *)item; // Info about a feed item
-	- (void)feedParserDidFinish:(MWFeedParser *)parser;
-	- (void)feedParser:(MWFeedParser *)parser didFailWithError:(NSError *)error;
+	- (void)feedParserDidStart:(MWFeedParser *)parser; // Called when data has downloaded and parsing has begun
+	- (void)feedParser:(MWFeedParser *)parser didParseFeedInfo:(MWFeedInfo *)info; // Provides info about the feed
+	- (void)feedParser:(MWFeedParser *)parser didParseFeedItem:(MWFeedItem *)item; // Provides info about a feed item
+	- (void)feedParserDidFinish:(MWFeedParser *)parser; // Parsing complete or stopped at any time by `stopParsing`
+	- (void)feedParser:(MWFeedParser *)parser didFailWithError:(NSError *)error; // Parsing failed
 
 `MWFeedInfo` and `MWFeedItem` contains properties (title, link, summary, etc.) that will hold the parsed data.
+
+*Important* There are some occasions where feeds do not contain some information, such as titles, links or summaries. Before using any data, you should check to see if that data exists:
+
+	NSString *title = item.title ? item.title : @"[No Title]";
+	NSString *link = item.link ? item.link : @"[No Link]";
+	NSString *summary = item.summary ? item.summary : @"[No Summary]";
+
+The method `feedParserDidFinish:` will only be called when the feed has successfully parsed, or has been stopped by a call to `stopParsing`. To determine whether the parsing completed successfully, or was stopped, you can call `isStopped`.
 
 For a usage example, please see `RootViewController.m` in the demo project.
 
@@ -61,6 +75,22 @@ The data returned, specifically in the `summary` and `content` properties, may c
 	- (NSString *)stringWithNewLinesAsBRs;
 	- (NSString *)stringByRemovingNewLinesAndWhitespace;
 
+An example of this would be:
+
+	NSString *summary = [[[item.summary stringByStrippingTags] stringByRemovingNewLinesAndWhitespace] stringByDecodingXMLEntities];
+
+
+Debugging problems
+===============
+
+If for some reason the parser doesn't seem to be working, try enabling Debug Logging in `MWFeedParser.h`. This will log error messages to the console and help you diagnose the problem. Error codes and their descriptions can be found at the top of `MWFeedParser.h`.
+
+
+Other information
+===============
+
+MWFeedParser is not currently thread-safe.
+
 
 Adding to your project
 ===============
@@ -70,12 +100,14 @@ Adding to your project
 3. Import `MWFeedParser.h` into your source as required.
 
 
-Still To Do
+Outstanding Tasks
 ===============
 
-* Better error handling
 * Further parsing optimisation
 * Parsing of more feed data and elements if required
+* Create optimised single-pass NSString method that encapsulates `stringByStrippingTags`, `stringByRemovingNewLinesAndWhitespace` and `stringByDecodingXMLEntities` as they sit together perfectly in that order and are commonly used together.
+* Make thread-safe
+* Open to suggestions...!
 
 
 License
@@ -108,4 +140,4 @@ OTHER DEALINGS IN THE SOFTWARE.
 Contact
 ===============
 
-Twitter <http://twitter.com/mwaterfall>
+Twitter: 	<http://twitter.com/mwaterfall>

@@ -1,6 +1,6 @@
-//"
+//
 //  RootViewController.m
-//  XML
+//  MWFeedParser
 //
 //  Created by Michael Waterfall on 07/05/2010.
 //  Copyright d3i 2010. All rights reserved.
@@ -22,6 +22,9 @@
 	
 	// Setup
 	self.title = @"Loading...";
+	formatter = [[NSDateFormatter alloc] init];
+	[formatter setDateStyle:NSDateFormatterShortStyle];
+	[formatter setTimeStyle:NSDateFormatterShortStyle];
 	items = [[NSMutableArray alloc] init];
 
 	// Create parser
@@ -41,22 +44,22 @@
 }
 
 - (void)feedParser:(MWFeedParser *)parser didParseFeedInfo:(MWFeedInfo *)info {
-	NSLog(@"%@", info);
+	NSLog(@"Parsed Feed Info: %@", info.title);
 	self.title = info.title;
 }
 
 - (void)feedParser:(MWFeedParser *)parser didParseFeedItem:(MWFeedItem *)item {
-	NSLog(@"%@", item);
+	NSLog(@"Parsed Feed Item: %@", item.title);
 	if (item) [items addObject:item];
 }
 
 - (void)feedParserDidFinish:(MWFeedParser *)parser {
-	NSLog(@"Finished Parsing: %@", parser.url);
+	NSLog(@"Finished Parsing");
 	[self.tableView reloadData];
 }
 
 - (void)feedParser:(MWFeedParser *)parser didFailWithError:(NSError *)error {
-	NSLog(@"Finished Parsing: %@ With Error: %@", parser.url, error);
+	NSLog(@"Finished Parsing With Error: %@", error);
 }
 
 #pragma mark -
@@ -85,10 +88,14 @@
 	// Configure the cell.
 	MWFeedItem *item = [items objectAtIndex:indexPath.row];
 	if (item) {
-		cell.textLabel.text = item.title;
-		cell.detailTextLabel.text = [item.date description];
+		cell.textLabel.text = item.title ? item.title : @"";
+		NSMutableString *subtitle = [NSMutableString string];
+		if (item.date) [subtitle appendFormat:@"%@: ", [formatter stringFromDate:item.date]];
+		if (item.summary) [subtitle appendString:[[[item.summary stringByStrippingTags] 
+												   stringByRemovingNewLinesAndWhitespace] 
+												  stringByDecodingXMLEntities]];
+		cell.detailTextLabel.text = subtitle;
 	}
-
     return cell;
 }
 
@@ -141,6 +148,7 @@
 	 [self.navigationController pushViewController:detailViewController animated:YES];
 	 [detailViewController release];
 	 */
+	[self.tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 
 #pragma mark -
@@ -160,6 +168,7 @@
 
 
 - (void)dealloc {
+	[formatter release];
 	[items release];
 	[feedParser release];
     [super dealloc];

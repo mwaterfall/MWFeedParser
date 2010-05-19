@@ -1,6 +1,6 @@
 //
 //  RootViewController.h
-//  XML
+//  MWFeedParser
 //
 //  Created by Michael Waterfall on 07/05/2010.
 //  Copyright d3i 2010. All rights reserved.
@@ -12,6 +12,7 @@
 @interface RootViewController : UITableViewController <MWFeedParserDelegate> {
 	MWFeedParser *feedParser;
 	NSMutableArray *items;
+	NSDateFormatter *formatter;
 }
 
 @end

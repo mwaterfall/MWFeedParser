@@ -1,14 +1,23 @@
 //
 //  MWFeedParser.m
-//  XML
+//  MWFeedParser
 //
 //  Created by Michael Waterfall on 08/05/2010.
 //  Copyright 2010 d3i. All rights reserved.
 //
 
 #import "MWFeedParser.h"
+#import "MWFeedParser_Private.h"
 #import "NSString+XMLEntities.h"
 
+// NSXMLParser Logging
+#if 0 // Set to 1 to enable XML parsing logs
+#define MWXMLLog(x, ...) NSLog(x, ## __VA_ARGS__);
+#else
+#define MWXMLLog(x, ...)
+#endif
+
+// Implementation
 @implementation MWFeedParser
 
 // Properties
@@ -72,6 +81,8 @@
 	self.info = nil;
 	hasEncounteredItems = NO;
 	aborted = NO;
+	stopped = NO;
+	parsingComplete = NO;
 	self.currentElementAttributes = nil;
 }
 
@@ -80,8 +91,9 @@
 	
 	// Checks
 	if (!url || !delegate) {
-	
+
 		// Error
+		[self failWithErrorCode:MWErrorCodeNotInitiated description:@"Delegate or URL not specified"];
 		return;
 		
 	}
@@ -94,6 +106,9 @@
 												  cachePolicy:NSURLRequestReloadIgnoringLocalAndRemoteCacheData 
 											  timeoutInterval:180];
 	[request setValue:@"MWFeedParser" forHTTPHeaderField:@"User-Agent"];
+	
+	// Debug Log
+	MWLog(@"MWFeedParser: Connecting & downloading feed data");
 	
 	// Connection
 	if (connectionType == ConnectionTypeAsynchronously) {
@@ -108,7 +123,7 @@
 		} else {
 		
 			// Error
-			
+			[self failWithErrorCode:MWErrorCodeConnectionFailed description:[NSString stringWithFormat:@"Asynchronous connection failed to URL: %@", url]];
 			
 		}
 		
@@ -126,7 +141,7 @@
 		} else {
 			
 			// Error
-
+			[self failWithErrorCode:MWErrorCodeConnectionFailed description:[NSString stringWithFormat:@"Synchronous connection failed to URL: %@", url]];
 			
 		}
 		
@@ -154,6 +169,64 @@
 	}
 }
 
+// Stop parsing
+- (void)stopParsing {
+	
+	// Stop
+	stopped = YES;
+	
+	// Stop downloading
+	[urlConnection cancel];
+	self.urlConnection = nil;
+	self.asyncData = nil;
+	
+	// Abort parsing
+	aborted = YES;
+	[feedParser abortParsing];
+		
+	// Debug Log
+	MWLog(@"MWFeedParser: Parsing stopped");
+	
+	// Inform delegate of stop only if it hasn't already finished
+	if (!parsingComplete) {
+		if ([delegate respondsToSelector:@selector(feedParserDidFinish:)])
+			[delegate feedParserDidFinish:self];
+	}
+	
+}
+
+// Abort parsing
+- (void)abortParsing {
+	
+	// Abort
+	aborted = YES;
+	[feedParser abortParsing];	
+	
+	// Inform delegate of succesful finish
+	if ([delegate respondsToSelector:@selector(feedParserDidFinish:)])
+		[delegate feedParserDidFinish:self];
+		
+}
+
+#pragma mark -
+#pragma mark Error Handling
+
+// If an error occurs, create NSError and inform delegate
+- (void)failWithErrorCode:(int)code description:(NSString *)description {
+	
+	// Create error
+	NSError *error = [NSError errorWithDomain:MWErrorDomain 
+										 code:code 
+									 userInfo:[NSDictionary dictionaryWithObject:description
+																		  forKey:NSLocalizedDescriptionKey]];
+	MWLog(@"%@", error);
+
+	// Inform delegate
+	if ([delegate respondsToSelector:@selector(feedParser:didFailWithError:)])
+		[delegate feedParser:self didFailWithError:error];
+	
+}
+
 #pragma mark -
 #pragma mark NSURLConnection Delegate
 
@@ -168,23 +241,25 @@
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
 	
 	// Failed
-	[urlConnection release];
-    [asyncData release];
+	self.urlConnection = nil;
+	self.asyncData = nil;
 	
-    // inform the user
-    MWLog(@"Connection failed! Error - %@ %@", [error localizedDescription], [[error userInfo] objectForKey:NSErrorFailingURLStringKey]);
+    // Error
+	[self failWithErrorCode:MWErrorCodeConnectionFailed description:[error localizedDescription]];
 	
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
 	
 	// Succeed
-    MWLog(@"Succeeded! Received %d bytes of data", [asyncData length]);
-	[self startParsingData:asyncData];
+	MWLog(@"MWFeedParser: Connection successful... received %d bytes of data", [asyncData length]);
+	
+	// Parse
+	if (!stopped) [self startParsingData:asyncData];
 	
     // Cleanup
-    [urlConnection release];
-    [asyncData autorelease];
+    self.urlConnection = nil;
+    self.asyncData = nil;
 
 }
 
@@ -196,7 +271,7 @@
 #pragma mark XML Parsing
 
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qualifiedName attributes:(NSDictionary *)attributeDict {
-	MWLog(@"XMLParser: didStartElement: %@", elementName);
+	MWXMLLog(@"NSXMLParser: didStartElement: %@", elementName);
 	
 	// Adjust path
 	self.currentPath = [currentPath stringByAppendingPathComponent:elementName];
@@ -211,7 +286,7 @@
 	}
 	
 	// Entering new feed element
-	if (feedParseType != ParseTypeItemsOnly) { // Check whether to ignore feed info
+	if (feedParseType != ParseTypeItemsOnly) {
 		if ((feedType == FeedTypeRSS  && [currentPath isEqualToString:@"/rss/channel"]) ||
 			(feedType == FeedTypeAtom && [currentPath isEqualToString:@"/feed"])) {
 			return;
@@ -223,24 +298,35 @@
 		(feedType == FeedTypeAtom && [currentPath isEqualToString:@"/feed/entry"])) {
 
 		// Send off feed info to delegate
-		if (feedParseType != ParseTypeItemsOnly) { // Check whether to ignore feed info
-			if (!hasEncounteredItems) {
+		if (!hasEncounteredItems) {
+			hasEncounteredItems = YES;
+			if (feedParseType != ParseTypeItemsOnly) { // Check whether to ignore feed info
 				
 				// Inform delegate
 				if ([delegate respondsToSelector:@selector(feedParser:didParseFeedInfo:)])
 					[delegate feedParser:self didParseFeedInfo:[[info retain] autorelease]];
 				
+				// Debug log
+				MWLog(@"MWFeedParser: Feed info for \"%@\" successfully parsed", info.title);
+				
 				// Finish
 				self.info = nil;
-				hasEncounteredItems = YES;
 				
 				// Stop parsing if only requiring meta data
 				if (feedParseType == ParseTypeInfoOnly) {
 					
+					// Debug log
+					MWLog(@"MWFeedParser: Parse type is ParseTypeInfoOnly so finishing here");
+					
 					// Finish
-					[self finishParsing];
+					[self abortParsing];
 					
 				}
+				
+			} else {
+				
+				// Ignoring feed info so debug log
+				MWLog(@"MWFeedParser: Parse type is ParseTypeItemsOnly so ignoring feed info");
 				
 			}
 		}
@@ -253,14 +339,11 @@
 }
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
-	MWLog(@"XMLParser: didEndElement: %@", elementName);
+	MWXMLLog(@"NSXMLParser: didEndElement: %@", elementName);
 	
 	// Store data
 	BOOL processed = NO;
 	if (currentText) {
-		
-		// Decode entities
-		//[currentText setString:[currentText stringByDecodingXMLEntities]];
 		
 		// Use
 		switch (feedType) {
@@ -272,10 +355,7 @@
 					else if ([currentPath isEqualToString:@"/rss/channel/item/link"]) { if (currentText.length > 0) item.link = currentText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rss/channel/item/description"]) { if (currentText.length > 0) item.summary = currentText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rss/channel/item/content:encoded"]) { if (currentText.length > 0) item.content = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/rss/channel/item/pubDate"]) { 
-						if (currentText.length > 0) 
-							item.date = [self dateFromRFC822String:currentText]; 
-						processed = YES; }
+					else if ([currentPath isEqualToString:@"/rss/channel/item/pubDate"]) { if (currentText.length > 0) item.date = [self dateFromRFC822String:currentText]; processed = YES; }
 				}
 				
 				// Info
@@ -292,11 +372,7 @@
 				// Item
 				if (!processed) {
 					if ([currentPath isEqualToString:@"/feed/entry/title"]) { if (currentText.length > 0) item.title = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/feed/entry/link"]) { 
-						NSString *link = [self linkFromAtomLinkAttributes:currentElementAttributes];
-						if (link) item.link = link;
-						processed = YES;
-					}
+					else if ([currentPath isEqualToString:@"/feed/entry/link"]) { NSString *link = [self linkFromAtomLinkAttributes:currentElementAttributes]; if (link) item.link = link; processed = YES; }
 					else if ([currentPath isEqualToString:@"/feed/entry/summary"]) { if (currentText.length > 0) item.summary = currentText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/feed/entry/content"]) { if (currentText.length > 0) item.content = currentText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/feed/entry/published"]) { if (currentText.length > 0) item.date = [self dateFromRFC3339String:currentText]; processed = YES; }
@@ -306,11 +382,7 @@
 				if (!processed && feedParseType != ParseTypeItemsOnly) {
 					if ([currentPath isEqualToString:@"/feed/title"]) { if (currentText.length > 0) info.title = currentText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/feed/description"]) { if (currentText.length > 0) info.summary = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/feed/link"]) { 
-						NSString *link = [self linkFromAtomLinkAttributes:currentElementAttributes];
-						if (link) info.link = link;
-						processed = YES;
-					}
+					else if ([currentPath isEqualToString:@"/feed/link"]) { NSString *link = [self linkFromAtomLinkAttributes:currentElementAttributes]; if (link) info.link = link; processed = YES; }
 				}
 				
 				break;
@@ -329,6 +401,9 @@
 			// Ensure summary always contains data if available
 			if (!item.summary) { item.summary = item.content; item.content = nil; }
 			
+			// Debug log
+			MWLog(@"MWFeedParser: Feed item \"%@\" successfully parsed", item.title);
+			
 			// Inform delegate
 			if ([delegate respondsToSelector:@selector(feedParser:didParseFeedItem:)])
 				[delegate feedParser:self didParseFeedItem:[[item retain] autorelease]];
@@ -341,70 +416,42 @@
 	
 }
 
-- (void)parser:(NSXMLParser *)parser foundAttributeDeclarationWithName:(NSString *)attributeName forElement:(NSString *)elementName type:(NSString *)type defaultValue:(NSString *)defaultValue {
-	MWLog(@"XMLParser: foundAttributeDeclarationWithName: %@", attributeName);
-}
+//- (void)parser:(NSXMLParser *)parser foundAttributeDeclarationWithName:(NSString *)attributeName forElement:(NSString *)elementName type:(NSString *)type defaultValue:(NSString *)defaultValue {
+//	MWXMLLog(@"NSXMLParser: foundAttributeDeclarationWithName: %@", attributeName);
+//}
 
 - (void)parser:(NSXMLParser *)parser foundCDATA:(NSData *)CDATABlock {
-	MWLog(@"XMLParser: foundCDATA: [DATA]");
+	MWXMLLog(@"NSXMLParser: foundCDATA (%d bytes)", CDATABlock.length);
 	
 	// Remember characters
 	NSString *string = nil;
 	@try {
+		
+		// Try decoding with NSUTF8StringEncoding & NSISOLatin1StringEncoding
 		string = [[NSString alloc] initWithData:CDATABlock encoding:NSUTF8StringEncoding];
 		if (!string) string = [[NSString alloc] initWithData:CDATABlock encoding:NSISOLatin1StringEncoding];
 		if (string) [currentText appendString:string];
-	}
-	@catch (NSException * e) {
-	}
-	@finally {
+		
+	} @catch (NSException * e) { 
+	} @finally {
 		[string release];
 	}
 	
 }
 
 - (void)parser:(NSXMLParser *)parser foundCharacters:(NSString *)string {
-	MWLog(@"XMLParser: foundCharacters: %@", string);
+	MWXMLLog(@"NSXMLParser: foundCharacters: %@", string);
 	
 	// Remember characters
 	[currentText appendString:string];
 	
 }
 
-- (void)parser:(NSXMLParser *)parser parseErrorOccurred:(NSError *)parseError {
-	MWLog(@"XMLParser: parseErrorOccurred: %@", parseError);
-	
-	// Called if failed or aborted (legally)
-	if (!aborted) {
-	
-		// Inform delegate
-		if ([delegate respondsToSelector:@selector(feedParser:didFailWithError:)])
-			[delegate feedParser:self didFailWithError:parseError];
-		
-	}
-	
-}
-
-- (void)parser:(NSXMLParser *)parser validationErrorOccurred:(NSError *)validError {
-	MWLog(@"XMLParser: validationErrorOccurred: %@", validError);
-	
-	// Inform delegate
-	if ([delegate respondsToSelector:@selector(feedParser:didFailWithError:)])
-		[delegate feedParser:self didFailWithError:validError];
-	
-}
-
-- (void)parserDidEndDocument:(NSXMLParser *)parser {
-	MWLog(@"XMLParser: parserDidEndDocument");
-	
-	// Inform delegate
-	if ([delegate respondsToSelector:@selector(feedParserDidFinish:)])
-		[delegate feedParserDidFinish:self];
-	
-}
-
 - (void)parserDidStartDocument:(NSXMLParser *)parser {
-	MWLog(@"XMLParser: parserDidStartDocument");
+	MWXMLLog(@"NSXMLParser: parserDidStartDocument");
+	
+	// Debug Log
+	MWLog(@"MWFeedParser: Parsing started");
 	
 	// Inform delegate
 	if ([delegate respondsToSelector:@selector(feedParserDidStart:)])
@@ -412,20 +459,53 @@
 	
 }
 
-#pragma mark -
-#pragma mark Misc
+- (void)parserDidEndDocument:(NSXMLParser *)parser {
+	MWXMLLog(@"NSXMLParser: parserDidEndDocument");
 
-- (void)finishParsing {
+	// Debug Log
+	MWLog(@"MWFeedParser: Parsing finished");
 	
-	// Abort
-	aborted = YES;
-	[feedParser abortParsing];	
-	
-	// Inform delegate of finish
+	// Inform delegate
+	parsingComplete = YES;
 	if ([delegate respondsToSelector:@selector(feedParserDidFinish:)])
 		[delegate feedParserDidFinish:self];
 	
 }
+
+// Call if parsing error occured or parse was aborted
+- (void)parser:(NSXMLParser *)parser parseErrorOccurred:(NSError *)parseError {
+	MWXMLLog(@"NSXMLParser: parseErrorOccurred: %@", parseError);
+	parsingComplete = YES;
+	if (!aborted) {
+		
+		// Fail with error
+		[self failWithErrorCode:MWErrorCodeFeedParsingError description:[parseError localizedDescription]];
+		
+	}
+}
+
+- (void)parser:(NSXMLParser *)parser validationErrorOccurred:(NSError *)validError {
+	MWXMLLog(@"NSXMLParser: validationErrorOccurred: %@", validError);
+	parsingComplete = YES;
+	
+	// Fail with error
+	[self failWithErrorCode:MWErrorCodeFeedValidationError description:[validError localizedDescription]];
+	
+}
+
+#pragma mark -
+#pragma mark Helpers
+
+- (NSString *)url {
+	return [NSString stringWithString:url];
+}
+
+- (BOOL)isStopped {
+	return stopped;
+}
+
+#pragma mark -
+#pragma mark Misc
 
 // Determine whether to use the link from atom feed (where rel is not set to "self" etc...)
 - (NSString *)linkFromAtomLinkAttributes:(NSDictionary *)attributes {
@@ -449,6 +529,9 @@
 		[dateFormatterRFC822 setDateFormat:@"EEE, d MMM yyyy HH:mm zzz"]; 
 		date = [dateFormatterRFC822 dateFromString:dateString];
 	}
+	if (!date) { // Failed so Debug log
+		MWLog(@"MWFeedParser: Could not parse RFC822 date: \"%@\" Possibly invalid format.", dateString);
+	}
 	return date;
 }
 
@@ -462,6 +545,9 @@
 	if (!date) { // 1937-01-01T12:00:27.87+00:20
 		[dateFormatterRFC3339 setDateFormat:@"yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSSZZZ"]; 
 		date = [dateFormatterRFC3339 dateFromString:dateString];
+	}
+	if (!date) { // Failed so Debug log
+		MWLog(@"MWFeedParser: Could not parse RFC3339 date: \"%@\" Possibly invalid format.", dateString);
 	}
 	return date;
 }

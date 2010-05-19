@@ -1,6 +1,6 @@
 //
 //  MWFeedParser.h
-//  XML
+//  MWFeedParser
 //
 //  Created by Michael Waterfall on 08/05/2010.
 //  Copyright 2010 d3i. All rights reserved.
@@ -11,11 +11,18 @@
 #import "MWFeedItem.h"
 
 // Debug Logging
-#if 0
+#if 0 // Set to 1 to enable debug logging
 #define MWLog(x, ...) NSLog(x, ## __VA_ARGS__);
 #else
 #define MWLog(x, ...)
 #endif
+
+// Errors & codes
+#define MWErrorDomain @"MWFeedParser"
+#define MWErrorCodeNotInitiated				1		/* MWFeedParser not initialised correctly */
+#define MWErrorCodeConnectionFailed			2		/* Connection to the URL failed */
+#define MWErrorCodeFeedParsingError			3		/* NSXMLParser encountered a parsing error */
+#define MWErrorCodeFeedValidationError		4		/* NSXMLParser encountered a validation error */
 
 // Class
 @class MWFeedParser;
@@ -35,8 +42,10 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeAtom } FeedType;
 - (void)feedParser:(MWFeedParser *)parser didFailWithError:(NSError *)error;
 @end
 
-// Class
+// MWFeedParser
 @interface MWFeedParser : NSObject {
+
+@private
 	
 	// Required
 	id <MWFeedParserDelegate> delegate;
@@ -54,6 +63,8 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeAtom } FeedType;
 	NSDateFormatter *dateFormatterRFC822, *dateFormatterRFC3339;
 	BOOL hasEncounteredItems; // Whether the parser has started parsing items
 	BOOL aborted; // Whether parse stopped due to abort
+	BOOL stopped; // Whether the parse was stopped
+	BOOL parsingComplete; // Whether NSXMLParser parsing has completed
 	
 	// Parsing Data
 	NSString *currentPath;
@@ -64,38 +75,32 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeAtom } FeedType;
 	
 }
 
-// Properties
-@property (nonatomic, assign) id <MWFeedParserDelegate> delegate;
-@property (nonatomic, copy) NSString *url;
+#pragma mark Public Properties
 
-// Feed Downloading Properties
-@property (nonatomic, retain) NSURLConnection *urlConnection;
-@property (nonatomic, retain) NSMutableData *asyncData;
+// Delegate to recieve data as it is parsed
+@property (nonatomic, assign) id <MWFeedParserDelegate> delegate;
+
+// Whether to parse feed info & all items, just feed info, or just feed items
+@property (nonatomic) ParseType feedParseType;
+
+// Set whether to download asynchronously or synchronously
 @property (nonatomic) ConnectionType connectionType;
 
-// Parsing Properties
-@property (nonatomic) ParseType feedParseType;
-@property (nonatomic, retain) NSXMLParser *feedParser;
-@property (nonatomic, retain) NSString *currentPath;
-@property (nonatomic, retain) NSMutableString *currentText;
-@property (nonatomic, retain) NSDictionary *currentElementAttributes;
-@property (nonatomic, retain) MWFeedItem *item;
-@property (nonatomic, retain) MWFeedInfo *info;
+#pragma mark Public Methods
 
-// NSObject Methods
+// Init MWFeedParser with a URL string
 - (id)initWithFeedURL:(NSString *)feedURL;
 
-// Parsing Methods
-- (void)reset;
+// Begin parsing
 - (void)parse;
-- (void)startParsingData:(NSData *)data;
 
-// Misc
-- (void)finishParsing;
-- (NSString *)linkFromAtomLinkAttributes:(NSDictionary *)attributes;
+// Stop parsing
+- (void)stopParsing;
 
-// Dates
-- (NSDate *)dateFromRFC822String:(NSString *)dateString;
-- (NSDate *)dateFromRFC3339String:(NSString *)dateString;
+// Returns the URL
+- (NSString *)url;
+
+// Returns whether the parsing was stopped by calling `stopParsing`
+- (BOOL)isStopped;
 
 @end

@@ -1,6 +1,6 @@
 //
 //  NSString+XMLEntities.m
-//  XML
+//  MWFeedParser
 //
 //  Created by Michael Waterfall on 11/05/2010.
 //  Copyright 2010 d3i. All rights reserved.
