@@ -228,7 +228,7 @@
 }
 
 #pragma mark -
-#pragma mark NSURLConnection Delegate
+#pragma mark NSURLConnection Delegate (Async)
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
 	[asyncData setLength:0];
