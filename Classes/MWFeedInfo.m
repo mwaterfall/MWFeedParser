@@ -20,4 +20,11 @@
 	return [string autorelease];
 }
 
+- (void)dealloc {
+	[title release];
+	[link release];
+	[summary release];
+	[super dealloc];
+}
+
 @end

@@ -43,7 +43,7 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeAtom } FeedType;
 @end
 
 // MWFeedParser
-@interface MWFeedParser : NSObject {
+@interface MWFeedParser : NSObject <NSXMLParserDelegate> {
 
 @private
 	
