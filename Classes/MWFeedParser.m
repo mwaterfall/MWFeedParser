@@ -39,6 +39,7 @@
 		connectionType = ConnectionTypeSynchronously;
 
 		// Date Formatters
+		// Good info on internet dates here: http://developer.apple.com/iphone/library/qa/qa2010/qa1480.html
 		NSLocale *en_US_POSIX = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
 		dateFormatterRFC822 = [[NSDateFormatter alloc] init];
 		dateFormatterRFC3339 = [[NSDateFormatter alloc] init];
@@ -302,16 +303,9 @@
 			hasEncounteredItems = YES;
 			if (feedParseType != ParseTypeItemsOnly) { // Check whether to ignore feed info
 				
-				// Inform delegate
-				if ([delegate respondsToSelector:@selector(feedParser:didParseFeedInfo:)])
-					[delegate feedParser:self didParseFeedInfo:[[info retain] autorelease]];
-				
-				// Debug log
-				MWLog(@"MWFeedParser: Feed info for \"%@\" successfully parsed", info.title);
-				
-				// Finish
-				self.info = nil;
-				
+				// Dispatch feed info to delegate
+				[self dispatchFeedInfoToDelegate];
+
 				// Stop parsing if only requiring meta data
 				if (feedParseType == ParseTypeInfoOnly) {
 					
@@ -320,6 +314,7 @@
 					
 					// Finish
 					[self abortParsing];
+					return;
 					
 				}
 				
@@ -398,20 +393,21 @@
 		if ((feedType == FeedTypeRSS && [elementName isEqualToString:@"item"]) ||
 			(feedType == FeedTypeAtom && [elementName isEqualToString:@"entry"])) {
 			
-			// Ensure summary always contains data if available
-			if (!item.summary) { item.summary = item.content; item.content = nil; }
-			
-			// Debug log
-			MWLog(@"MWFeedParser: Feed item \"%@\" successfully parsed", item.title);
-			
-			// Inform delegate
-			if ([delegate respondsToSelector:@selector(feedParser:didParseFeedItem:)])
-				[delegate feedParser:self didParseFeedItem:[[item retain] autorelease]];
-			
-			// Finish
-			self.item = nil;			
+			// Dispatch item to delegate
+			[self dispatchFeedItemToDelegate];
 			
 		}
+	}
+	
+	// Check if the document has finished parsing and send off info if needed (i.e. there were no items)
+	if (!processed) {
+		if ((feedType == FeedTypeRSS && [elementName isEqualToString:@"rss"]) ||
+			(feedType == FeedTypeAtom && [elementName isEqualToString:@"feed"])) {
+			
+			// Document ending so if we havent sent off feed info yet, do so
+			if (info) [self dispatchFeedInfoToDelegate];
+			
+		}	
 	}
 	
 }
@@ -491,6 +487,44 @@
 	// Fail with error
 	[self failWithErrorCode:MWErrorCodeFeedValidationError description:[validError localizedDescription]];
 	
+}
+
+#pragma mark -
+#pragma mark Send Items to Delegate
+
+- (void)dispatchFeedInfoToDelegate {
+	if (info) {
+	
+		// Inform delegate
+		if ([delegate respondsToSelector:@selector(feedParser:didParseFeedInfo:)])
+			[delegate feedParser:self didParseFeedInfo:[[info retain] autorelease]];
+		
+		// Debug log
+		MWLog(@"MWFeedParser: Feed info for \"%@\" successfully parsed", info.title);
+		
+		// Finish
+		self.info = nil;
+		
+	}
+}
+
+- (void)dispatchFeedItemToDelegate {
+	if (item) {
+
+		// Ensure summary always contains data if available
+		if (!item.summary) { item.summary = item.content; item.content = nil; }
+		
+		// Debug log
+		MWLog(@"MWFeedParser: Feed item \"%@\" successfully parsed", item.title);
+		
+		// Inform delegate
+		if ([delegate respondsToSelector:@selector(feedParser:didParseFeedItem:)])
+			[delegate feedParser:self didParseFeedItem:[[item retain] autorelease]];
+		
+		// Finish
+		self.item = nil;
+		
+	}
 }
 
 #pragma mark -

@@ -32,6 +32,10 @@
 - (void)startParsingData:(NSData *)data;
 - (void)abortParsing;
 
+// Dispatching to Delegate
+- (void)dispatchFeedInfoToDelegate;
+- (void)dispatchFeedItemToDelegate;
+
 // Error Handling
 - (void)failWithErrorCode:(int)code description:(NSString *)description;
 

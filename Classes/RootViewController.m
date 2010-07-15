@@ -61,6 +61,9 @@
 
 - (void)feedParser:(MWFeedParser *)parser didFailWithError:(NSError *)error {
 	NSLog(@"Finished Parsing With Error: %@", error);
+	[items removeAllObjects];
+	self.title = @"Failed";
+	[self.tableView reloadData];
 }
 
 #pragma mark -

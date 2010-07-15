@@ -1,6 +1,0 @@
-[2010-05-19: REVISION 1]
-
-[NEW] Added `stopParsing` and `isStopped' methods
-[CHANGED] Privatised core MWFeedParser properties and methods
-[CHANGED] Improved error logging and handling
-[CHANGED] Improved README documentation
