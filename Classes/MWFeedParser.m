@@ -3,7 +3,7 @@
 //  MWFeedParser
 //
 //  Created by Michael Waterfall on 08/05/2010.
-//  Copyright 2010 d3i. All rights reserved.
+//  Copyright 2010 Michael Waterfall. All rights reserved.
 //
 
 #import "MWFeedParser.h"
@@ -77,7 +77,7 @@
 	self.urlConnection = nil;
 	feedType = FeedTypeUnknown;
 	self.currentPath = @"/";
-	self.currentText = [[NSMutableString alloc] init];
+	self.currentText = [[[NSMutableString alloc] init] autorelease];
 	self.item = nil;
 	self.info = nil;
 	hasEncounteredItems = NO;
@@ -327,7 +327,10 @@
 		}
 		
 		// New item
-		self.item = [[MWFeedItem alloc] init];
+		MWFeedItem *newItem = [[MWFeedItem alloc] init];
+		self.item = newItem;
+		[newItem release];
+
 		return;
 	}
 	

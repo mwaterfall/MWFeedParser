@@ -3,7 +3,7 @@
 //  MWFeedParser
 //
 //  Created by Michael Waterfall on 15/05/2010.
-//  Copyright d3i 2010. All rights reserved.
+//  Copyright Michael Waterfall 2010. All rights reserved.
 //
 
 #import "MWFeedParserAppDelegate.h"
