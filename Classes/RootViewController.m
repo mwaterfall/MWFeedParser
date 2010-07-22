@@ -93,14 +93,19 @@
 	// Configure the cell.
 	MWFeedItem *item = [items objectAtIndex:indexPath.row];
 	if (item) {
+		
+		// Process
+		NSString *itemTitle = item.title ? [[[item.title stringByStrippingTags] stringByRemovingNewLinesAndWhitespace] stringByDecodingXMLEntities] : @"";
+		NSString *itemSummary = item.summary ? [[[item.summary stringByStrippingTags] stringByRemovingNewLinesAndWhitespace] stringByDecodingXMLEntities] : @"";
+		
+		// Set
 		cell.textLabel.font = [UIFont boldSystemFontOfSize:15];
-		cell.textLabel.text = item.title ? item.title : @"";
+		cell.textLabel.text = itemTitle;
 		NSMutableString *subtitle = [NSMutableString string];
 		if (item.date) [subtitle appendFormat:@"%@: ", [formatter stringFromDate:item.date]];
-		if (item.summary) [subtitle appendString:[[[item.summary stringByStrippingTags] 
-												   stringByRemovingNewLinesAndWhitespace] 
-												  stringByDecodingXMLEntities]];
+		[subtitle appendString:itemSummary];
 		cell.detailTextLabel.text = subtitle;
+		
 	}
     return cell;
 }

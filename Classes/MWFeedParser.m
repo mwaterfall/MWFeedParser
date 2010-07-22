@@ -49,6 +49,7 @@
         [dateFormatterRFC3339 setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
 		[en_US_POSIX release];
 		
+		
 	}
 	return self;
 }
@@ -554,17 +555,34 @@
 
 - (NSDate *)dateFromRFC822String:(NSString *)dateString {
 	NSDate *date = nil;
+	NSString *RFC822String = [[NSString stringWithString:dateString] uppercaseString];
 	if (!date) { // Sun, 19 May 02 15:21:36 GMT
 		[dateFormatterRFC822 setDateFormat:@"EEE, d MMM yy HH:mm:ss zzz"]; 
-		date = [dateFormatterRFC822 dateFromString:dateString];
+		date = [dateFormatterRFC822 dateFromString:RFC822String];
 	}
 	if (!date) { // Sun, 19 May 2002 15:21:36 GMT
 		[dateFormatterRFC822 setDateFormat:@"EEE, d MMM yyyy HH:mm:ss zzz"]; 
-		date = [dateFormatterRFC822 dateFromString:dateString];
+		date = [dateFormatterRFC822 dateFromString:RFC822String];
 	}
 	if (!date) {  // Sun, 19 May 2002 15:21 GMT
 		[dateFormatterRFC822 setDateFormat:@"EEE, d MMM yyyy HH:mm zzz"]; 
-		date = [dateFormatterRFC822 dateFromString:dateString];
+		date = [dateFormatterRFC822 dateFromString:RFC822String];
+	}
+	if (!date) {  // 19 May 2002 15:21:36 GMT
+		[dateFormatterRFC822 setDateFormat:@"d MMM yyyy HH:mm:ss zzz"]; 
+		date = [dateFormatterRFC822 dateFromString:RFC822String];
+	}
+	if (!date) {  // 19 May 2002 15:21 GMT
+		[dateFormatterRFC822 setDateFormat:@"d MMM yyyy HH:mm zzz"]; 
+		date = [dateFormatterRFC822 dateFromString:RFC822String];
+	}
+	if (!date) {  // 19 May 2002 15:21:36
+		[dateFormatterRFC822 setDateFormat:@"d MMM yyyy HH:mm:ss"]; 
+		date = [dateFormatterRFC822 dateFromString:RFC822String];
+	}
+	if (!date) {  // 19 May 2002 15:21
+		[dateFormatterRFC822 setDateFormat:@"d MMM yyyy HH:mm"]; 
+		date = [dateFormatterRFC822 dateFromString:RFC822String];
 	}
 	if (!date) { // Failed so Debug log
 		MWLog(@"MWFeedParser: Could not parse RFC822 date: \"%@\" Possibly invalid format.", dateString);
@@ -574,14 +592,29 @@
 
 - (NSDate *)dateFromRFC3339String:(NSString *)dateString {
 	NSDate *date = nil;
-	dateString = [dateString stringByReplacingOccurrencesOfString:@"Z" withString:@"-0000"];
-	if (!date) { // 1996-12-19T16:39:57-08:00
-		[dateFormatterRFC3339 setDateFormat:@"yyyy'-'MM'-'dd'T'HH':'mm':'ssZZZ"]; 
-		date = [dateFormatterRFC3339 dateFromString:dateString];
+	NSString *RFC3339String = [[NSString stringWithString:dateString] uppercaseString];
+	RFC3339String = [RFC3339String stringByReplacingOccurrencesOfString:@"Z" withString:@"-0000"];
+	
+	// Remove colon in timezone as iOS 4+ NSDateFormatter breaks
+	// See https://devforums.apple.com/thread/45837
+	if (RFC3339String.length > 20) {
+		RFC3339String = [RFC3339String stringByReplacingOccurrencesOfString:@":" 
+																 withString:@"" 
+																	options:0
+																	  range:NSMakeRange(20, RFC3339String.length-20)];
 	}
-	if (!date) { // 1937-01-01T12:00:27.87+00:20
+	
+	if (!date) { // 1996-12-19T16:39:57-0800
+		[dateFormatterRFC3339 setDateFormat:@"yyyy'-'MM'-'dd'T'HH':'mm':'ssZZZ"]; 
+		date = [dateFormatterRFC3339 dateFromString:RFC3339String];
+	}
+	if (!date) { // 1937-01-01T12:00:27.87+0020
 		[dateFormatterRFC3339 setDateFormat:@"yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSSZZZ"]; 
-		date = [dateFormatterRFC3339 dateFromString:dateString];
+		date = [dateFormatterRFC3339 dateFromString:RFC3339String];
+	}
+	if (!date) { // 1937-01-01T12:00:27
+		[dateFormatterRFC3339 setDateFormat:@"yyyy'-'MM'-'dd'T'HH':'mm':'ss"]; 
+		date = [dateFormatterRFC3339 dateFromString:RFC3339String];
 	}
 	if (!date) { // Failed so Debug log
 		MWLog(@"MWFeedParser: Could not parse RFC3339 date: \"%@\" Possibly invalid format.", dateString);
