@@ -29,7 +29,7 @@
 	items = [[NSMutableArray alloc] init];
 
 	// Create parser
-	feedParser = [[MWFeedParser alloc] initWithFeedURL:@"http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/front_page/rss.xml"];
+	feedParser = [[MWFeedParser alloc] initWithFeedURL:@"http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/front_page/rss.xml"];	
 	feedParser.delegate = self;
 	feedParser.feedParseType = ParseTypeFull; // Parse feed info and all items
 	feedParser.connectionType = ConnectionTypeAsynchronously;

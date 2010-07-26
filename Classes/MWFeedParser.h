@@ -30,7 +30,7 @@
 // Types
 typedef enum { ConnectionTypeAsynchronously, ConnectionTypeSynchronously } ConnectionType;
 typedef enum { ParseTypeFull, ParseTypeItemsOnly, ParseTypeInfoOnly } ParseType;
-typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeAtom } FeedType;
+typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedType;
 
 // Delegate
 @protocol MWFeedParserDelegate <NSObject>
