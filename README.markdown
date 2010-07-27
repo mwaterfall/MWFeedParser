@@ -1,9 +1,15 @@
 MWFeedParser
 ===============
 
-MWFeedParser is an RSS and Atom feed parser for the iPhone. It is a very simple implementation and only parses the bare essential information about a feed and it's items, such as titles, links, dates, and descriptions / content.
+MWFeedParser is an RSS and Atom web feed parser for iOS. It is a very simple implementation and only parses the bare essential information about a feed and it's items, such as titles, links, dates, and descriptions / content.
 
-If you do end up using MWFeedParser on your iPhone app, please do let me know, I'd love to check it out :)
+If you use MWFeedParser on your iPhone/iPad app then please do let me know, I'd love to check it out :)
+
+
+Demo / Example App
+===============
+
+There is an example iPhone application within the project which demonstrates how to use the parser to display the title of a feed, list all of the feed items, and display an item in more detail when tapped.
 
 
 Setting up the parser
@@ -105,11 +111,10 @@ Adding to your project
 Outstanding tasks
 ===============
 
-* Further parsing optimisation
-* Parsing of more feed data and elements if required
 * Create optimised single-pass NSString method that encapsulates `stringByStrippingTags`, `stringByRemovingNewLinesAndWhitespace` and `stringByDecodingXMLEntities` as they sit together perfectly in that order and are commonly used together.
-* Make thread-safe
-* Open to suggestions...!
+* Parsing of more feed data and elements if required.
+* Provide functionality to list available feeds when given the URL to a webpage with one or more web feeds associated with it.
+* Open to suggestions!
 
 
 License
