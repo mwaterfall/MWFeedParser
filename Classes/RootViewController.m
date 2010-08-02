@@ -29,7 +29,7 @@
 	items = [[NSMutableArray alloc] init];
 
 	// Create parser
-	feedParser = [[MWFeedParser alloc] initWithFeedURL:@"http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/front_page/rss.xml"];	
+	feedParser = [[MWFeedParser alloc] initWithFeedURL:@"http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/front_page/rss.xml"];
 	feedParser.delegate = self;
 	feedParser.feedParseType = ParseTypeFull; // Parse feed info and all items
 	feedParser.connectionType = ConnectionTypeAsynchronously;
@@ -45,12 +45,12 @@
 }
 
 - (void)feedParser:(MWFeedParser *)parser didParseFeedInfo:(MWFeedInfo *)info {
-	NSLog(@"Parsed Feed Info: %@", info.title);
+	NSLog(@"Parsed Feed Info: “%@”", info.title);
 	self.title = info.title;
 }
 
 - (void)feedParser:(MWFeedParser *)parser didParseFeedItem:(MWFeedItem *)item {
-	NSLog(@"Parsed Feed Item: %@", item.title);
+	NSLog(@"Parsed Feed Item: “%@”", item.title);
 	if (item) [items addObject:item];
 }
 

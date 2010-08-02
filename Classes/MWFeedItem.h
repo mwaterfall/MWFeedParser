@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MWFeedItem : NSObject {
+@interface MWFeedItem : NSObject <NSCoding> {
 	
 	NSString *title;
 	NSString *link;
