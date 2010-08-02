@@ -166,7 +166,7 @@
 		// Parse!
 		feedParser = [[NSXMLParser alloc] initWithData:data];
 		feedParser.delegate = self;
-		[feedParser setShouldProcessNamespaces:YES];
+		//[feedParser setShouldProcessNamespaces:YES];
 		[feedParser parse];
 		
 	}
@@ -284,7 +284,7 @@
 	// Determine feed type
 	if (feedType == FeedTypeUnknown) {
 		if ([elementName isEqualToString:@"rss"]) feedType = FeedTypeRSS; 
-		else if ([elementName isEqualToString:@"RDF"]) feedType = FeedTypeRSS1;
+		else if ([elementName isEqualToString:@"rdf:RDF"]) feedType = FeedTypeRSS1;
 		else if ([elementName isEqualToString:@"feed"]) feedType = FeedTypeAtom;
 		return;
 	}
@@ -292,7 +292,7 @@
 	// Entering new feed element
 	if (feedParseType != ParseTypeItemsOnly) {
 		if ((feedType == FeedTypeRSS  && [currentPath isEqualToString:@"/rss/channel"]) ||
-			(feedType == FeedTypeRSS1 && [currentPath isEqualToString:@"/RDF/channel"]) ||
+			(feedType == FeedTypeRSS1 && [currentPath isEqualToString:@"/rdf:RDF/channel"]) ||
 			(feedType == FeedTypeAtom && [currentPath isEqualToString:@"/feed"])) {
 			return;
 		}
@@ -300,7 +300,7 @@
 			
 	// Entering new item element
 	if ((feedType == FeedTypeRSS  && [currentPath isEqualToString:@"/rss/channel/item"]) ||
-		(feedType == FeedTypeRSS1 && [currentPath isEqualToString:@"/RDF/item"]) ||
+		(feedType == FeedTypeRSS1 && [currentPath isEqualToString:@"/rdf:RDF/item"]) ||
 		(feedType == FeedTypeAtom && [currentPath isEqualToString:@"/feed/entry"])) {
 
 		// Send off feed info to delegate
@@ -374,18 +374,18 @@
 				
 				// Item
 				if (!processed) {
-					if ([currentPath isEqualToString:@"/RDF/item/title"]) { if (currentText.length > 0) item.title = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/RDF/item/link"]) { if (currentText.length > 0) item.link = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/RDF/item/description"]) { if (currentText.length > 0) item.summary = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/RDF/item/content:encoded"]) { if (currentText.length > 0) item.content = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/RDF/item/date"]) { if (currentText.length > 0) item.date = [self dateFromRFC3339String:currentText]; processed = YES; }
+					if ([currentPath isEqualToString:@"/rdf:RDF/item/title"]) { if (currentText.length > 0) item.title = currentText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rdf:RDF/item/link"]) { if (currentText.length > 0) item.link = currentText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rdf:RDF/item/description"]) { if (currentText.length > 0) item.summary = currentText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rdf:RDF/item/content:encoded"]) { if (currentText.length > 0) item.content = currentText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:date"]) { if (currentText.length > 0) item.date = [self dateFromRFC3339String:currentText]; processed = YES; }
 				}
 				
 				// Info
 				if (!processed && feedParseType != ParseTypeItemsOnly) {
-					if ([currentPath isEqualToString:@"/RDF/channel/title"]) { if (currentText.length > 0) info.title = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/RDF/channel/description"]) { if (currentText.length > 0) info.summary = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/RDF/channel/link"]) { if (currentText.length > 0) info.link = currentText; processed = YES; }
+					if ([currentPath isEqualToString:@"/rdf:RDF/channel/title"]) { if (currentText.length > 0) info.title = currentText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rdf:RDF/channel/description"]) { if (currentText.length > 0) info.summary = currentText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rdf:RDF/channel/link"]) { if (currentText.length > 0) info.link = currentText; processed = YES; }
 				}
 				
 				break;
@@ -430,7 +430,7 @@
 	// Check if the document has finished parsing and send off info if needed (i.e. there were no items)
 	if (!processed) {
 		if ((feedType == FeedTypeRSS && [elementName isEqualToString:@"rss"]) ||
-			(feedType == FeedTypeRSS1 && [elementName isEqualToString:@"RDF"]) ||
+			(feedType == FeedTypeRSS1 && [elementName isEqualToString:@"rdf:RDF"]) ||
 			(feedType == FeedTypeAtom && [elementName isEqualToString:@"feed"])) {
 			
 			// Document ending so if we havent sent off feed info yet, do so
