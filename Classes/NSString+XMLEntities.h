@@ -8,13 +8,15 @@
 
 #import <Foundation/Foundation.h>
 
+// Import new HTML category
+#import "NSString+HTML.h"
+
+// DEPRECIATED 03/08/2010
+// Replaced with NSString+HTML
 @interface NSString (XMLEntities)
 
-// Instance Methods
-- (NSString *)stringByStrippingTags;
+// Old Instance Methods
 - (NSString *)stringByDecodingXMLEntities;
 - (NSString *)stringByEncodingXMLEntities;
-- (NSString *)stringWithNewLinesAsBRs;
-- (NSString *)stringByRemovingNewLinesAndWhitespace;
 
 @end

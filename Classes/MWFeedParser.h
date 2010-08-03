@@ -66,6 +66,10 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 	BOOL stopped; // Whether the parse was stopped
 	BOOL parsingComplete; // Whether NSXMLParser parsing has completed
 	
+	// Parsing of XML structure as content
+	NSString *pathOfElementWithXHTMLType; // Hold the path of the element who's type="xhtml" so we can stop parsing when it's ended
+	BOOL parseStructureAsContent; // For atom feeds when element type="xhtml"
+	
 	// Parsing Data
 	NSString *currentPath;
 	NSMutableString *currentText;

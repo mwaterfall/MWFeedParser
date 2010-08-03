@@ -7,7 +7,7 @@
 //
 
 #import "DetailTableViewController.h"
-#import "NSString+XMLEntities.h"
+#import "NSString+HTML.h"
 
 typedef enum { SectionHeader, SectionDetail } Sections;
 typedef enum { SectionHeaderTitle, SectionHeaderDate, SectionHeaderURL } HeaderRows;
@@ -46,7 +46,9 @@ typedef enum { SectionDetailSummary } DetailRows;
 	
 	// Summary
 	if (item.summary) {
-		self.summaryString = [[[item.summary stringByStrippingTags] stringByRemovingNewLinesAndWhitespace] stringByDecodingXMLEntities];
+		self.summaryString = [[[item.summary stringByStrippingTags] stringByRemovingNewLinesAndWhitespace] stringByDecodingHTMLEntities];
+	} else {
+		self.summaryString = @"[No Summary]";
 	}
 	
 }
@@ -83,6 +85,11 @@ typedef enum { SectionDetailSummary } DetailRows;
 	cell.textLabel.textColor = [UIColor blackColor];
 	cell.textLabel.font = [UIFont systemFontOfSize:15];
 	if (item) {
+		
+		// Item Info
+		NSString *itemTitle = item.title ? [[[item.title stringByStrippingTags] stringByRemovingNewLinesAndWhitespace] stringByDecodingHTMLEntities] : @"[No Title]";
+		
+		// Display
 		switch (indexPath.section) {
 			case SectionHeader: {
 				
@@ -90,7 +97,7 @@ typedef enum { SectionDetailSummary } DetailRows;
 				switch (indexPath.row) {
 					case SectionHeaderTitle:
 						cell.textLabel.font = [UIFont boldSystemFontOfSize:15];
-						cell.textLabel.text = item.title ? item.title : @"[No Title]";
+						cell.textLabel.text = itemTitle;
 						break;
 					case SectionHeaderDate:
 						cell.textLabel.text = dateString ? dateString : @"[No Date]";
@@ -107,7 +114,7 @@ typedef enum { SectionDetailSummary } DetailRows;
 			case SectionDetail: {
 
 				// Summary
-				cell.textLabel.text = summaryString ? summaryString : @"[No Summary]";
+				cell.textLabel.text = summaryString;
 				cell.textLabel.numberOfLines = 0; // Multiline
 				break;
 				

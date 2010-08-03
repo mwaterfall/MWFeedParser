@@ -8,7 +8,7 @@
 
 #import "MWFeedParser.h"
 #import "MWFeedParser_Private.h"
-#import "NSString+XMLEntities.h"
+#import "NSString+HTML.h"
 
 // NSXMLParser Logging
 #if 0 // Set to 1 to enable XML parsing logs
@@ -17,6 +17,9 @@
 #define MWXMLLog(x, ...)
 #endif
 
+// Empty XHTML elements ( <!ELEMENT br EMPTY> in http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd )
+#define ELEMENT_IS_EMPTY(e) ([e isEqualToString:@"br"] || [e isEqualToString:@"img"] || [e isEqualToString:@"input"] || [e isEqualToString:@"hr"] || [e isEqualToString:@"link"] || [e isEqualToString:@"base"] || [e isEqualToString:@"basefont"] || [e isEqualToString:@"frame"] || [e isEqualToString:@"meta"] || [e isEqualToString:@"area"] || [e isEqualToString:@"col"] || [e isEqualToString:@"param"])
+
 // Implementation
 @implementation MWFeedParser
 
@@ -24,6 +27,7 @@
 @synthesize delegate, url;
 @synthesize urlConnection, asyncData, connectionType;
 @synthesize feedParseType, feedParser, currentPath, currentText, currentElementAttributes, item, info;
+@synthesize pathOfElementWithXHTMLType;
 
 #pragma mark -
 #pragma mark NSObject
@@ -65,6 +69,7 @@
 	[currentElementAttributes release];
 	[item release];
 	[info release];
+	[pathOfElementWithXHTMLType release];
 	[super dealloc];
 }
 
@@ -86,6 +91,8 @@
 	stopped = NO;
 	parsingComplete = NO;
 	self.currentElementAttributes = nil;
+	parseStructureAsContent = NO;
+	self.pathOfElementWithXHTMLType = nil;
 }
 
 // Begin downloading & parsing of feed
@@ -166,7 +173,7 @@
 		// Parse!
 		feedParser = [[NSXMLParser alloc] initWithData:data];
 		feedParser.delegate = self;
-		//[feedParser setShouldProcessNamespaces:YES];
+		[feedParser setShouldProcessNamespaces:YES];
 		[feedParser parse];
 		
 	}
@@ -274,18 +281,44 @@
 #pragma mark XML Parsing
 
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qualifiedName attributes:(NSDictionary *)attributeDict {
-	MWXMLLog(@"NSXMLParser: didStartElement: %@", elementName);
+	MWXMLLog(@"NSXMLParser: didStartElement: %@", qualifiedName);
 	
 	// Adjust path
-	self.currentPath = [currentPath stringByAppendingPathComponent:elementName];
+	self.currentPath = [currentPath stringByAppendingPathComponent:qualifiedName];
 	self.currentElementAttributes = attributeDict;
+	
+	// Parse content as structure (Atom feeds with element type="xhtml")
+	// - Use elementName not qualifiedName to ignore XML namespaces for XHTML entities
+	if (parseStructureAsContent) {
+		
+		// Open XHTML tag
+		[currentText appendFormat:@"<%@", elementName];
+		
+		// Add attributes
+		for (NSString *key in attributeDict) {
+			[currentText appendFormat:@" %@=\"%@\"", key, [[attributeDict objectForKey:key] stringByEncodingHTMLEntities]];
+		}
+		
+		// End tag or close
+		if (ELEMENT_IS_EMPTY(elementName)) {
+			[currentText appendFormat:@" />", elementName];
+		} else {
+			[currentText appendFormat:@">", elementName];
+		}
+		
+		// Dont continue
+		return;
+		
+	}
+	
+	// Reset
 	[self.currentText setString:@""];
 	
 	// Determine feed type
 	if (feedType == FeedTypeUnknown) {
-		if ([elementName isEqualToString:@"rss"]) feedType = FeedTypeRSS; 
-		else if ([elementName isEqualToString:@"rdf:RDF"]) feedType = FeedTypeRSS1;
-		else if ([elementName isEqualToString:@"feed"]) feedType = FeedTypeAtom;
+		if ([qualifiedName isEqualToString:@"rss"]) feedType = FeedTypeRSS; 
+		else if ([qualifiedName isEqualToString:@"rdf:RDF"]) feedType = FeedTypeRSS1;
+		else if ([qualifiedName isEqualToString:@"feed"]) feedType = FeedTypeAtom;
 		return;
 	}
 	
@@ -339,10 +372,56 @@
 		return;
 	}
 	
+	// Check if entering into an Atom content tag with type "xhtml"
+	// If type is "xhtml" then it can contain child elements and structure needs
+	// to be parsed as content
+	// See: http://www.atomenabled.org/developers/syndication/atom-format-spec.php#rfc.section.3.1.1
+	if (feedType == FeedTypeAtom) {
+		
+		// Check type attribute
+		NSString *typeAttribute = [attributeDict objectForKey:@"type"];
+		if (typeAttribute && [typeAttribute isEqualToString:@"xhtml"]) {
+			
+			// Start parsing structure as content
+			parseStructureAsContent = YES;
+			
+			// Remember path so we can stop parsing structure when element ends
+			self.pathOfElementWithXHTMLType = currentPath;
+			
+		}
+		
+	}
+	
 }
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
-	MWXMLLog(@"NSXMLParser: didEndElement: %@", elementName);
+	MWXMLLog(@"NSXMLParser: didEndElement: %@", qName);
+	
+	// Parse content as structure (Atom feeds with element type="xhtml")
+	// - Use elementName not qualifiedName to ignore XML namespaces for XHTML entities
+	if (parseStructureAsContent) {
+		
+		// Check for finishing parsing structure as content
+		if (currentPath.length > pathOfElementWithXHTMLType.length) {
+
+			// Close XHTML tag unless it is an empty element
+			if (!ELEMENT_IS_EMPTY(elementName)) [currentText appendFormat:@"</%@>", elementName];
+			
+			// Adjust path & don't continue
+			self.currentPath = [currentPath stringByDeletingLastPathComponent];
+			
+			// Return
+			return;
+			
+		}
+
+		// Finish
+		parseStructureAsContent = NO;
+		self.pathOfElementWithXHTMLType = nil;
+		
+		// Continue...
+		
+	}
 	
 	// Store data
 	BOOL processed = NO;
@@ -418,8 +497,8 @@
 	
 	// If end of an item then tell delegate
 	if (!processed) {
-		if (((feedType == FeedTypeRSS || feedType == FeedTypeRSS1) && [elementName isEqualToString:@"item"]) ||
-			(feedType == FeedTypeAtom && [elementName isEqualToString:@"entry"])) {
+		if (((feedType == FeedTypeRSS || feedType == FeedTypeRSS1) && [qName isEqualToString:@"item"]) ||
+			(feedType == FeedTypeAtom && [qName isEqualToString:@"entry"])) {
 			
 			// Dispatch item to delegate
 			[self dispatchFeedItemToDelegate];
@@ -429,9 +508,9 @@
 	
 	// Check if the document has finished parsing and send off info if needed (i.e. there were no items)
 	if (!processed) {
-		if ((feedType == FeedTypeRSS && [elementName isEqualToString:@"rss"]) ||
-			(feedType == FeedTypeRSS1 && [elementName isEqualToString:@"rdf:RDF"]) ||
-			(feedType == FeedTypeAtom && [elementName isEqualToString:@"feed"])) {
+		if ((feedType == FeedTypeRSS && [qName isEqualToString:@"rss"]) ||
+			(feedType == FeedTypeRSS1 && [qName isEqualToString:@"rdf:RDF"]) ||
+			(feedType == FeedTypeAtom && [qName isEqualToString:@"feed"])) {
 			
 			// Document ending so if we havent sent off feed info yet, do so
 			if (info) [self dispatchFeedInfoToDelegate];
@@ -455,6 +534,8 @@
 		// Try decoding with NSUTF8StringEncoding & NSISOLatin1StringEncoding
 		string = [[NSString alloc] initWithData:CDATABlock encoding:NSUTF8StringEncoding];
 		if (!string) string = [[NSString alloc] initWithData:CDATABlock encoding:NSISOLatin1StringEncoding];
+		
+		// Add - No need to encode as CDATA should not be encoded as it's ignored by the parser
 		if (string) [currentText appendString:string];
 		
 	} @catch (NSException * e) { 
@@ -468,7 +549,17 @@
 	MWXMLLog(@"NSXMLParser: foundCharacters: %@", string);
 	
 	// Remember characters
-	[currentText appendString:string];
+	if (!parseStructureAsContent) {
+		
+		// Add characters normally
+		[currentText appendString:string];
+		
+	} else {
+		
+		// If parsing structure as content then we should encode characters
+		[currentText appendString:[string stringByEncodingHTMLEntities]];
+		
+	}
 	
 }
 

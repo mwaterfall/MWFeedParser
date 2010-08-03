@@ -75,17 +75,17 @@ For a usage example, please see `RootViewController.m` in the demo project.
 Using the data
 ===============
 
-The data returned, specifically in the `summary` and `content` properties, may contain HTML elements and encoded characters. An NSString category called XMLEntities has been provided which will allow you to manipulate this data. The methods available for your convenience are:
+The data returned, specifically in the `summary` and `content` properties, may contain HTML elements and encoded characters. An NSString category (NSString+HTML) has been provided which will allow you to manipulate this data. The methods available for your convenience are:
 
 	- (NSString *)stringByStrippingTags;
-	- (NSString *)stringByDecodingXMLEntities;
-	- (NSString *)stringByEncodingXMLEntities;
 	- (NSString *)stringWithNewLinesAsBRs;
 	- (NSString *)stringByRemovingNewLinesAndWhitespace;
+	- (NSString *)stringByDecodingHTMLEntities;
+	- (NSString *)stringByEncodingHTMLEntities;
 
 An example of this would be:
 
-	NSString *summary = [[[item.summary stringByStrippingTags] stringByRemovingNewLinesAndWhitespace] stringByDecodingXMLEntities];
+	NSString *summary = [[[item.summary stringByStrippingTags] stringByRemovingNewLinesAndWhitespace] stringByDecodingHTMLEntities];
 
 
 Debugging problems
@@ -111,7 +111,7 @@ Adding to your project
 Outstanding tasks
 ===============
 
-* Create optimised single-pass NSString method that encapsulates `stringByStrippingTags`, `stringByRemovingNewLinesAndWhitespace` and `stringByDecodingXMLEntities` as they sit together perfectly in that order and are commonly used together.
+* Create optimised single-pass NSString method that encapsulates `stringByStrippingTags`, `stringByRemovingNewLinesAndWhitespace` and `stringByDecodingHTMLEntities` as they sit together perfectly in that order and are commonly used together.
 * Parsing of more feed data and elements if required.
 * Provide functionality to list available feeds when given the URL to a webpage with one or more web feeds associated with it.
 * Open to suggestions!

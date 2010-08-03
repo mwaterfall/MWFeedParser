@@ -7,7 +7,7 @@
 //
 
 #import "RootViewController.h"
-#import "NSString+XMLEntities.h"
+#import "NSString+HTML.h"
 #import "MWFeedParser.h"
 #import "DetailTableViewController.h"
 
@@ -95,8 +95,8 @@
 	if (item) {
 		
 		// Process
-		NSString *itemTitle = item.title ? [[[item.title stringByStrippingTags] stringByRemovingNewLinesAndWhitespace] stringByDecodingXMLEntities] : @"";
-		NSString *itemSummary = item.summary ? [[[item.summary stringByStrippingTags] stringByRemovingNewLinesAndWhitespace] stringByDecodingXMLEntities] : @"";
+		NSString *itemTitle = item.title ? [[[item.title stringByStrippingTags] stringByRemovingNewLinesAndWhitespace] stringByDecodingHTMLEntities] : @"[No Title]";
+		NSString *itemSummary = item.summary ? [[[item.summary stringByStrippingTags] stringByRemovingNewLinesAndWhitespace] stringByDecodingHTMLEntities] : @"[No Summary]";
 		
 		// Set
 		cell.textLabel.font = [UIFont boldSystemFontOfSize:15];
