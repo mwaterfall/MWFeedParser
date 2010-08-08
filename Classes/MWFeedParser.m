@@ -35,9 +35,12 @@
 - (id)initWithFeedURL:(NSString *)feedURL {
 	if (self = [super init]) {
 		
-		// URL
-		self.url = [feedURL stringByReplacingOccurrencesOfString:@"feed://" withString:@"http://"];
-		
+		// URI Scheme
+		// http://en.wikipedia.org/wiki/Feed:_URI_scheme
+		self.url = feedURL;
+		if ([url hasPrefix:@"feed://"]) self.url = [NSString stringWithFormat:@"http://%@", [url substringFromIndex:7]];
+		if ([url hasPrefix:@"feed:"]) self.url = [url substringFromIndex:5];
+
 		// Defaults
 		feedParseType = ParseTypeFull;
 		connectionType = ConnectionTypeSynchronously;
@@ -169,7 +172,7 @@
 		MWFeedInfo *i = [[MWFeedInfo alloc] init];
 		self.info = i;
 		[i release];
-
+		
 		// Parse!
 		feedParser = [[NSXMLParser alloc] initWithData:data];
 		feedParser.delegate = self;
@@ -426,8 +429,6 @@
 	// Store data
 	BOOL processed = NO;
 	if (currentText) {
-		
-		// Use
 		switch (feedType) {
 			case FeedTypeRSS: {
 				
@@ -438,6 +439,7 @@
 					else if ([currentPath isEqualToString:@"/rss/channel/item/description"]) { if (currentText.length > 0) item.summary = currentText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rss/channel/item/content:encoded"]) { if (currentText.length > 0) item.content = currentText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rss/channel/item/pubDate"]) { if (currentText.length > 0) item.date = [self dateFromRFC822String:currentText]; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rss/channel/item/enclosure"]) { [self createEnclosureFromAttributes:currentElementAttributes andAddToItem:item]; processed = YES; }
 				}
 				
 				// Info
@@ -458,6 +460,7 @@
 					else if ([currentPath isEqualToString:@"/rdf:RDF/item/description"]) { if (currentText.length > 0) item.summary = currentText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rdf:RDF/item/content:encoded"]) { if (currentText.length > 0) item.content = currentText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:date"]) { if (currentText.length > 0) item.date = [self dateFromRFC3339String:currentText]; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rdf:RDF/item/enc:enclosure"]) { [self createEnclosureFromAttributes:currentElementAttributes andAddToItem:item]; processed = YES; }
 				}
 				
 				// Info
@@ -474,17 +477,18 @@
 				// Item
 				if (!processed) {
 					if ([currentPath isEqualToString:@"/feed/entry/title"]) { if (currentText.length > 0) item.title = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/feed/entry/link"]) { NSString *link = [self linkFromAtomLinkAttributes:currentElementAttributes]; if (link) item.link = link; processed = YES; }
+					else if ([currentPath isEqualToString:@"/feed/entry/link"]) { [self processAtomLink:currentElementAttributes andAddToMWObject:item]; processed = YES; }
 					else if ([currentPath isEqualToString:@"/feed/entry/summary"]) { if (currentText.length > 0) item.summary = currentText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/feed/entry/content"]) { if (currentText.length > 0) item.content = currentText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/feed/entry/published"]) { if (currentText.length > 0) item.date = [self dateFromRFC3339String:currentText]; processed = YES; }
+					else if ([currentPath isEqualToString:@"/feed/entry/updated"]) { if (currentText.length > 0) item.updated = [self dateFromRFC3339String:currentText]; processed = YES; }
 				}
 				
 				// Info
 				if (!processed && feedParseType != ParseTypeItemsOnly) {
 					if ([currentPath isEqualToString:@"/feed/title"]) { if (currentText.length > 0) info.title = currentText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/feed/description"]) { if (currentText.length > 0) info.summary = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/feed/link"]) { NSString *link = [self linkFromAtomLinkAttributes:currentElementAttributes]; if (link) info.link = link; processed = YES; }
+					else if ([currentPath isEqualToString:@"/feed/link"]) { [self processAtomLink:currentElementAttributes andAddToMWObject:info]; processed = YES;}
 				}
 				
 				break;
@@ -661,12 +665,84 @@
 #pragma mark -
 #pragma mark Misc
 
-// Determine whether to use the link from atom feed (where rel is not set to "self" etc...)
-- (NSString *)linkFromAtomLinkAttributes:(NSDictionary *)attributes {
-	if (attributes && [attributes objectForKey:@"rel"] && [[attributes objectForKey:@"rel"] isEqualToString:@"alternate"]) {
-		return [attributes objectForKey:@"href"];
+// Create an enclosure NSDictionary from enclosure (or link) attributes
+- (BOOL)createEnclosureFromAttributes:(NSDictionary *)attributes andAddToItem:(MWFeedItem *)currentItem {
+	
+	// Create enclosure
+	NSDictionary *enclosure = nil;
+	NSString *encURL, *encType;
+	NSNumber *encLength;
+	if (attributes) {
+		switch (feedType) {
+			case FeedTypeRSS: { // http://cyber.law.harvard.edu/rss/rss.html#ltenclosuregtSubelementOfLtitemgt
+				// <enclosure>
+				encURL = [attributes objectForKey:@"url"];
+				encType = [attributes objectForKey:@"type"];
+				encLength = [NSNumber numberWithLongLong:[((NSString *)[attributes objectForKey:@"length"]) longLongValue]];
+				break;
+			}
+			case FeedTypeRSS1: { // http://www.xs4all.nl/~foz/mod_enclosure.html
+				// <enc:enclosure>
+				encURL = [attributes objectForKey:@"rdf:resource"];
+				encType = [attributes objectForKey:@"enc:type"];
+				encLength = [NSNumber numberWithLongLong:[((NSString *)[attributes objectForKey:@"enc:length"]) longLongValue]];
+				break;
+			}
+			case FeedTypeAtom: { // http://www.atomenabled.org/developers/syndication/atom-format-spec.php#rel_attribute
+				// <link rel="enclosure" href=...
+				if ([[attributes objectForKey:@"rel"] isEqualToString:@"enclosure"]) {
+					encURL = [attributes objectForKey:@"href"];
+					encType = [attributes objectForKey:@"type"];
+					encLength = [NSNumber numberWithLongLong:[((NSString *)[attributes objectForKey:@"length"]) longLongValue]];
+				}
+				break;
+			}
+		}
 	}
-	return nil;
+	if (encURL) {
+		NSMutableDictionary *e = [[NSMutableDictionary alloc] initWithCapacity:3];
+		[e setObject:encURL forKey:@"url"];
+		if (encType) [e setObject:encType forKey:@"type"];
+		if (encLength) [e setObject:encLength forKey:@"length"];
+		enclosure = [NSDictionary dictionaryWithDictionary:e];
+		[e release];
+	}
+					 
+	// Add to item		 
+	if (enclosure) {
+		if (currentItem.enclosures) {
+			currentItem.enclosures = [currentItem.enclosures arrayByAddingObject:enclosure];
+		} else {
+			currentItem.enclosures = [NSArray arrayWithObject:enclosure];
+		}
+		return YES;
+	} else {
+		return NO;
+	}
+	
+}
+
+// Process ATOM link and determine whether to ignore it, add it as the link element or add as enclosure
+// Links can be added to MWObject (info or item)
+- (BOOL)processAtomLink:(NSDictionary *)attributes andAddToMWObject:(id)MWObject {
+	if (attributes && [attributes objectForKey:@"rel"]) {
+		
+		// Use as link if rel == alternate
+		if ([[attributes objectForKey:@"rel"] isEqualToString:@"alternate"]) {
+			[MWObject setLink:[attributes objectForKey:@"href"]]; // Can be added to MWFeedItem or MWFeedInfo
+			return YES;
+		}
+		
+		// Use as enclosure if rel == enclosure
+		if ([[attributes objectForKey:@"rel"] isEqualToString:@"enclosure"]) {
+			if ([MWObject isMemberOfClass:[MWFeedItem class]]) { // Enclosures can only be added to MWFeedItem
+				[self createEnclosureFromAttributes:attributes andAddToItem:(MWFeedItem *)MWObject];
+				return YES;
+			}
+		}
+		
+	}
+	return NO;
 }
 
 - (NSDate *)dateFromRFC822String:(NSString *)dateString {

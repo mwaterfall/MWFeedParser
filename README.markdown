@@ -1,19 +1,30 @@
-MWFeedParser
-===============
+# MWFeedParser
 
-MWFeedParser is an RSS and Atom web feed parser for iOS. It is a very simple implementation and only parses the bare essential information about a feed and it's items, such as titles, links, dates, and descriptions / content.
+MWFeedParser is an RSS and Atom web feed parser for iOS. It is a very simple and clean implementation and that parses the following information from a web feed:
+
+#### Feed Information
+- Title
+- Link
+- Summary
+
+#### Feed Items
+- Title
+- Link
+- Date (the date the item was published)
+- Updated date  (the date the item was updated, if available)
+- Summary (brief description of item)
+- Content (detailed item content, if available)
+- Enclosures (i.e. podcasts, mp3, pdf, etc)
 
 If you use MWFeedParser on your iPhone/iPad app then please do let me know, I'd love to check it out :)
 
 
-Demo / Example App
-===============
+## Demo / Example App
 
 There is an example iPhone application within the project which demonstrates how to use the parser to display the title of a feed, list all of the feed items, and display an item in more detail when tapped.
 
 
-Setting up the parser
-===============
+## Setting up the parser
 
 Create parser:
 
@@ -46,10 +57,9 @@ The parser will then download and parse the feed. If at any time you wish to sto
 	[feedParser stopParsing];
 	
 The `stopParsing` method will stop the downloading and parsing of the feed immediately.
-	
 
-Reading the feed data
-===============
+
+## Reading the feed data
 
 Once parsing has been initiated, the delegate will receive the feed data as it is parsed.
 
@@ -59,7 +69,7 @@ Once parsing has been initiated, the delegate will receive the feed data as it i
 	- (void)feedParserDidFinish:(MWFeedParser *)parser; // Parsing complete or stopped at any time by `stopParsing`
 	- (void)feedParser:(MWFeedParser *)parser didFailWithError:(NSError *)error; // Parsing failed
 
-`MWFeedInfo` and `MWFeedItem` contains properties (title, link, summary, etc.) that will hold the parsed data.
+`MWFeedInfo` and `MWFeedItem` contains properties (title, link, summary, etc.) that will hold the parsed data. View `MWFeedInfo.h` and `MWFeedItem.h` for more information.
 
 *Important* There are some occasions where feeds do not contain some information, such as titles, links or summaries. Before using any data, you should check to see if that data exists:
 
@@ -72,8 +82,27 @@ The method `feedParserDidFinish:` will only be called when the feed has successf
 For a usage example, please see `RootViewController.m` in the demo project.
 
 
-Using the data
-===============
+## Available data
+
+Here is a list of the available properties for feed info and item objects:
+
+#### MWFeedInfo
+- info.title (NSString)
+- info.link (NSString)
+- info.summary (NSString)
+
+#### MWFeedItem
+
+- item.title (NSString)
+- item.link (NSString)
+- item.date (NSDate)
+- item.updated (NSDate)
+- item.summary (NSString)
+- item.content (NSString)
+- item.enclosures (NSArray of NSDictionaries)
+
+
+## Using the data
 
 The data returned, specifically in the `summary` and `content` properties, may contain HTML elements and encoded characters. An NSString category (NSString+HTML) has been provided which will allow you to manipulate this data. The methods available for your convenience are:
 
@@ -88,37 +117,32 @@ An example of this would be:
 	NSString *summary = [[[item.summary stringByStrippingTags] stringByRemovingNewLinesAndWhitespace] stringByDecodingHTMLEntities];
 
 
-Debugging problems
-===============
+## Debugging problems
 
 If for some reason the parser doesn't seem to be working, try enabling Debug Logging in `MWFeedParser.h`. This will log error messages to the console and help you diagnose the problem. Error codes and their descriptions can be found at the top of `MWFeedParser.h`.
 
 
-Other information
-===============
+## Other information
 
 MWFeedParser is not currently thread-safe.
 
 
-Adding to your project
-===============
+## Adding to your project
 
 1. Open `MWFeedParser.xcodeproj`.
 2. Drag the `MWFeedParser` & `Categories` groups into your project, ensuring you check **Copy items into destination group's folder**.
 3. Import `MWFeedParser.h` into your source as required.
 
 
-Outstanding tasks
-===============
+## Outstanding tasks
 
-* Create optimised single-pass NSString method that encapsulates `stringByStrippingTags`, `stringByRemovingNewLinesAndWhitespace` and `stringByDecodingHTMLEntities` as they sit together perfectly in that order and are commonly used together.
-* Parsing of more feed data and elements if required.
-* Provide functionality to list available feeds when given the URL to a webpage with one or more web feeds associated with it.
-* Open to suggestions!
+- Create optimised single-pass NSString method that encapsulates `stringByStrippingTags`, `stringByRemovingNewLinesAndWhitespace` and `stringByDecodingHTMLEntities` as they sit together perfectly in that order and are commonly used together.
+- Parsing of more feed data and elements if required.
+- Provide functionality to list available feeds when given the URL to a webpage with one or more web feeds associated with it.
+- Open to suggestions!
 
 
-License
-===============
+## Licence
 
 Copyright (c) 2010 Michael Waterfall
 

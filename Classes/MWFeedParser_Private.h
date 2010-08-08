@@ -41,7 +41,8 @@
 - (void)failWithErrorCode:(int)code description:(NSString *)description;
 
 // Misc
-- (NSString *)linkFromAtomLinkAttributes:(NSDictionary *)attributes;
+- (BOOL)createEnclosureFromAttributes:(NSDictionary *)attributes andAddToItem:(MWFeedItem *)currentItem;
+- (BOOL)processAtomLink:(NSDictionary *)attributes andAddToMWObject:(id)MWObject;
 - (NSDate *)dateFromRFC822String:(NSString *)dateString;
 - (NSDate *)dateFromRFC3339String:(NSString *)dateString;
 
