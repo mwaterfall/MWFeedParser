@@ -10,9 +10,18 @@
 #import "MWFeedParser.h"
 
 @interface RootViewController : UITableViewController <MWFeedParserDelegate> {
+	
+	// Parsing
 	MWFeedParser *feedParser;
-	NSMutableArray *items;
+	NSMutableArray *parsedItems;
+	
+	// Displaying
+	NSArray *itemsToDisplay;
 	NSDateFormatter *formatter;
+	
 }
+
+// Properties
+@property (nonatomic, retain) NSArray *itemsToDisplay;
 
 @end

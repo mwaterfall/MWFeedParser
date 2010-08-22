@@ -99,18 +99,15 @@
 }
 
 // Begin downloading & parsing of feed
-- (void)parse {
+- (BOOL)parse {
 	
-	// Checks
-	if (!url || !delegate) {
-
-		// Error
-		[self failWithErrorCode:MWErrorCodeNotInitiated description:@"Delegate or URL not specified"];
-		return;
-		
-	}
+	// Perform checks before parsing
+	if (!url || !delegate) { [self failWithErrorCode:MWErrorCodeNotInitiated description:@"Delegate or URL not specified"]; return NO; }
+	if (parsingInProgress) { [self failWithErrorCode:MWErrorCodeGeneral description:@"Cannot start parsing as parsing is already in progress"]; return NO; }
 	
-	// Reset
+	// Start
+	BOOL success = YES;
+	parsingInProgress = YES;
 	[self reset];
 	
 	// Request
@@ -128,15 +125,10 @@
 		// Async
 		urlConnection = [[NSURLConnection alloc] initWithRequest:request delegate:self];
 		if (urlConnection) {
-			
-			// Create data
-			asyncData = [[NSMutableData alloc] init];
-			
+			asyncData = [[NSMutableData alloc] init];// Create data
 		} else {
-		
-			// Error
 			[self failWithErrorCode:MWErrorCodeConnectionFailed description:[NSString stringWithFormat:@"Asynchronous connection failed to URL: %@", url]];
-			
+			success = NO;
 		}
 		
 	} else {
@@ -146,40 +138,18 @@
 		NSError *error = nil;
 		NSData *data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
 		if (data && !error) {
-			
-			// Process
-			[self startParsingData:data];
-			
+			[self startParsingData:data]; // Process
 		} else {
-			
-			// Error
 			[self failWithErrorCode:MWErrorCodeConnectionFailed description:[NSString stringWithFormat:@"Synchronous connection failed to URL: %@", url]];
-			
+			success = NO;
 		}
 		
 	}
 	
-	// Cleanup
+	// Cleanup & return
 	[request release];
+	return success;
 	
-}
-
-// Begin XML parsing
-- (void)startParsingData:(NSData *)data {
-	if (data && !feedParser) {
-		
-		// Create feed info
-		MWFeedInfo *i = [[MWFeedInfo alloc] init];
-		self.info = i;
-		[i release];
-		
-		// Parse!
-		feedParser = [[NSXMLParser alloc] initWithData:data];
-		feedParser.delegate = self;
-		[feedParser setShouldProcessNamespaces:YES];
-		[feedParser parse];
-		
-	}
 }
 
 // Stop parsing
@@ -219,6 +189,30 @@
 	if ([delegate respondsToSelector:@selector(feedParserDidFinish:)])
 		[delegate feedParserDidFinish:self];
 		
+}
+
+// Finished
+- (void)parsingFinished {
+	parsingComplete = YES;
+	parsingInProgress = NO;
+}
+
+// Begin XML parsing
+- (void)startParsingData:(NSData *)data {
+	if (data && !feedParser) {
+		
+		// Create feed info
+		MWFeedInfo *i = [[MWFeedInfo alloc] init];
+		self.info = i;
+		[i release];
+		
+		// Parse!
+		feedParser = [[NSXMLParser alloc] initWithData:data];
+		feedParser.delegate = self;
+		[feedParser setShouldProcessNamespaces:YES];
+		[feedParser parse];
+		
+	}
 }
 
 #pragma mark -
@@ -517,7 +511,7 @@
 			(feedType == FeedTypeAtom && [qName isEqualToString:@"feed"])) {
 			
 			// Document ending so if we havent sent off feed info yet, do so
-			if (info) [self dispatchFeedInfoToDelegate];
+			if (info && feedParseType != ParseTypeItemsOnly) [self dispatchFeedInfoToDelegate];
 			
 		}	
 	}
@@ -586,7 +580,7 @@
 	MWLog(@"MWFeedParser: Parsing finished");
 	
 	// Inform delegate
-	parsingComplete = YES;
+	[self parsingFinished]; // Cleanup
 	if ([delegate respondsToSelector:@selector(feedParserDidFinish:)])
 		[delegate feedParserDidFinish:self];
 	
@@ -595,7 +589,9 @@
 // Call if parsing error occured or parse was aborted
 - (void)parser:(NSXMLParser *)parser parseErrorOccurred:(NSError *)parseError {
 	MWXMLLog(@"NSXMLParser: parseErrorOccurred: %@", parseError);
-	parsingComplete = YES;
+	
+	// Finished
+	[self parsingFinished]; // Cleanup
 	if (!aborted) {
 		
 		// Fail with error
@@ -606,7 +602,9 @@
 
 - (void)parser:(NSXMLParser *)parser validationErrorOccurred:(NSError *)validError {
 	MWXMLLog(@"NSXMLParser: validationErrorOccurred: %@", validError);
-	parsingComplete = YES;
+	
+	// Finished
+	[self parsingFinished]; // Cleanup
 	
 	// Fail with error
 	[self failWithErrorCode:MWErrorCodeFeedValidationError description:[validError localizedDescription]];
@@ -660,6 +658,10 @@
 
 - (BOOL)isStopped {
 	return stopped;
+}
+
+- (BOOL)isParsing {
+	return parsingInProgress;
 }
 
 #pragma mark -

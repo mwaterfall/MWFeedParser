@@ -13,6 +13,8 @@
 
 @implementation RootViewController
 
+@synthesize itemsToDisplay;
+
 #pragma mark -
 #pragma mark View lifecycle
 
@@ -26,7 +28,11 @@
 	formatter = [[NSDateFormatter alloc] init];
 	[formatter setDateStyle:NSDateFormatterShortStyle];
 	[formatter setTimeStyle:NSDateFormatterShortStyle];
-	items = [[NSMutableArray alloc] init];
+	parsedItems = [[NSMutableArray alloc] init];
+	self.itemsToDisplay = [NSArray array];
+	
+	// Refresh button
+	self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(refresh)] autorelease];
 
 	// Create parser
 	feedParser = [[MWFeedParser alloc] initWithFeedURL:@"http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/front_page/rss.xml"];
@@ -35,6 +41,20 @@
 	feedParser.connectionType = ConnectionTypeAsynchronously;
 	[feedParser parse];
 
+}
+
+#pragma mark -
+#pragma mark Parsing
+
+// Reset and reparse
+- (void)refresh {
+	if (![feedParser isParsing]) {
+		self.title = @"Refreshing...";
+		[parsedItems removeAllObjects];
+		[feedParser parse];
+		self.tableView.userInteractionEnabled = NO;
+		self.tableView.alpha = 0.3;
+	}
 }
 
 #pragma mark -
@@ -51,18 +71,24 @@
 
 - (void)feedParser:(MWFeedParser *)parser didParseFeedItem:(MWFeedItem *)item {
 	NSLog(@"Parsed Feed Item: “%@”", item.title);
-	if (item) [items addObject:item];
+	if (item) [parsedItems addObject:item];
 }
 
 - (void)feedParserDidFinish:(MWFeedParser *)parser {
 	NSLog(@"Finished Parsing");
+	self.itemsToDisplay = [NSArray arrayWithArray:parsedItems];
+	self.tableView.userInteractionEnabled = YES;
+	self.tableView.alpha = 1;
 	[self.tableView reloadData];
 }
 
 - (void)feedParser:(MWFeedParser *)parser didFailWithError:(NSError *)error {
 	NSLog(@"Finished Parsing With Error: %@", error);
-	[items removeAllObjects];
 	self.title = @"Failed";
+	self.itemsToDisplay = [NSArray array];
+	[parsedItems removeAllObjects];
+	self.tableView.userInteractionEnabled = YES;
+	self.tableView.alpha = 1;
 	[self.tableView reloadData];
 }
 
@@ -76,7 +102,7 @@
 
 // Customize the number of rows in the table view.
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return items.count;
+    return itemsToDisplay.count;
 }
 
 // Customize the appearance of table view cells.
@@ -91,12 +117,12 @@
     }
     
 	// Configure the cell.
-	MWFeedItem *item = [items objectAtIndex:indexPath.row];
+	MWFeedItem *item = [itemsToDisplay objectAtIndex:indexPath.row];
 	if (item) {
 		
 		// Process
-		NSString *itemTitle = item.title ? [[[item.title stringByStrippingTags] stringByRemovingNewLinesAndWhitespace] stringByDecodingHTMLEntities] : @"[No Title]";
-		NSString *itemSummary = item.summary ? [[[item.summary stringByStrippingTags] stringByRemovingNewLinesAndWhitespace] stringByDecodingHTMLEntities] : @"[No Summary]";
+		NSString *itemTitle = item.title ? [item.title stringByConvertingHTMLToPlainText] : @"[No Title]";
+		NSString *itemSummary = item.summary ? [item.summary stringByConvertingHTMLToPlainText] : @"[No Summary]";
 		
 		// Set
 		cell.textLabel.font = [UIFont boldSystemFontOfSize:15];
@@ -117,7 +143,7 @@
 
 	// Show detail
 	DetailTableViewController *detail = [[DetailTableViewController alloc] initWithStyle:UITableViewStyleGrouped];
-	detail.item = (MWFeedItem *)[items objectAtIndex:indexPath.row];
+	detail.item = (MWFeedItem *)[itemsToDisplay objectAtIndex:indexPath.row];
 	[self.navigationController pushViewController:detail animated:YES];
 	[detail release];
 	
@@ -131,7 +157,8 @@
 
 - (void)dealloc {
 	[formatter release];
-	[items release];
+	[parsedItems release];
+	[itemsToDisplay release];
 	[feedParser release];
     [super dealloc];
 }

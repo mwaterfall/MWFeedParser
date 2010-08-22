@@ -11,8 +11,9 @@
 // Import new HTML category
 #import "NSString+HTML.h"
 
-// DEPRECIATED 03/08/2010
-// Replaced with NSString+HTML
+// THIS CLASS IS DEPRECIATED 03/08/2010
+// REPLACED BY NSString+HTML
+
 @interface NSString (XMLEntities)
 
 // Old Instance Methods

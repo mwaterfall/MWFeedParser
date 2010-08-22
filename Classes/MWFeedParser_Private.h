@@ -30,8 +30,9 @@
 
 // Parsing Methods
 - (void)reset;
-- (void)startParsingData:(NSData *)data;
 - (void)abortParsing;
+- (void)parsingFinished;
+- (void)startParsingData:(NSData *)data;
 
 // Dispatching to Delegate
 - (void)dispatchFeedInfoToDelegate;

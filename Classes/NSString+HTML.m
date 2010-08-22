@@ -17,82 +17,102 @@
 #pragma mark -
 #pragma mark Instance Methods
 
+// Strip HTML tags
+- (NSString *)stringByConvertingHTMLToPlainText {
+	
+	// Character sets
+	NSCharacterSet *stopCharacters = [NSCharacterSet characterSetWithCharactersInString:[NSString stringWithFormat:@"< \t\n\r%C%C%C%C", 0x0085, 0x000C, 0x2028, 0x2029]];
+	NSCharacterSet *newLineAndWhitespaceCharacters = [NSCharacterSet characterSetWithCharactersInString:[NSString stringWithFormat:@" \t\n\r%C%C%C%C", 0x0085, 0x000C, 0x2028, 0x2029]];
+	NSCharacterSet *tagNameCharacters = [NSCharacterSet characterSetWithCharactersInString:@"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"]; /**/
+	
+	// Scan and find all tags
+	NSMutableString *result = [[NSMutableString alloc] initWithCapacity:self.length];
+	NSScanner *scanner = [[NSScanner alloc] initWithString:self];
+	[scanner setCharactersToBeSkipped:nil];
+	[scanner setCaseSensitive:YES];
+	NSString *str = nil, *tagName = nil;
+	BOOL dontReplaceTagWithSpace = NO;
+	do {
+		
+		// Scan up to the start of a tag or whitespace
+		if ([scanner scanUpToCharactersFromSet:stopCharacters intoString:&str]) {
+			[result appendString:str];
+			str = nil; // reset
+		}
+		
+		// Check if we've stopped at a tag/comment or whitespace
+		if ([scanner scanString:@"<" intoString:NULL]) {
+		
+			// Stopped at a comment or tag
+			if ([scanner scanString:@"!--" intoString:NULL]) {
+				
+				// Comment
+				[scanner scanUpToString:@"-->" intoString:NULL]; 
+				[scanner scanString:@"-->" intoString:NULL];
+				
+			} else {
+				
+				// Tag - remove and replace with space unless it's
+				// a closing inline tag then dont replace with a space
+				if ([scanner scanString:@"/" intoString:NULL]) {
+					
+					// Closing tag - replace with space unless it's inline
+					tagName = nil; dontReplaceTagWithSpace = NO;
+					if ([scanner scanCharactersFromSet:tagNameCharacters intoString:&tagName]) {
+						tagName = [tagName lowercaseString];
+						dontReplaceTagWithSpace = ([tagName isEqualToString:@"a"] ||
+												   [tagName isEqualToString:@"b"] ||
+												   [tagName isEqualToString:@"i"] ||
+												   [tagName isEqualToString:@"q"] ||
+												   [tagName isEqualToString:@"span"] ||
+												   [tagName isEqualToString:@"em"] ||
+												   [tagName isEqualToString:@"strong"] ||
+												   [tagName isEqualToString:@"cite"] ||
+												   [tagName isEqualToString:@"abbr"] ||
+												   [tagName isEqualToString:@"acronym"] ||
+												   [tagName isEqualToString:@"label"]);
+					}
+					
+					// Replace tag with string unless it was an inline
+					if (!dontReplaceTagWithSpace && result.length > 0 && ![scanner isAtEnd]) [result appendString:@" "];
+					
+				}
+				
+				// Scan past tag
+				[scanner scanUpToString:@">" intoString:NULL];
+				[scanner scanString:@">" intoString:NULL];
+
+			}
+			
+		} else {
+			
+			// Stopped at whitespace - replace all whitespace and newlines with a space
+			if ([scanner scanCharactersFromSet:newLineAndWhitespaceCharacters intoString:NULL]) {
+				if (result.length > 0 && ![scanner isAtEnd]) [result appendString:@" "]; // Dont append space to beginning or end of result
+			}
+			
+		}
+		
+	} while (![scanner isAtEnd]);
+
+	// Cleanup
+	[scanner release];
+	
+	// Decode HTML entities and return
+	NSString *retString = [result stringByDecodingHTMLEntities];
+	[result release];
+	return retString;
+	
+}
+
 // Decode all HTML entities using GTM
 - (NSString *)stringByDecodingHTMLEntities {
-	return [self gtm_stringByUnescapingFromHTML];
+	return [NSString stringWithString:[self gtm_stringByUnescapingFromHTML]]; // gtm_stringByUnescapingFromHTML can return self so create new string ;)
 }
 
 // Encode all HTML entities using GTM
 - (NSString *)stringByEncodingHTMLEntities {
-	return [self gtm_stringByEscapingForAsciiHTML];
-}
-
-// Strip HTML tags
-- (NSString *)stringByStrippingTags {
-	
-	// Find first & and short-cut if we can
-	NSUInteger ampIndex = [self rangeOfString:@"<" options:NSLiteralSearch].location;
-	if (ampIndex == NSNotFound) {
-		return [NSString stringWithString:self]; // return copy of string as no tags found
-	}
-	
-	// Scan and find all tags
-	NSScanner *scanner = [NSScanner scannerWithString:self];
-	[scanner setCharactersToBeSkipped:nil];
-	NSMutableSet *tags = [[NSMutableSet alloc] init];
-	NSString *tag;
-	do {
-		
-		// Scan up to <
-		tag = nil;
-		[scanner scanUpToString:@"<" intoString:NULL];
-		[scanner scanUpToString:@">" intoString:&tag];
-		
-		// Add to set
-		if (tag) {
-			NSString *t = [[NSString alloc] initWithFormat:@"%@>", tag];
-			[tags addObject:t];
-			[t release];
-		}
-		
-	} while (![scanner isAtEnd]);
-	
-	// Strings
-	NSMutableString *result = [[NSMutableString alloc] initWithString:self];
-	NSString *finalString;
-	
-	// Replace tags
-	NSString *replacement;
-	for (NSString *t in tags) {
-		
-		// Replace tag with space unless it's an inline element
-		replacement = @" ";
-		if ([t isEqualToString:@"<a>"] ||
-			[t isEqualToString:@"</a>"] ||
-			[t isEqualToString:@"<span>"] ||
-			[t isEqualToString:@"</span>"] ||
-			[t isEqualToString:@"<strong>"] ||
-			[t isEqualToString:@"</strong>"] ||
-			[t isEqualToString:@"<em>"] ||
-			[t isEqualToString:@"</em>"]) {
-			replacement = @"";
-		}
-		
-		// Replace
-		[result replaceOccurrencesOfString:t 
-								withString:replacement
-								   options:NSLiteralSearch 
-									 range:NSMakeRange(0, result.length)];
-	}
-	
-	// Remove multi-spaces and line breaks
-	finalString = [result stringByRemovingNewLinesAndWhitespace];
-	
-	// Cleanup & return
-	[result release];
-	[tags release];
-    return finalString;
-	
+	return [NSString stringWithString:[self gtm_stringByEscapingForAsciiHTML]]; // gtm_stringByUnescapingFromHTML can return self so create new string ;)
 }
 
 // Replace newlines with <br /> tags
@@ -186,6 +206,75 @@
 	NSString *retString = [NSString stringWithString:result];
 	[result release];
 	return retString;
+	
+}
+
+// Strip HTML tags
+// DEPRECIATED - Please use NSString stringByConvertingHTMLToPlainText
+- (NSString *)stringByStrippingTags {
+	
+	// Find first & and short-cut if we can
+	NSUInteger ampIndex = [self rangeOfString:@"<" options:NSLiteralSearch].location;
+	if (ampIndex == NSNotFound) {
+		return [NSString stringWithString:self]; // return copy of string as no tags found
+	}
+	
+	// Scan and find all tags
+	NSScanner *scanner = [NSScanner scannerWithString:self];
+	[scanner setCharactersToBeSkipped:nil];
+	NSMutableSet *tags = [[NSMutableSet alloc] init];
+	NSString *tag;
+	do {
+		
+		// Scan up to <
+		tag = nil;
+		[scanner scanUpToString:@"<" intoString:NULL];
+		[scanner scanUpToString:@">" intoString:&tag];
+		
+		// Add to set
+		if (tag) {
+			NSString *t = [[NSString alloc] initWithFormat:@"%@>", tag];
+			[tags addObject:t];
+			[t release];
+		}
+		
+	} while (![scanner isAtEnd]);
+	
+	// Strings
+	NSMutableString *result = [[NSMutableString alloc] initWithString:self];
+	NSString *finalString;
+	
+	// Replace tags
+	NSString *replacement;
+	for (NSString *t in tags) {
+		
+		// Replace tag with space unless it's an inline element
+		replacement = @" ";
+		if ([t isEqualToString:@"<a>"] ||
+			[t isEqualToString:@"</a>"] ||
+			[t isEqualToString:@"<span>"] ||
+			[t isEqualToString:@"</span>"] ||
+			[t isEqualToString:@"<strong>"] ||
+			[t isEqualToString:@"</strong>"] ||
+			[t isEqualToString:@"<em>"] ||
+			[t isEqualToString:@"</em>"]) {
+			replacement = @"";
+		}
+		
+		// Replace
+		[result replaceOccurrencesOfString:t 
+								withString:replacement
+								   options:NSLiteralSearch 
+									 range:NSMakeRange(0, result.length)];
+	}
+	
+	// Remove multi-spaces and line breaks
+	finalString = [result stringByRemovingNewLinesAndWhitespace];
+	
+	// Cleanup & return
+	[result release];
+	[tags release];
+    return finalString;
 	
 }
 

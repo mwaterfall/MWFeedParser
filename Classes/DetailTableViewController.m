@@ -46,7 +46,7 @@ typedef enum { SectionDetailSummary } DetailRows;
 	
 	// Summary
 	if (item.summary) {
-		self.summaryString = [[[item.summary stringByStrippingTags] stringByRemovingNewLinesAndWhitespace] stringByDecodingHTMLEntities];
+		self.summaryString = [item.summary stringByConvertingHTMLToPlainText];
 	} else {
 		self.summaryString = @"[No Summary]";
 	}
@@ -87,7 +87,7 @@ typedef enum { SectionDetailSummary } DetailRows;
 	if (item) {
 		
 		// Item Info
-		NSString *itemTitle = item.title ? [[[item.title stringByStrippingTags] stringByRemovingNewLinesAndWhitespace] stringByDecodingHTMLEntities] : @"[No Title]";
+		NSString *itemTitle = item.title ? [item.title stringByConvertingHTMLToPlainText] : @"[No Title]";
 		
 		// Display
 		switch (indexPath.section) {
@@ -113,6 +113,14 @@ typedef enum { SectionDetailSummary } DetailRows;
 			}
 			case SectionDetail: {
 
+//				UIWebView *wv = [[UIWebView alloc] initWithFrame:CGRectMake(20, 10, cell.contentView.bounds.size.width - 40, 200)];
+//				wv.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+//				[cell addSubview:wv];
+//				NSString *html = [NSString stringWithFormat:@"<html><body>%@</body></html>", item.summary];
+//				[wv loadHTMLString:html baseURL:nil];
+//				[wv release];
+//				cell.textLabel.hidden = YES;
+				
 				// Summary
 				cell.textLabel.text = summaryString;
 				cell.textLabel.numberOfLines = 0; // Multiline

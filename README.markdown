@@ -41,7 +41,7 @@ Set the parsing type. Options are `ParseTypeFull`, `ParseTypeInfoOnly`, `ParseTy
 	// Parse the feeds info (title, link) and all feed items
 	feedParser.feedParseType = ParseTypeFull;
 	
-Set whether the parser should connect and download the feed data synchronously or asynchronously:
+Set whether the parser should connect and download the feed data synchronously or asynchronously. Note, this only affects the download of the feed data, not the parsing operation itself.
 
 	// Connection type
 	feedParser.connectionType = ConnectionTypeSynchronously;
@@ -71,7 +71,7 @@ Once parsing has been initiated, the delegate will receive the feed data as it i
 
 `MWFeedInfo` and `MWFeedItem` contains properties (title, link, summary, etc.) that will hold the parsed data. View `MWFeedInfo.h` and `MWFeedItem.h` for more information.
 
-*Important* There are some occasions where feeds do not contain some information, such as titles, links or summaries. Before using any data, you should check to see if that data exists:
+***Important:*** There are some occasions where feeds do not contain some information, such as titles, links or summaries. Before using any data, you should check to see if that data exists:
 
 	NSString *title = item.title ? item.title : @"[No Title]";
 	NSString *link = item.link ? item.link : @"[No Link]";
@@ -87,34 +87,38 @@ For a usage example, please see `RootViewController.m` in the demo project.
 Here is a list of the available properties for feed info and item objects:
 
 #### MWFeedInfo
-- info.title (NSString)
-- info.link (NSString)
-- info.summary (NSString)
+- `info.title` (`NSString`)
+- `info.link` (`NSString`)
+- `info.summary` (`NSString`)
 
 #### MWFeedItem
 
-- item.title (NSString)
-- item.link (NSString)
-- item.date (NSDate)
-- item.updated (NSDate)
-- item.summary (NSString)
-- item.content (NSString)
-- item.enclosures (NSArray of NSDictionaries)
+- `item.title` (`NSString`)
+- `item.link` (`NSString`)
+- `item.date` (`NSDate`)
+- `item.updated` (`NSDate`)
+- `item.summary` (`NSString`)
+- `item.content` (`NSString`)
+- `item.enclosures` (`NSArray` of `NSDictionary` with keys `url`, `type` and `length`)
 
 
 ## Using the data
 
-The data returned, specifically in the `summary` and `content` properties, may contain HTML elements and encoded characters. An NSString category (NSString+HTML) has been provided which will allow you to manipulate this data. The methods available for your convenience are:
+All properties of `MWFeedInfo` and `MWFeedItem` return the raw data as provided by the feed. This content may or may not include HTML and encoded entities. An `NSString` category (`NSString+HTML`) has been provided which will allow you to manipulate this data. The methods available for your convenience are:
 
-	- (NSString *)stringByStrippingTags;
-	- (NSString *)stringWithNewLinesAsBRs;
-	- (NSString *)stringByRemovingNewLinesAndWhitespace;
+    // Convert HTML to Plain Text (Strips HTML tags & comments, removes extra whitespace and decodes HTML character entities)
+	- (NSString *)stringByConvertingHTMLToPlainText;
+	
+	// Other utility methods
 	- (NSString *)stringByDecodingHTMLEntities;
 	- (NSString *)stringByEncodingHTMLEntities;
+	- (NSString *)stringWithNewLinesAsBRs;
+	- (NSString *)stringByRemovingNewLinesAndWhitespace;
 
 An example of this would be:
 
-	NSString *summary = [[[item.summary stringByStrippingTags] stringByRemovingNewLinesAndWhitespace] stringByDecodingHTMLEntities];
+    // Display item summary which contains HTML as plain text
+	NSString *plainSummary = [item.summary stringByConvertingHTMLToPlainText];
 
 
 ## Debugging problems
@@ -136,8 +140,7 @@ MWFeedParser is not currently thread-safe.
 
 ## Outstanding tasks
 
-- Create optimised single-pass NSString method that encapsulates `stringByStrippingTags`, `stringByRemovingNewLinesAndWhitespace` and `stringByDecodingHTMLEntities` as they sit together perfectly in that order and are commonly used together.
-- Parsing of more feed data and elements if required.
+- Demonstrate the previewing of formatted item summary/content (HTML with images, paragraphs, etc) within a `UIWebView` in demo app.
 - Provide functionality to list available feeds when given the URL to a webpage with one or more web feeds associated with it.
 - Open to suggestions!
 

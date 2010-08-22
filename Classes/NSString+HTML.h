@@ -11,10 +11,13 @@
 @interface NSString (HTML)
 
 // Instance Methods
-- (NSString *)stringByStrippingTags;
-- (NSString *)stringWithNewLinesAsBRs;
-- (NSString *)stringByRemovingNewLinesAndWhitespace;
+- (NSString *)stringByConvertingHTMLToPlainText;
 - (NSString *)stringByDecodingHTMLEntities;
 - (NSString *)stringByEncodingHTMLEntities;
+- (NSString *)stringWithNewLinesAsBRs;
+- (NSString *)stringByRemovingNewLinesAndWhitespace;
+
+// DEPRECIATED - Please use NSString stringByConvertingHTMLToPlainText
+- (NSString *)stringByStrippingTags; 
 
 @end

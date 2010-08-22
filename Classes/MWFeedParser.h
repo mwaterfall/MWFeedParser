@@ -23,6 +23,7 @@
 #define MWErrorCodeConnectionFailed			2		/* Connection to the URL failed */
 #define MWErrorCodeFeedParsingError			3		/* NSXMLParser encountered a parsing error */
 #define MWErrorCodeFeedValidationError		4		/* NSXMLParser encountered a validation error */
+#define MWErrorCodeGeneral					5		/* MWFeedParser general error */
 
 // Class
 @class MWFeedParser;
@@ -61,6 +62,7 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 	NSXMLParser *feedParser;
 	FeedType feedType;
 	NSDateFormatter *dateFormatterRFC822, *dateFormatterRFC3339;
+	BOOL parsingInProgress; // Whether the MWFeedParser has started parsing
 	BOOL hasEncounteredItems; // Whether the parser has started parsing items
 	BOOL aborted; // Whether parse stopped due to abort
 	BOOL stopped; // Whether the parse was stopped
@@ -96,13 +98,16 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 - (id)initWithFeedURL:(NSString *)feedURL;
 
 // Begin parsing
-- (void)parse;
+- (BOOL)parse;
 
 // Stop parsing
 - (void)stopParsing;
 
 // Returns the URL
 - (NSString *)url;
+
+// Returns whether the parser is downloading or parsing the feed
+- (BOOL)isParsing;
 
 // Returns whether the parsing was stopped by calling `stopParsing`
 - (BOOL)isStopped;
