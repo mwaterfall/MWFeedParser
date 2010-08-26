@@ -28,6 +28,7 @@
 @synthesize urlConnection, asyncData, connectionType;
 @synthesize feedParseType, feedParser, currentPath, currentText, currentElementAttributes, item, info;
 @synthesize pathOfElementWithXHTMLType;
+@synthesize stopped, failed, parsing;
 
 #pragma mark -
 #pragma mark NSObject
@@ -92,6 +93,7 @@
 	hasEncounteredItems = NO;
 	aborted = NO;
 	stopped = NO;
+	failed = NO;
 	parsingComplete = NO;
 	self.currentElementAttributes = nil;
 	parseStructureAsContent = NO;
@@ -103,11 +105,11 @@
 	
 	// Perform checks before parsing
 	if (!url || !delegate) { [self failWithErrorCode:MWErrorCodeNotInitiated description:@"Delegate or URL not specified"]; return NO; }
-	if (parsingInProgress) { [self failWithErrorCode:MWErrorCodeGeneral description:@"Cannot start parsing as parsing is already in progress"]; return NO; }
+	if (parsing) { [self failWithErrorCode:MWErrorCodeGeneral description:@"Cannot start parsing as parsing is already in progress"]; return NO; }
 	
 	// Start
 	BOOL success = YES;
-	parsingInProgress = YES;
+	parsing = YES;
 	[self reset];
 	
 	// Request
@@ -194,7 +196,7 @@
 // Finished
 - (void)parsingFinished {
 	parsingComplete = YES;
-	parsingInProgress = NO;
+	parsing = NO;
 }
 
 // Begin XML parsing
@@ -206,11 +208,22 @@
 		self.info = i;
 		[i release];
 		
-		// Parse!
+		// Create NSXMLParser
 		feedParser = [[NSXMLParser alloc] initWithData:data];
-		feedParser.delegate = self;
-		[feedParser setShouldProcessNamespaces:YES];
-		[feedParser parse];
+		if (feedParser) { 
+			
+			// Parse!
+			feedParser.delegate = self;
+			[feedParser setShouldProcessNamespaces:YES];
+			[feedParser parse];
+			[feedParser release], feedParser = nil; // Release after parse
+			
+		} else {
+			
+			// Error
+			[self failWithErrorCode:MWErrorCodeFeedParsingError description:[NSString stringWithFormat:@"Feed not a valid XML document (URL: %@)", url]];
+
+		}
 		
 	}
 }
@@ -229,6 +242,7 @@
 	MWLog(@"%@", error);
 
 	// Inform delegate
+	failed = YES;
 	if ([delegate respondsToSelector:@selector(feedParser:didFailWithError:)])
 		[delegate feedParser:self didFailWithError:error];
 	
@@ -654,14 +668,6 @@
 
 - (NSString *)url {
 	return [NSString stringWithString:url];
-}
-
-- (BOOL)isStopped {
-	return stopped;
-}
-
-- (BOOL)isParsing {
-	return parsingInProgress;
 }
 
 #pragma mark -

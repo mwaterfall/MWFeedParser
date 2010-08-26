@@ -62,10 +62,11 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 	NSXMLParser *feedParser;
 	FeedType feedType;
 	NSDateFormatter *dateFormatterRFC822, *dateFormatterRFC3339;
-	BOOL parsingInProgress; // Whether the MWFeedParser has started parsing
+	BOOL parsing; // Whether the MWFeedParser has started parsing
 	BOOL hasEncounteredItems; // Whether the parser has started parsing items
 	BOOL aborted; // Whether parse stopped due to abort
 	BOOL stopped; // Whether the parse was stopped
+	BOOL failed; // Whether the parse failed
 	BOOL parsingComplete; // Whether NSXMLParser parsing has completed
 	
 	// Parsing of XML structure as content
@@ -92,6 +93,15 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 // Set whether to download asynchronously or synchronously
 @property (nonatomic) ConnectionType connectionType;
 
+// Whether parsing was stopped
+@property (nonatomic, readonly, getter=isStopped) BOOL stopped;
+
+// Whether parsing failed
+@property (nonatomic, readonly, getter=didFail) BOOL failed;
+
+// Whether parsing is in progress
+@property (nonatomic, readonly, getter=isParsing) BOOL parsing;
+
 #pragma mark Public Methods
 
 // Init MWFeedParser with a URL string
@@ -105,11 +115,5 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 
 // Returns the URL
 - (NSString *)url;
-
-// Returns whether the parser is downloading or parsing the feed
-- (BOOL)isParsing;
-
-// Returns whether the parsing was stopped by calling `stopParsing`
-- (BOOL)isStopped;
 
 @end

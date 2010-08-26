@@ -112,14 +112,6 @@ typedef enum { SectionDetailSummary } DetailRows;
 				
 			}
 			case SectionDetail: {
-
-//				UIWebView *wv = [[UIWebView alloc] initWithFrame:CGRectMake(20, 10, cell.contentView.bounds.size.width - 40, 200)];
-//				wv.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-//				[cell addSubview:wv];
-//				NSString *html = [NSString stringWithFormat:@"<html><body>%@</body></html>", item.summary];
-//				[wv loadHTMLString:html baseURL:nil];
-//				[wv release];
-//				cell.textLabel.hidden = YES;
 				
 				// Summary
 				cell.textLabel.text = summaryString;
