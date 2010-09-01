@@ -467,8 +467,9 @@
 					else if ([currentPath isEqualToString:@"/rss/channel/item/link"]) { if (currentText.length > 0) item.link = currentText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rss/channel/item/description"]) { if (currentText.length > 0) item.summary = currentText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rss/channel/item/content:encoded"]) { if (currentText.length > 0) item.content = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/rss/channel/item/pubDate"]) { if (currentText.length > 0) item.date = [self dateFromRFC822String:currentText]; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rss/channel/item/pubDate"]) { if (currentText.length > 0) item.date = [self dateFromInternetString:currentText formatHint:DateFormatHintRFC822]; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rss/channel/item/enclosure"]) { [self createEnclosureFromAttributes:currentElementAttributes andAddToItem:item]; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rss/channel/item/dc:date"]) { if (currentText.length > 0) item.date = [self dateFromInternetString:currentText formatHint:DateFormatHintRFC3339]; processed = YES; }
 				}
 				
 				// Info
@@ -488,7 +489,7 @@
 					else if ([currentPath isEqualToString:@"/rdf:RDF/item/link"]) { if (currentText.length > 0) item.link = currentText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rdf:RDF/item/description"]) { if (currentText.length > 0) item.summary = currentText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rdf:RDF/item/content:encoded"]) { if (currentText.length > 0) item.content = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:date"]) { if (currentText.length > 0) item.date = [self dateFromRFC3339String:currentText]; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:date"]) { if (currentText.length > 0) item.date = [self dateFromInternetString:currentText formatHint:DateFormatHintRFC3339]; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rdf:RDF/item/enc:enclosure"]) { [self createEnclosureFromAttributes:currentElementAttributes andAddToItem:item]; processed = YES; }
 				}
 				
@@ -509,8 +510,8 @@
 					else if ([currentPath isEqualToString:@"/feed/entry/link"]) { [self processAtomLink:currentElementAttributes andAddToMWObject:item]; processed = YES; }
 					else if ([currentPath isEqualToString:@"/feed/entry/summary"]) { if (currentText.length > 0) item.summary = currentText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/feed/entry/content"]) { if (currentText.length > 0) item.content = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/feed/entry/published"]) { if (currentText.length > 0) item.date = [self dateFromRFC3339String:currentText]; processed = YES; }
-					else if ([currentPath isEqualToString:@"/feed/entry/updated"]) { if (currentText.length > 0) item.updated = [self dateFromRFC3339String:currentText]; processed = YES; }
+					else if ([currentPath isEqualToString:@"/feed/entry/published"]) { if (currentText.length > 0) item.date = [self dateFromInternetString:currentText formatHint:DateFormatHintRFC3339]; processed = YES; }
+					else if ([currentPath isEqualToString:@"/feed/entry/updated"]) { if (currentText.length > 0) item.updated = [self dateFromInternetString:currentText formatHint:DateFormatHintRFC3339]; processed = YES; }
 				}
 				
 				// Info
@@ -774,6 +775,22 @@
 	return NO;
 }
 
+// Get a date from a string - hit (from specs) can be used to speed up
+- (NSDate *)dateFromInternetString:(NSString *)dateString formatHint:(DateFormatHint)hint {
+	NSDate *date = nil;
+	if (hint != DateFormatHintRFC3339) {
+		// Try RFC822 first
+		date = [self dateFromRFC822String:dateString];
+		if (!date) date = [self dateFromRFC3339String:dateString];
+	} else {
+		// Try RFC3339 first
+		date = [self dateFromRFC3339String:dateString];
+		if (!date) date = [self dateFromRFC822String:dateString];
+	}
+	return date;
+}
+
+// See http://www.faqs.org/rfcs/rfc822.html
 - (NSDate *)dateFromRFC822String:(NSString *)dateString {
 	NSDate *date = nil;
 	NSString *RFC822String = [[NSString stringWithString:dateString] uppercaseString];
@@ -811,6 +828,7 @@
 	return date;
 }
 
+// See http://www.faqs.org/rfcs/rfc3339.html
 - (NSDate *)dateFromRFC3339String:(NSString *)dateString {
 	NSDate *date = nil;
 	NSString *RFC3339String = [[NSString stringWithString:dateString] uppercaseString];
