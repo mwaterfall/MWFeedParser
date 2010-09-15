@@ -97,7 +97,7 @@
 
 - (void)feedParserDidFinish:(MWFeedParser *)parser {
 	NSLog(@"Finished Parsing");
-	self.itemsToDisplay = [NSArray arrayWithArray:parsedItems];
+	self.itemsToDisplay = [parsedItems sortedArrayUsingDescriptors:[NSArray arrayWithObject:[[[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO] autorelease]]];
 	self.tableView.userInteractionEnabled = YES;
 	self.tableView.alpha = 1;
 	[self.tableView reloadData];

@@ -458,25 +458,30 @@
 	// Store data
 	BOOL processed = NO;
 	if (currentText) {
+		
+		// Remove newlines and whitespace from currentText
+		NSString *processedText = [currentText stringByRemovingNewLinesAndWhitespace];
+
+		// Process
 		switch (feedType) {
 			case FeedTypeRSS: {
 				
 				// Item
 				if (!processed) {
-					if ([currentPath isEqualToString:@"/rss/channel/item/title"]) { if (currentText.length > 0) item.title = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/rss/channel/item/link"]) { if (currentText.length > 0) item.link = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/rss/channel/item/description"]) { if (currentText.length > 0) item.summary = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/rss/channel/item/content:encoded"]) { if (currentText.length > 0) item.content = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/rss/channel/item/pubDate"]) { if (currentText.length > 0) item.date = [self dateFromInternetString:currentText formatHint:DateFormatHintRFC822]; processed = YES; }
+					if ([currentPath isEqualToString:@"/rss/channel/item/title"]) { if (processedText.length > 0) item.title = processedText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rss/channel/item/link"]) { if (processedText.length > 0) item.link = processedText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rss/channel/item/description"]) { if (processedText.length > 0) item.summary = processedText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rss/channel/item/content:encoded"]) { if (processedText.length > 0) item.content = processedText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rss/channel/item/pubDate"]) { if (processedText.length > 0) item.date = [self dateFromInternetString:processedText formatHint:DateFormatHintRFC822]; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rss/channel/item/enclosure"]) { [self createEnclosureFromAttributes:currentElementAttributes andAddToItem:item]; processed = YES; }
-					else if ([currentPath isEqualToString:@"/rss/channel/item/dc:date"]) { if (currentText.length > 0) item.date = [self dateFromInternetString:currentText formatHint:DateFormatHintRFC3339]; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rss/channel/item/dc:date"]) { if (processedText.length > 0) item.date = [self dateFromInternetString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
 				}
 				
 				// Info
 				if (!processed && feedParseType != ParseTypeItemsOnly) {
-					if ([currentPath isEqualToString:@"/rss/channel/title"]) { if (currentText.length > 0) info.title = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/rss/channel/description"]) { if (currentText.length > 0) info.summary = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/rss/channel/link"]) { if (currentText.length > 0) info.link = currentText; processed = YES; }
+					if ([currentPath isEqualToString:@"/rss/channel/title"]) { if (processedText.length > 0) info.title = processedText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rss/channel/description"]) { if (processedText.length > 0) info.summary = processedText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rss/channel/link"]) { if (processedText.length > 0) info.link = processedText; processed = YES; }
 				}
 				
 				break;
@@ -485,19 +490,19 @@
 				
 				// Item
 				if (!processed) {
-					if ([currentPath isEqualToString:@"/rdf:RDF/item/title"]) { if (currentText.length > 0) item.title = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/rdf:RDF/item/link"]) { if (currentText.length > 0) item.link = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/rdf:RDF/item/description"]) { if (currentText.length > 0) item.summary = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/rdf:RDF/item/content:encoded"]) { if (currentText.length > 0) item.content = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:date"]) { if (currentText.length > 0) item.date = [self dateFromInternetString:currentText formatHint:DateFormatHintRFC3339]; processed = YES; }
+					if ([currentPath isEqualToString:@"/rdf:RDF/item/title"]) { if (processedText.length > 0) item.title = processedText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rdf:RDF/item/link"]) { if (processedText.length > 0) item.link = processedText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rdf:RDF/item/description"]) { if (processedText.length > 0) item.summary = processedText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rdf:RDF/item/content:encoded"]) { if (processedText.length > 0) item.content = processedText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:date"]) { if (processedText.length > 0) item.date = [self dateFromInternetString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rdf:RDF/item/enc:enclosure"]) { [self createEnclosureFromAttributes:currentElementAttributes andAddToItem:item]; processed = YES; }
 				}
 				
 				// Info
 				if (!processed && feedParseType != ParseTypeItemsOnly) {
-					if ([currentPath isEqualToString:@"/rdf:RDF/channel/title"]) { if (currentText.length > 0) info.title = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/rdf:RDF/channel/description"]) { if (currentText.length > 0) info.summary = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/rdf:RDF/channel/link"]) { if (currentText.length > 0) info.link = currentText; processed = YES; }
+					if ([currentPath isEqualToString:@"/rdf:RDF/channel/title"]) { if (processedText.length > 0) info.title = processedText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rdf:RDF/channel/description"]) { if (processedText.length > 0) info.summary = processedText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rdf:RDF/channel/link"]) { if (processedText.length > 0) info.link = processedText; processed = YES; }
 				}
 				
 				break;
@@ -506,18 +511,18 @@
 				
 				// Item
 				if (!processed) {
-					if ([currentPath isEqualToString:@"/feed/entry/title"]) { if (currentText.length > 0) item.title = currentText; processed = YES; }
+					if ([currentPath isEqualToString:@"/feed/entry/title"]) { if (processedText.length > 0) item.title = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/feed/entry/link"]) { [self processAtomLink:currentElementAttributes andAddToMWObject:item]; processed = YES; }
-					else if ([currentPath isEqualToString:@"/feed/entry/summary"]) { if (currentText.length > 0) item.summary = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/feed/entry/content"]) { if (currentText.length > 0) item.content = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/feed/entry/published"]) { if (currentText.length > 0) item.date = [self dateFromInternetString:currentText formatHint:DateFormatHintRFC3339]; processed = YES; }
-					else if ([currentPath isEqualToString:@"/feed/entry/updated"]) { if (currentText.length > 0) item.updated = [self dateFromInternetString:currentText formatHint:DateFormatHintRFC3339]; processed = YES; }
+					else if ([currentPath isEqualToString:@"/feed/entry/summary"]) { if (processedText.length > 0) item.summary = processedText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/feed/entry/content"]) { if (processedText.length > 0) item.content = processedText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/feed/entry/published"]) { if (processedText.length > 0) item.date = [self dateFromInternetString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
+					else if ([currentPath isEqualToString:@"/feed/entry/updated"]) { if (processedText.length > 0) item.updated = [self dateFromInternetString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
 				}
 				
 				// Info
 				if (!processed && feedParseType != ParseTypeItemsOnly) {
-					if ([currentPath isEqualToString:@"/feed/title"]) { if (currentText.length > 0) info.title = currentText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/feed/description"]) { if (currentText.length > 0) info.summary = currentText; processed = YES; }
+					if ([currentPath isEqualToString:@"/feed/title"]) { if (processedText.length > 0) info.title = processedText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/feed/description"]) { if (processedText.length > 0) info.summary = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/feed/link"]) { [self processAtomLink:currentElementAttributes andAddToMWObject:info]; processed = YES;}
 				}
 				
@@ -794,33 +799,40 @@
 - (NSDate *)dateFromRFC822String:(NSString *)dateString {
 	NSDate *date = nil;
 	NSString *RFC822String = [[NSString stringWithString:dateString] uppercaseString];
-	if (!date) { // Sun, 19 May 02 15:21:36 GMT
-		[dateFormatterRFC822 setDateFormat:@"EEE, d MMM yy HH:mm:ss zzz"]; 
-		date = [dateFormatterRFC822 dateFromString:RFC822String];
-	}
-	if (!date) { // Sun, 19 May 2002 15:21:36 GMT
-		[dateFormatterRFC822 setDateFormat:@"EEE, d MMM yyyy HH:mm:ss zzz"]; 
-		date = [dateFormatterRFC822 dateFromString:RFC822String];
-	}
-	if (!date) {  // Sun, 19 May 2002 15:21 GMT
-		[dateFormatterRFC822 setDateFormat:@"EEE, d MMM yyyy HH:mm zzz"]; 
-		date = [dateFormatterRFC822 dateFromString:RFC822String];
-	}
-	if (!date) {  // 19 May 2002 15:21:36 GMT
-		[dateFormatterRFC822 setDateFormat:@"d MMM yyyy HH:mm:ss zzz"]; 
-		date = [dateFormatterRFC822 dateFromString:RFC822String];
-	}
-	if (!date) {  // 19 May 2002 15:21 GMT
-		[dateFormatterRFC822 setDateFormat:@"d MMM yyyy HH:mm zzz"]; 
-		date = [dateFormatterRFC822 dateFromString:RFC822String];
-	}
-	if (!date) {  // 19 May 2002 15:21:36
-		[dateFormatterRFC822 setDateFormat:@"d MMM yyyy HH:mm:ss"]; 
-		date = [dateFormatterRFC822 dateFromString:RFC822String];
-	}
-	if (!date) {  // 19 May 2002 15:21
-		[dateFormatterRFC822 setDateFormat:@"d MMM yyyy HH:mm"]; 
-		date = [dateFormatterRFC822 dateFromString:RFC822String];
+	if ([RFC822String rangeOfString:@","].location != NSNotFound) {
+		if (!date) { // Sun, 19 May 2002 15:21:36 GMT
+			[dateFormatterRFC822 setDateFormat:@"EEE, d MMM yyyy HH:mm:ss zzz"]; 
+			date = [dateFormatterRFC822 dateFromString:RFC822String];
+		}
+		if (!date) { // Sun, 19 May 2002 15:21 GMT
+			[dateFormatterRFC822 setDateFormat:@"EEE, d MMM yyyy HH:mm zzz"]; 
+			date = [dateFormatterRFC822 dateFromString:RFC822String];
+		}
+		if (!date) { // Sun, 19 May 2002 15:21:36
+			[dateFormatterRFC822 setDateFormat:@"EEE, d MMM yyyy HH:mm:ss"]; 
+			date = [dateFormatterRFC822 dateFromString:RFC822String];
+		}
+		if (!date) { // Sun, 19 May 2002 15:21
+			[dateFormatterRFC822 setDateFormat:@"EEE, d MMM yyyy HH:mm"]; 
+			date = [dateFormatterRFC822 dateFromString:RFC822String];
+		}
+	} else {
+		if (!date) { // 19 May 2002 15:21:36 GMT
+			[dateFormatterRFC822 setDateFormat:@"d MMM yyyy HH:mm:ss zzz"]; 
+			date = [dateFormatterRFC822 dateFromString:RFC822String];
+		}
+		if (!date) { // 19 May 2002 15:21 GMT
+			[dateFormatterRFC822 setDateFormat:@"d MMM yyyy HH:mm zzz"]; 
+			date = [dateFormatterRFC822 dateFromString:RFC822String];
+		}
+		if (!date) { // 19 May 2002 15:21:36
+			[dateFormatterRFC822 setDateFormat:@"d MMM yyyy HH:mm:ss"]; 
+			date = [dateFormatterRFC822 dateFromString:RFC822String];
+		}
+		if (!date) { // 19 May 2002 15:21
+			[dateFormatterRFC822 setDateFormat:@"d MMM yyyy HH:mm"]; 
+			date = [dateFormatterRFC822 dateFromString:RFC822String];
+		}
 	}
 	if (!date) { // Failed so Debug log
 		MWLog(@"MWFeedParser: Could not parse RFC822 date: \"%@\" Possibly invalid format.", dateString);
