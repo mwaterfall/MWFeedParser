@@ -53,7 +53,9 @@
 	self.itemsToDisplay = [NSArray array];
 	
 	// Refresh button
-	self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(refresh)] autorelease];
+	self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh 
+																							target:self 
+																							action:@selector(refresh)] autorelease];
 
 	// Create parser
 	feedParser = [[MWFeedParser alloc] initWithFeedURL:@"http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/front_page/rss.xml"];
@@ -97,7 +99,9 @@
 
 - (void)feedParserDidFinish:(MWFeedParser *)parser {
 	NSLog(@"Finished Parsing");
-	self.itemsToDisplay = [parsedItems sortedArrayUsingDescriptors:[NSArray arrayWithObject:[[[NSSortDescriptor alloc] initWithKey:@"date" ascending:NO] autorelease]]];
+	self.itemsToDisplay = [parsedItems sortedArrayUsingDescriptors:
+						   [NSArray arrayWithObject:[[[NSSortDescriptor alloc] initWithKey:@"date" 
+																				 ascending:NO] autorelease]]];
 	self.tableView.userInteractionEnabled = YES;
 	self.tableView.alpha = 1;
 	[self.tableView reloadData];

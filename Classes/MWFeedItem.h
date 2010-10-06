@@ -31,6 +31,7 @@
 
 @interface MWFeedItem : NSObject <NSCoding> {
 	
+	NSString *identifier; // Item identifier
 	NSString *title; // Item title
 	NSString *link; // Item URL
 	NSDate *date; // Date the item was published
@@ -47,6 +48,7 @@
 
 }
 
+@property (nonatomic, copy) NSString *identifier;
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, copy) NSString *link;
 @property (nonatomic, copy) NSDate *date;

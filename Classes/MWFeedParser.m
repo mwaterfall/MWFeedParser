@@ -189,7 +189,7 @@
 	// Abort parsing
 	aborted = YES;
 	[feedParser abortParsing];
-		
+	
 	// Debug Log
 	MWLog(@"MWFeedParser: Parsing stopped");
 	
@@ -230,7 +230,9 @@
 		[i release];
 		
 		// Create NSXMLParser
-		feedParser = [[NSXMLParser alloc] initWithData:data];
+		NSXMLParser *newFeedParser = [[NSXMLParser alloc] initWithData:data];
+		self.feedParser = newFeedParser;
+		[newFeedParser release];
 		if (feedParser) { 
 			
 			// Parse!
@@ -470,6 +472,7 @@
 				if (!processed) {
 					if ([currentPath isEqualToString:@"/rss/channel/item/title"]) { if (processedText.length > 0) item.title = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rss/channel/item/link"]) { if (processedText.length > 0) item.link = processedText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rss/channel/item/guid"]) { if (processedText.length > 0) item.identifier = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rss/channel/item/description"]) { if (processedText.length > 0) item.summary = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rss/channel/item/content:encoded"]) { if (processedText.length > 0) item.content = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rss/channel/item/pubDate"]) { if (processedText.length > 0) item.date = [self dateFromInternetString:processedText formatHint:DateFormatHintRFC822]; processed = YES; }
@@ -492,6 +495,7 @@
 				if (!processed) {
 					if ([currentPath isEqualToString:@"/rdf:RDF/item/title"]) { if (processedText.length > 0) item.title = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rdf:RDF/item/link"]) { if (processedText.length > 0) item.link = processedText; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:identifier"]) { if (processedText.length > 0) item.identifier = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rdf:RDF/item/description"]) { if (processedText.length > 0) item.summary = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rdf:RDF/item/content:encoded"]) { if (processedText.length > 0) item.content = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:date"]) { if (processedText.length > 0) item.date = [self dateFromInternetString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
@@ -513,6 +517,7 @@
 				if (!processed) {
 					if ([currentPath isEqualToString:@"/feed/entry/title"]) { if (processedText.length > 0) item.title = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/feed/entry/link"]) { [self processAtomLink:currentElementAttributes andAddToMWObject:item]; processed = YES; }
+					else if ([currentPath isEqualToString:@"/feed/entry/id"]) { if (processedText.length > 0) item.identifier = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/feed/entry/summary"]) { if (processedText.length > 0) item.summary = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/feed/entry/content"]) { if (processedText.length > 0) item.content = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/feed/entry/published"]) { if (processedText.length > 0) item.date = [self dateFromInternetString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }

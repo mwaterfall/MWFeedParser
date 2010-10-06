@@ -15,6 +15,7 @@ MWFeedParser is an Objective-C framework for downloading and parsing RSS (1.* an
 - Summary (brief description of item)
 - Content (detailed item content, if available)
 - Enclosures (i.e. podcasts, mp3, pdf, etc)
+- Identifier (an item's guid/id)
 
 If you use MWFeedParser on your iPhone/iPad app then please do let me know, I'd love to check it out :)
 
@@ -108,11 +109,12 @@ Here is a list of the available properties for feed info and item objects:
 - `item.summary` (`NSString`)
 - `item.content` (`NSString`)
 - `item.enclosures` (`NSArray` of `NSDictionary` with keys `url`, `type` and `length`)
+- `item.identifier` (`NSString`)
 
 
 ## Using the data
 
-All properties of `MWFeedInfo` and `MWFeedItem` return the raw data as provided by the feed. This content may or may not include HTML and encoded entities. An `NSString` category (`NSString+HTML`) has been provided which will allow you to manipulate this data. The methods available for your convenience are:
+All properties of `MWFeedInfo` and `MWFeedItem` return the raw data as provided by the feed. This content may or may not include HTML and encoded entities. If the content does include HTML, you could display the data within a UIWebView, or you could use the provided `NSString` category (`NSString+HTML`) which will allow you to manipulate this HTML content. The methods available for your convenience are:
 
     // Convert HTML to Plain Text (Strips HTML tags & comments, removes extra whitespace and decodes HTML character entities)
 	- (NSString *)stringByConvertingHTMLToPlainText;
@@ -146,11 +148,15 @@ MWFeedParser is not currently thread-safe.
 3. Import `MWFeedParser.h` into your source as required.
 
 
-## Outstanding tasks
+## Outstanding and suggested features
 
+- Further optimise parsing.
 - Demonstrate the previewing of formatted item summary/content (HTML with images, paragraphs, etc) within a `UIWebView` in demo app.
 - Provide functionality to list available feeds when given the URL to a webpage with one or more web feeds associated with it.
-- Open to suggestions!
+- Support for the Media RSS extension.
+- Support for the GeoRSS extension.
+
+Feel free to get in touch and suggest/vote for other features.
 
 
 ## Licence
