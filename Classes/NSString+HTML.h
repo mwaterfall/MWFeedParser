@@ -29,6 +29,8 @@
 
 #import <Foundation/Foundation.h>
 
+// Dependant upon GTMNSString+HTML
+
 @interface NSString (HTML)
 
 // Instance Methods

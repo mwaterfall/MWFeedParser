@@ -30,6 +30,7 @@
 #import "MWFeedParser.h"
 #import "MWFeedParser_Private.h"
 #import "NSString+HTML.h"
+#import "NSDate+InternetDateTime.h"
 
 // NSXMLParser Logging
 #if 0 // Set to 1 to enable XML parsing logs
@@ -475,9 +476,9 @@
 					else if ([currentPath isEqualToString:@"/rss/channel/item/guid"]) { if (processedText.length > 0) item.identifier = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rss/channel/item/description"]) { if (processedText.length > 0) item.summary = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rss/channel/item/content:encoded"]) { if (processedText.length > 0) item.content = processedText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/rss/channel/item/pubDate"]) { if (processedText.length > 0) item.date = [self dateFromInternetString:processedText formatHint:DateFormatHintRFC822]; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rss/channel/item/pubDate"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC822]; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rss/channel/item/enclosure"]) { [self createEnclosureFromAttributes:currentElementAttributes andAddToItem:item]; processed = YES; }
-					else if ([currentPath isEqualToString:@"/rss/channel/item/dc:date"]) { if (processedText.length > 0) item.date = [self dateFromInternetString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rss/channel/item/dc:date"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
 				}
 				
 				// Info
@@ -498,7 +499,7 @@
 					else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:identifier"]) { if (processedText.length > 0) item.identifier = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rdf:RDF/item/description"]) { if (processedText.length > 0) item.summary = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rdf:RDF/item/content:encoded"]) { if (processedText.length > 0) item.content = processedText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:date"]) { if (processedText.length > 0) item.date = [self dateFromInternetString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:date"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rdf:RDF/item/enc:enclosure"]) { [self createEnclosureFromAttributes:currentElementAttributes andAddToItem:item]; processed = YES; }
 				}
 				
@@ -520,8 +521,8 @@
 					else if ([currentPath isEqualToString:@"/feed/entry/id"]) { if (processedText.length > 0) item.identifier = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/feed/entry/summary"]) { if (processedText.length > 0) item.summary = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/feed/entry/content"]) { if (processedText.length > 0) item.content = processedText; processed = YES; }
-					else if ([currentPath isEqualToString:@"/feed/entry/published"]) { if (processedText.length > 0) item.date = [self dateFromInternetString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
-					else if ([currentPath isEqualToString:@"/feed/entry/updated"]) { if (processedText.length > 0) item.updated = [self dateFromInternetString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
+					else if ([currentPath isEqualToString:@"/feed/entry/published"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
+					else if ([currentPath isEqualToString:@"/feed/entry/updated"]) { if (processedText.length > 0) item.updated = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
 				}
 				
 				// Info
@@ -783,99 +784,6 @@
 		
 	}
 	return NO;
-}
-
-// Get a date from a string - hit (from specs) can be used to speed up
-- (NSDate *)dateFromInternetString:(NSString *)dateString formatHint:(DateFormatHint)hint {
-	NSDate *date = nil;
-	if (hint != DateFormatHintRFC3339) {
-		// Try RFC822 first
-		date = [self dateFromRFC822String:dateString];
-		if (!date) date = [self dateFromRFC3339String:dateString];
-	} else {
-		// Try RFC3339 first
-		date = [self dateFromRFC3339String:dateString];
-		if (!date) date = [self dateFromRFC822String:dateString];
-	}
-	return date;
-}
-
-// See http://www.faqs.org/rfcs/rfc822.html
-- (NSDate *)dateFromRFC822String:(NSString *)dateString {
-	NSDate *date = nil;
-	NSString *RFC822String = [[NSString stringWithString:dateString] uppercaseString];
-	if ([RFC822String rangeOfString:@","].location != NSNotFound) {
-		if (!date) { // Sun, 19 May 2002 15:21:36 GMT
-			[dateFormatterRFC822 setDateFormat:@"EEE, d MMM yyyy HH:mm:ss zzz"]; 
-			date = [dateFormatterRFC822 dateFromString:RFC822String];
-		}
-		if (!date) { // Sun, 19 May 2002 15:21 GMT
-			[dateFormatterRFC822 setDateFormat:@"EEE, d MMM yyyy HH:mm zzz"]; 
-			date = [dateFormatterRFC822 dateFromString:RFC822String];
-		}
-		if (!date) { // Sun, 19 May 2002 15:21:36
-			[dateFormatterRFC822 setDateFormat:@"EEE, d MMM yyyy HH:mm:ss"]; 
-			date = [dateFormatterRFC822 dateFromString:RFC822String];
-		}
-		if (!date) { // Sun, 19 May 2002 15:21
-			[dateFormatterRFC822 setDateFormat:@"EEE, d MMM yyyy HH:mm"]; 
-			date = [dateFormatterRFC822 dateFromString:RFC822String];
-		}
-	} else {
-		if (!date) { // 19 May 2002 15:21:36 GMT
-			[dateFormatterRFC822 setDateFormat:@"d MMM yyyy HH:mm:ss zzz"]; 
-			date = [dateFormatterRFC822 dateFromString:RFC822String];
-		}
-		if (!date) { // 19 May 2002 15:21 GMT
-			[dateFormatterRFC822 setDateFormat:@"d MMM yyyy HH:mm zzz"]; 
-			date = [dateFormatterRFC822 dateFromString:RFC822String];
-		}
-		if (!date) { // 19 May 2002 15:21:36
-			[dateFormatterRFC822 setDateFormat:@"d MMM yyyy HH:mm:ss"]; 
-			date = [dateFormatterRFC822 dateFromString:RFC822String];
-		}
-		if (!date) { // 19 May 2002 15:21
-			[dateFormatterRFC822 setDateFormat:@"d MMM yyyy HH:mm"]; 
-			date = [dateFormatterRFC822 dateFromString:RFC822String];
-		}
-	}
-	if (!date) { // Failed so Debug log
-		MWLog(@"MWFeedParser: Could not parse RFC822 date: \"%@\" Possibly invalid format.", dateString);
-	}
-	return date;
-}
-
-// See http://www.faqs.org/rfcs/rfc3339.html
-- (NSDate *)dateFromRFC3339String:(NSString *)dateString {
-	NSDate *date = nil;
-	NSString *RFC3339String = [[NSString stringWithString:dateString] uppercaseString];
-	RFC3339String = [RFC3339String stringByReplacingOccurrencesOfString:@"Z" withString:@"-0000"];
-	
-	// Remove colon in timezone as iOS 4+ NSDateFormatter breaks
-	// See https://devforums.apple.com/thread/45837
-	if (RFC3339String.length > 20) {
-		RFC3339String = [RFC3339String stringByReplacingOccurrencesOfString:@":" 
-																 withString:@"" 
-																	options:0
-																	  range:NSMakeRange(20, RFC3339String.length-20)];
-	}
-	
-	if (!date) { // 1996-12-19T16:39:57-0800
-		[dateFormatterRFC3339 setDateFormat:@"yyyy'-'MM'-'dd'T'HH':'mm':'ssZZZ"]; 
-		date = [dateFormatterRFC3339 dateFromString:RFC3339String];
-	}
-	if (!date) { // 1937-01-01T12:00:27.87+0020
-		[dateFormatterRFC3339 setDateFormat:@"yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSSZZZ"]; 
-		date = [dateFormatterRFC3339 dateFromString:RFC3339String];
-	}
-	if (!date) { // 1937-01-01T12:00:27
-		[dateFormatterRFC3339 setDateFormat:@"yyyy'-'MM'-'dd'T'HH':'mm':'ss"]; 
-		date = [dateFormatterRFC3339 dateFromString:RFC3339String];
-	}
-	if (!date) { // Failed so Debug log
-		MWLog(@"MWFeedParser: Could not parse RFC3339 date: \"%@\" Possibly invalid format.", dateString);
-	}
-	return date;
 }
 
 @end

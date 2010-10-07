@@ -27,9 +27,6 @@
 //  THE SOFTWARE.
 //
 
-// Date format hints for parsing date from internet string
-typedef enum {DateFormatHintNone, DateFormatHintRFC822, DateFormatHintRFC3339} DateFormatHint;
-
 @interface MWFeedParser ()
 
 #pragma mark Private Properties
@@ -66,8 +63,5 @@ typedef enum {DateFormatHintNone, DateFormatHintRFC822, DateFormatHintRFC3339} D
 // Misc
 - (BOOL)createEnclosureFromAttributes:(NSDictionary *)attributes andAddToItem:(MWFeedItem *)currentItem;
 - (BOOL)processAtomLink:(NSDictionary *)attributes andAddToMWObject:(id)MWObject;
-- (NSDate *)dateFromInternetString:(NSString *)dateString formatHint:(DateFormatHint)hint;
-- (NSDate *)dateFromRFC822String:(NSString *)dateString;
-- (NSDate *)dateFromRFC3339String:(NSString *)dateString;
 
 @end
