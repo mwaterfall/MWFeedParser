@@ -40,14 +40,17 @@
 #endif
 
 // Empty XHTML elements ( <!ELEMENT br EMPTY> in http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd )
-#define ELEMENT_IS_EMPTY(e) ([e isEqualToString:@"br"] || [e isEqualToString:@"img"] || [e isEqualToString:@"input"] || [e isEqualToString:@"hr"] || [e isEqualToString:@"link"] || [e isEqualToString:@"base"] || [e isEqualToString:@"basefont"] || [e isEqualToString:@"frame"] || [e isEqualToString:@"meta"] || [e isEqualToString:@"area"] || [e isEqualToString:@"col"] || [e isEqualToString:@"param"])
+#define ELEMENT_IS_EMPTY(e) ([e isEqualToString:@"br"] || [e isEqualToString:@"img"] || [e isEqualToString:@"input"] || \
+							 [e isEqualToString:@"hr"] || [e isEqualToString:@"link"] || [e isEqualToString:@"base"] || \
+							 [e isEqualToString:@"basefont"] || [e isEqualToString:@"frame"] || [e isEqualToString:@"meta"] || \
+							 [e isEqualToString:@"area"] || [e isEqualToString:@"col"] || [e isEqualToString:@"param"])
 
 // Implementation
 @implementation MWFeedParser
 
 // Properties
-@synthesize delegate, url;
-@synthesize urlConnection, asyncData, connectionType;
+@synthesize url, delegate;
+@synthesize urlConnection, asyncData, asyncTextEncodingName, connectionType;
 @synthesize feedParseType, feedParser, currentPath, currentText, currentElementAttributes, item, info;
 @synthesize pathOfElementWithXHTMLType;
 @synthesize stopped, failed, parsing;
@@ -55,19 +58,13 @@
 #pragma mark -
 #pragma mark NSObject
 
-- (id)initWithFeedURL:(NSString *)feedURL {
+- (id)init {
 	if (self = [super init]) {
-		
-		// URI Scheme
-		// http://en.wikipedia.org/wiki/Feed:_URI_scheme
-		self.url = feedURL;
-		if ([url hasPrefix:@"feed://"]) self.url = [NSString stringWithFormat:@"http://%@", [url substringFromIndex:7]];
-		if ([url hasPrefix:@"feed:"]) self.url = [url substringFromIndex:5];
 
 		// Defaults
 		feedParseType = ParseTypeFull;
 		connectionType = ConnectionTypeSynchronously;
-
+		
 		// Date Formatters
 		// Good info on internet dates here: http://developer.apple.com/iphone/library/qa/qa2010/qa1480.html
 		NSLocale *en_US_POSIX = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
@@ -79,6 +76,17 @@
         [dateFormatterRFC3339 setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
 		[en_US_POSIX release];
 		
+	}
+	return self;
+}
+
+// Initialise with a URL
+// Mainly for historic reasons before -parseURL:
+- (id)initWithFeedURL:(NSString *)feedURL {
+	if (self = [self init]) {
+		
+		// Remember url
+		self.url = feedURL;
 		
 	}
 	return self;
@@ -103,8 +111,11 @@
 #pragma mark Parsing
 
 // Reset data variables before processing
+// Exclude state variables as they remain after parse, until next one
 - (void)reset {
 	self.asyncData = nil;
+	self.asyncTextEncodingName = nil;
+	if (feedParser) [[feedParser retain] autorelease]; // Autorelease as we might release early
 	self.feedParser = nil;
 	self.urlConnection = nil;
 	feedType = FeedTypeUnknown;
@@ -112,32 +123,38 @@
 	self.currentText = [[[NSMutableString alloc] init] autorelease];
 	self.item = nil;
 	self.info = nil;
+	self.currentElementAttributes = nil;
+	parseStructureAsContent = NO;
+	self.pathOfElementWithXHTMLType = nil;
 	hasEncounteredItems = NO;
+}
+
+// Parse using URL for backwards compatibility
+- (BOOL)parse {
+
+	// Reset
+	[self reset];
+	
+	// Perform checks before parsing
+	if (!url || !delegate) { [self parsingFailedWithErrorCode:MWErrorCodeNotInitiated 
+											   andDescription:@"Delegate or URL not specified"]; return NO; }
+	if (parsing) { [self parsingFailedWithErrorCode:MWErrorCodeGeneral 
+									 andDescription:@"Cannot start parsing as parsing is already in progress"]; return NO; }
+	
+	// Reset state for next parse
+	parsing = YES;
 	aborted = NO;
 	stopped = NO;
 	failed = NO;
 	parsingComplete = NO;
-	self.currentElementAttributes = nil;
-	parseStructureAsContent = NO;
-	self.pathOfElementWithXHTMLType = nil;
-}
-
-// Begin downloading & parsing of feed
-- (BOOL)parse {
-	
-	// Perform checks before parsing
-	if (!url || !delegate) { [self failWithErrorCode:MWErrorCodeNotInitiated description:@"Delegate or URL not specified"]; return NO; }
-	if (parsing) { [self failWithErrorCode:MWErrorCodeGeneral description:@"Cannot start parsing as parsing is already in progress"]; return NO; }
 	
 	// Start
 	BOOL success = YES;
-	parsing = YES;
-	[self reset];
 	
 	// Request
 	NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:url] 
 												  cachePolicy:NSURLRequestReloadIgnoringLocalAndRemoteCacheData 
-											  timeoutInterval:180];
+											  timeoutInterval:60];
 	[request setValue:@"MWFeedParser" forHTTPHeaderField:@"User-Agent"];
 	
 	// Debug Log
@@ -151,7 +168,8 @@
 		if (urlConnection) {
 			asyncData = [[NSMutableData alloc] init];// Create data
 		} else {
-			[self failWithErrorCode:MWErrorCodeConnectionFailed description:[NSString stringWithFormat:@"Asynchronous connection failed to URL: %@", url]];
+			[self parsingFailedWithErrorCode:MWErrorCodeConnectionFailed 
+							  andDescription:[NSString stringWithFormat:@"Asynchronous connection failed to URL: %@", url]];
 			success = NO;
 		}
 		
@@ -162,9 +180,10 @@
 		NSError *error = nil;
 		NSData *data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
 		if (data && !error) {
-			[self startParsingData:data]; // Process
+			[self startParsingData:data textEncodingName:[response textEncodingName]]; // Process
 		} else {
-			[self failWithErrorCode:MWErrorCodeConnectionFailed description:[NSString stringWithFormat:@"Synchronous connection failed to URL: %@", url]];
+			[self parsingFailedWithErrorCode:MWErrorCodeConnectionFailed 
+							  andDescription:[NSString stringWithFormat:@"Synchronous connection failed to URL: %@", url]];
 			success = NO;
 		}
 		
@@ -176,53 +195,8 @@
 	
 }
 
-// Stop parsing
-- (void)stopParsing {
-	
-	// Stop
-	stopped = YES;
-	
-	// Stop downloading
-	[urlConnection cancel];
-	self.urlConnection = nil;
-	self.asyncData = nil;
-	
-	// Abort parsing
-	aborted = YES;
-	[feedParser abortParsing];
-	
-	// Debug Log
-	MWLog(@"MWFeedParser: Parsing stopped");
-	
-	// Inform delegate of stop only if it hasn't already finished
-	if (!parsingComplete) {
-		if ([delegate respondsToSelector:@selector(feedParserDidFinish:)])
-			[delegate feedParserDidFinish:self];
-	}
-	
-}
-
-// Abort parsing
-- (void)abortParsing {
-	
-	// Abort
-	aborted = YES;
-	[feedParser abortParsing];	
-	
-	// Inform delegate of succesful finish
-	if ([delegate respondsToSelector:@selector(feedParserDidFinish:)])
-		[delegate feedParserDidFinish:self];
-		
-}
-
-// Finished
-- (void)parsingFinished {
-	parsingComplete = YES;
-	parsing = NO;
-}
-
 // Begin XML parsing
-- (void)startParsingData:(NSData *)data {
+- (void)startParsingData:(NSData *)data textEncodingName:(NSString *)textEncodingName {
 	if (data && !feedParser) {
 		
 		// Create feed info
@@ -230,45 +204,181 @@
 		self.info = i;
 		[i release];
 		
-		// Create NSXMLParser
-		NSXMLParser *newFeedParser = [[NSXMLParser alloc] initWithData:data];
-		self.feedParser = newFeedParser;
-		[newFeedParser release];
-		if (feedParser) { 
+		// Check whether it's UTF-8
+		if (![[textEncodingName lowercaseString] isEqualToString:@"utf-8"]) {
 			
-			// Parse!
-			feedParser.delegate = self;
-			[feedParser setShouldProcessNamespaces:YES];
-			[feedParser parse];
-			[feedParser release], feedParser = nil; // Release after parse
+			// Not UTF-8 so convert
+			MWLog(@"MWFeedParser: XML document was not UTF-8 so we're converting it");
+			NSString *string = nil;
 			
-		} else {
+			// Attempt to detect encoding from response header
+			NSStringEncoding nsEncoding = 0;
+			if (textEncodingName) {
+				CFStringEncoding cfEncoding = CFStringConvertIANACharSetNameToEncoding((CFStringRef)textEncodingName);
+				if (cfEncoding != kCFStringEncodingInvalidId) {
+					nsEncoding = CFStringConvertEncodingToNSStringEncoding(cfEncoding);
+					if (nsEncoding != 0) string = [[NSString alloc] initWithData:data encoding:nsEncoding];
+				}
+			}
 			
-			// Error
-			[self failWithErrorCode:MWErrorCodeFeedParsingError description:[NSString stringWithFormat:@"Feed not a valid XML document (URL: %@)", url]];
-
+			// If that failed then make our own attempts
+			if (!string) {
+				// http://www.mikeash.com/pyblog/friday-qa-2010-02-19-character-encodings.html
+				string			    = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+				if (!string) string = [[NSString alloc] initWithData:data encoding:NSISOLatin1StringEncoding];
+				if (!string) string = [[NSString alloc] initWithData:data encoding:NSMacOSRomanStringEncoding];
+			}
+			
+			// Nil data
+			data = nil;
+			
+			// Parse
+			if (string) {
+				
+				// Set XML encoding to UTF-8
+				if ([string hasPrefix:@"<?xml"]) {
+					NSRange a = [string rangeOfString:@"?>"];
+					if (a.location != NSNotFound) {
+						NSString *xmlDec = [string substringToIndex:a.location];
+						if ([xmlDec rangeOfString:@"encoding=\"UTF-8\"" 
+										  options:NSCaseInsensitiveSearch].location == NSNotFound) {
+							NSRange b = [xmlDec rangeOfString:@"encoding=\""];
+							if (b.location != NSNotFound) {
+								NSUInteger s = b.location+b.length;
+								NSRange c = [xmlDec rangeOfString:@"\"" options:0 range:NSMakeRange(s, [xmlDec length] - s)];
+								if (c.location != NSNotFound) {
+									NSString *temp = [[string stringByReplacingCharactersInRange:NSMakeRange(b.location,c.location+c.length-b.location)
+																					  withString:@"encoding=\"UTF-8\""] retain];
+									[string release];
+									string = temp;
+								}
+							}
+						}
+					}
+				}
+				
+				// Convert string to UTF-8 data
+				if (string) {
+					data = [string dataUsingEncoding:NSUTF8StringEncoding];
+					[string release];
+				}
+				
+			}
+			
 		}
 		
+		// Create NSXMLParser
+		if (data) {
+			NSXMLParser *newFeedParser = [[NSXMLParser alloc] initWithData:data];
+			self.feedParser = newFeedParser;
+			[newFeedParser release];
+			if (feedParser) { 
+				
+				// Parse!
+				feedParser.delegate = self;
+				[feedParser setShouldProcessNamespaces:YES];
+				[feedParser parse];
+				[feedParser release], feedParser = nil; // Release after parse
+				
+			} else {
+				[self parsingFailedWithErrorCode:MWErrorCodeFeedParsingError andDescription:@"Feed not a valid XML document"];
+			}
+		} else {
+			[self parsingFailedWithErrorCode:MWErrorCodeFeedParsingError andDescription:@"Error with feed encoding"];
+		}
+
 	}
 }
 
-#pragma mark -
-#pragma mark Error Handling
+// Abort parsing early if we're ignoring feed items
+- (void)abortParsingEarly {
+	
+	// Abort
+	aborted = YES; [feedParser abortParsing];
+	[self parsingFinished];
+	
+}
+
+// Stop parsing
+- (void)stopParsing {
+	
+	// Only if we're parsing
+	if (parsing && !parsingComplete) {
+		
+		// Debug Log
+		MWLog(@"MWFeedParser: Parsing stopped");
+		
+		// Stop
+		stopped = YES;
+		
+		// Stop downloading
+		[urlConnection cancel];
+		self.urlConnection = nil;
+		self.asyncData = nil;
+		self.asyncTextEncodingName = nil;
+		
+		// Abort
+		aborted = YES;
+		[feedParser abortParsing];
+		
+		// Finished
+		[self parsingFinished];
+		
+	}
+	
+}
+
+// Finished parsing document successfully
+- (void)parsingFinished {
+	
+	// Finish
+	if (!parsingComplete) {
+		
+		// Set state and notify delegate
+		parsing = NO;
+		parsingComplete = YES;
+		if ([delegate respondsToSelector:@selector(feedParserDidFinish:)])
+			[delegate feedParserDidFinish:self];
+		
+		// Reset
+		[self reset];
+		
+	}
+	
+}
 
 // If an error occurs, create NSError and inform delegate
-- (void)failWithErrorCode:(int)code description:(NSString *)description {
+- (void)parsingFailedWithErrorCode:(int)code andDescription:(NSString *)description {
 	
-	// Create error
-	NSError *error = [NSError errorWithDomain:MWErrorDomain 
-										 code:code 
-									 userInfo:[NSDictionary dictionaryWithObject:description
-																		  forKey:NSLocalizedDescriptionKey]];
-	MWLog(@"%@", error);
-
-	// Inform delegate
-	failed = YES;
-	if ([delegate respondsToSelector:@selector(feedParser:didFailWithError:)])
-		[delegate feedParser:self didFailWithError:error];
+	// Finish & create error
+	if (!parsingComplete) {
+		
+		// State
+		failed = YES;
+		parsing = NO;
+		parsingComplete = YES;
+		
+		// Create error
+		NSError *error = [NSError errorWithDomain:MWErrorDomain 
+											 code:code 
+										 userInfo:[NSDictionary dictionaryWithObject:description
+																			  forKey:NSLocalizedDescriptionKey]];
+		MWLog(@"%@", error);
+		
+		// Abort parsing
+		if (feedParser) {
+			aborted = YES;
+			[feedParser abortParsing];
+		}
+		
+		// Reset
+		[self reset];
+		
+		// Inform delegate
+		if ([delegate respondsToSelector:@selector(feedParser:didFailWithError:)])
+			[delegate feedParser:self didFailWithError:error];
+		
+	}
 	
 }
 
@@ -277,6 +387,7 @@
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
 	[asyncData setLength:0];
+	self.asyncTextEncodingName = [response textEncodingName];
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
@@ -288,9 +399,10 @@
 	// Failed
 	self.urlConnection = nil;
 	self.asyncData = nil;
+	self.asyncTextEncodingName = nil;
 	
     // Error
-	[self failWithErrorCode:MWErrorCodeConnectionFailed description:[error localizedDescription]];
+	[self parsingFailedWithErrorCode:MWErrorCodeConnectionFailed andDescription:[error localizedDescription]];
 	
 }
 
@@ -300,11 +412,12 @@
 	MWLog(@"MWFeedParser: Connection successful... received %d bytes of data", [asyncData length]);
 	
 	// Parse
-	if (!stopped) [self startParsingData:asyncData];
+	if (!stopped) [self startParsingData:asyncData textEncodingName:self.asyncTextEncodingName];
 	
     // Cleanup
     self.urlConnection = nil;
     self.asyncData = nil;
+	self.asyncTextEncodingName = nil;
 
 }
 
@@ -315,7 +428,8 @@
 #pragma mark -
 #pragma mark XML Parsing
 
-- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qualifiedName attributes:(NSDictionary *)attributeDict {
+- (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI 
+									   qualifiedName:(NSString *)qualifiedName attributes:(NSDictionary *)attributeDict {
 	MWXMLLog(@"NSXMLParser: didStartElement: %@", qualifiedName);
 	
 	// Adjust path
@@ -331,7 +445,8 @@
 		
 		// Add attributes
 		for (NSString *key in attributeDict) {
-			[currentText appendFormat:@" %@=\"%@\"", key, [[attributeDict objectForKey:key] stringByEncodingHTMLEntities]];
+			[currentText appendFormat:@" %@=\"%@\"", key, 
+				[[attributeDict objectForKey:key] stringByEncodingHTMLEntities]];
 		}
 		
 		// End tag or close
@@ -354,6 +469,13 @@
 		if ([qualifiedName isEqualToString:@"rss"]) feedType = FeedTypeRSS; 
 		else if ([qualifiedName isEqualToString:@"rdf:RDF"]) feedType = FeedTypeRSS1;
 		else if ([qualifiedName isEqualToString:@"feed"]) feedType = FeedTypeAtom;
+		else {
+		
+			// Invalid format so fail
+			[self parsingFailedWithErrorCode:MWErrorCodeFeedParsingError 
+							  andDescription:@"XML document is not a valid web feed document."];
+			
+		}
 		return;
 	}
 	
@@ -386,7 +508,7 @@
 					MWLog(@"MWFeedParser: Parse type is ParseTypeInfoOnly so finishing here");
 					
 					// Finish
-					[self abortParsing];
+					[self abortParsingEarly];
 					return;
 					
 				}
@@ -429,7 +551,8 @@
 	
 }
 
-- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
+- (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName 
+									  namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
 	MWXMLLog(@"NSXMLParser: didEndElement: %@", qName);
 	
 	// Parse content as structure (Atom feeds with element type="xhtml")
@@ -565,7 +688,8 @@
 	
 }
 
-//- (void)parser:(NSXMLParser *)parser foundAttributeDeclarationWithName:(NSString *)attributeName forElement:(NSString *)elementName type:(NSString *)type defaultValue:(NSString *)defaultValue {
+//- (void)parser:(NSXMLParser *)parser foundAttributeDeclarationWithName:(NSString *)attributeName 
+//			forElement:(NSString *)elementName type:(NSString *)type defaultValue:(NSString *)defaultValue {
 //	MWXMLLog(@"NSXMLParser: foundAttributeDeclarationWithName: %@", attributeName);
 //}
 
@@ -627,9 +751,7 @@
 	MWLog(@"MWFeedParser: Parsing finished");
 	
 	// Inform delegate
-	[self parsingFinished]; // Cleanup
-	if ([delegate respondsToSelector:@selector(feedParserDidFinish:)])
-		[delegate feedParserDidFinish:self];
+	[self parsingFinished];
 	
 }
 
@@ -637,24 +759,19 @@
 - (void)parser:(NSXMLParser *)parser parseErrorOccurred:(NSError *)parseError {
 	MWXMLLog(@"NSXMLParser: parseErrorOccurred: %@", parseError);
 	
-	// Finished
-	[self parsingFinished]; // Cleanup
+	// Fail with error
 	if (!aborted) {
-		
-		// Fail with error
-		[self failWithErrorCode:MWErrorCodeFeedParsingError description:[parseError localizedDescription]];
-		
+		// This method is called when legimitaly aboring the parser so ignore if this is the case
+		[self parsingFailedWithErrorCode:MWErrorCodeFeedParsingError andDescription:[parseError localizedDescription]];
 	}
+	
 }
 
 - (void)parser:(NSXMLParser *)parser validationErrorOccurred:(NSError *)validError {
 	MWXMLLog(@"NSXMLParser: validationErrorOccurred: %@", validError);
 	
-	// Finished
-	[self parsingFinished]; // Cleanup
-	
 	// Fail with error
-	[self failWithErrorCode:MWErrorCodeFeedValidationError description:[validError localizedDescription]];
+	[self parsingFailedWithErrorCode:MWErrorCodeFeedValidationError andDescription:[validError localizedDescription]];
 	
 }
 
@@ -680,9 +797,10 @@
 - (void)dispatchFeedItemToDelegate {
 	if (item) {
 
-		// Ensure summary always contains data if available
+		// Process before hand
 		if (!item.summary) { item.summary = item.content; item.content = nil; }
-		
+		if (!item.date && item.updated) { item.date = item.updated; }
+
 		// Debug log
 		MWLog(@"MWFeedParser: Feed item \"%@\" successfully parsed", item.title);
 		
@@ -697,10 +815,19 @@
 }
 
 #pragma mark -
-#pragma mark Helpers
+#pragma mark Helpers & Properties
 
-- (NSString *)url {
-	return [NSString stringWithString:url];
+// Set URL to parse and removing feed: uri scheme info
+// http://en.wikipedia.org/wiki/Feed:_URI_scheme
+- (void)setUrl:(NSString *)value {
+	NSString *newURL = nil;
+	if (value) {
+		newURL = [NSString stringWithString:value];
+		if ([newURL hasPrefix:@"feed://"]) newURL = [NSString stringWithFormat:@"http://%@", [newURL substringFromIndex:7]];
+		if ([newURL hasPrefix:@"feed:"]) newURL = [newURL substringFromIndex:5];
+	}
+	if (url) [url release];
+	url = [newURL retain];
 }
 
 #pragma mark -
@@ -711,8 +838,8 @@
 	
 	// Create enclosure
 	NSDictionary *enclosure = nil;
-	NSString *encURL, *encType;
-	NSNumber *encLength;
+	NSString *encURL = nil, *encType = nil;
+	NSNumber *encLength = nil;
 	if (attributes) {
 		switch (feedType) {
 			case FeedTypeRSS: { // http://cyber.law.harvard.edu/rss/rss.html#ltenclosuregtSubelementOfLtitemgt

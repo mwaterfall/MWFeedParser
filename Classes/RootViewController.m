@@ -56,9 +56,8 @@
 	self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh 
 																							target:self 
 																							action:@selector(refresh)] autorelease];
-
 	// Create parser
-	feedParser = [[MWFeedParser alloc] initWithFeedURL:@"http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/front_page/rss.xml"];
+	feedParser = [[MWFeedParser alloc] initWithFeedURL:@"http://images.apple.com/main/rss/hotnews/hotnews.rss"];
 	feedParser.delegate = self;
 	feedParser.feedParseType = ParseTypeFull; // Parse feed info and all items
 	feedParser.connectionType = ConnectionTypeAsynchronously;
@@ -71,13 +70,12 @@
 
 // Reset and reparse
 - (void)refresh {
-	if (![feedParser isParsing]) {
-		self.title = @"Refreshing...";
-		[parsedItems removeAllObjects];
-		[feedParser parse];
-		self.tableView.userInteractionEnabled = NO;
-		self.tableView.alpha = 0.3;
-	}
+	self.title = @"Refreshing...";
+	[parsedItems removeAllObjects];
+	[feedParser stopParsing];
+	[feedParser parse];
+	self.tableView.userInteractionEnabled = NO;
+	self.tableView.alpha = 0.3;
 }
 
 #pragma mark -
@@ -94,11 +92,11 @@
 
 - (void)feedParser:(MWFeedParser *)parser didParseFeedItem:(MWFeedItem *)item {
 	NSLog(@"Parsed Feed Item: “%@”", item.title);
-	if (item) [parsedItems addObject:item];
+	if (item) [parsedItems addObject:item];	
 }
 
 - (void)feedParserDidFinish:(MWFeedParser *)parser {
-	NSLog(@"Finished Parsing");
+	NSLog(@"Finished Parsing%@", (parser.stopped ? @" (Stopped)" : @""));
 	self.itemsToDisplay = [parsedItems sortedArrayUsingDescriptors:
 						   [NSArray arrayWithObject:[[[NSSortDescriptor alloc] initWithKey:@"date" 
 																				 ascending:NO] autorelease]]];

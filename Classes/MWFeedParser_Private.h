@@ -35,6 +35,7 @@
 @property (nonatomic, copy) NSString *url;
 @property (nonatomic, retain) NSURLConnection *urlConnection;
 @property (nonatomic, retain) NSMutableData *asyncData;
+@property (nonatomic, retain) NSString *asyncTextEncodingName;
 
 // Parsing Properties
 @property (nonatomic, retain) NSXMLParser *feedParser;
@@ -49,16 +50,16 @@
 
 // Parsing Methods
 - (void)reset;
-- (void)abortParsing;
+- (void)abortParsingEarly;
 - (void)parsingFinished;
-- (void)startParsingData:(NSData *)data;
+- (void)parsingFailedWithErrorCode:(int)code andDescription:(NSString *)description;
+- (void)startParsingData:(NSData *)data textEncodingName:(NSString *)textEncodingName;
 
 // Dispatching to Delegate
 - (void)dispatchFeedInfoToDelegate;
 - (void)dispatchFeedItemToDelegate;
 
 // Error Handling
-- (void)failWithErrorCode:(int)code description:(NSString *)description;
 
 // Misc
 - (BOOL)createEnclosureFromAttributes:(NSDictionary *)attributes andAddToItem:(MWFeedItem *)currentItem;

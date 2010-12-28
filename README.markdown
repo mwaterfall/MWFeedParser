@@ -38,7 +38,7 @@ There is an example iPhone application within the project which demonstrates how
 Create parser:
 
 	// Create feed parser and pass the URL of the feed
-	feedParser = [[MWFeedParser alloc] initWithFeedURL:@"http://www.shoutfilm.com/rss/staff-blog/"];
+	feedParser = [[MWFeedParser alloc] initWithFeedURL:@"http://images.apple.com/main/rss/hotnews/hotnews.rss"];
 
 Set delegate:
 
@@ -150,11 +150,12 @@ MWFeedParser is not currently thread-safe.
 
 ## Outstanding and suggested features
 
-- Further optimise parsing.
 - Demonstrate the previewing of formatted item summary/content (HTML with images, paragraphs, etc) within a `UIWebView` in demo app.
 - Provide functionality to list available feeds when given the URL to a webpage with one or more web feeds associated with it.
-- Support for the Media RSS extension.
+- Support for the Media RSS extension (from Flickr, etc.)
 - Support for the GeoRSS extension.
+- Look into web feed icons.
+- Look into supporting/detecting images in feed items.
 
 Feel free to get in touch and suggest/vote for other features.
 
@@ -189,4 +190,5 @@ THE SOFTWARE.
 Contact
 ===============
 
-Twitter: 	<http://twitter.com/mwaterfall>
+Website: 	<http://michaelwaterfall.com>
+Twitter:	<http://twitter.com/mwaterfall>
