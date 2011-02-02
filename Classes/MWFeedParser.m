@@ -432,6 +432,7 @@
 									   qualifiedName:(NSString *)qualifiedName attributes:(NSDictionary *)attributeDict {
 	MWXMLLog(@"NSXMLParser: didStartElement: %@", qualifiedName);
 	
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	// Adjust path
 	self.currentPath = [currentPath stringByAppendingPathComponent:qualifiedName];
 	self.currentElementAttributes = attributeDict;
@@ -549,12 +550,14 @@
 		
 	}
 	
+	[pool release];
 }
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName 
 									  namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
 	MWXMLLog(@"NSXMLParser: didEndElement: %@", qName);
 	
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	// Parse content as structure (Atom feeds with element type="xhtml")
 	// - Use elementName not qualifiedName to ignore XML namespaces for XHTML entities
 	if (parseStructureAsContent) {
@@ -685,6 +688,8 @@
 			
 		}	
 	}
+	
+	[pool release];
 	
 }
 
