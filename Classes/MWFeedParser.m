@@ -41,9 +41,9 @@
 
 // Empty XHTML elements ( <!ELEMENT br EMPTY> in http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd )
 #define ELEMENT_IS_EMPTY(e) ([e isEqualToString:@"br"] || [e isEqualToString:@"img"] || [e isEqualToString:@"input"] || \
-							 [e isEqualToString:@"hr"] || [e isEqualToString:@"link"] || [e isEqualToString:@"base"] || \
-							 [e isEqualToString:@"basefont"] || [e isEqualToString:@"frame"] || [e isEqualToString:@"meta"] || \
-							 [e isEqualToString:@"area"] || [e isEqualToString:@"col"] || [e isEqualToString:@"param"])
+[e isEqualToString:@"hr"] || [e isEqualToString:@"link"] || [e isEqualToString:@"base"] || \
+[e isEqualToString:@"basefont"] || [e isEqualToString:@"frame"] || [e isEqualToString:@"meta"] || \
+[e isEqualToString:@"area"] || [e isEqualToString:@"col"] || [e isEqualToString:@"param"])
 
 // Implementation
 @implementation MWFeedParser
@@ -60,7 +60,7 @@
 
 - (id)init {
 	if (self = [super init]) {
-
+		
 		// Defaults
 		feedParseType = ParseTypeFull;
 		connectionType = ConnectionTypeSynchronously;
@@ -131,7 +131,7 @@
 
 // Parse using URL for backwards compatibility
 - (BOOL)parse {
-
+	
 	// Reset
 	[self reset];
 	
@@ -153,8 +153,8 @@
 	
 	// Request
 	NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:url] 
-												  cachePolicy:NSURLRequestReloadIgnoringLocalAndRemoteCacheData 
-											  timeoutInterval:60];
+																cachePolicy:NSURLRequestReloadIgnoringLocalAndRemoteCacheData 
+															timeoutInterval:60];
 	[request setValue:@"MWFeedParser" forHTTPHeaderField:@"User-Agent"];
 	
 	// Debug Log
@@ -174,7 +174,7 @@
 		}
 		
 	} else {
-	
+		
 		// Sync
 		NSURLResponse *response = nil;
 		NSError *error = nil;
@@ -286,7 +286,7 @@
 		} else {
 			[self parsingFailedWithErrorCode:MWErrorCodeFeedParsingError andDescription:@"Error with feed encoding"];
 		}
-
+		
 	}
 }
 
@@ -418,7 +418,7 @@
     self.urlConnection = nil;
     self.asyncData = nil;
 	self.asyncTextEncodingName = nil;
-
+	
 }
 
 -(NSCachedURLResponse *)connection:(NSURLConnection *)connection willCacheResponse:(NSCachedURLResponse *)cachedResponse {
@@ -429,9 +429,10 @@
 #pragma mark XML Parsing
 
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI 
-									   qualifiedName:(NSString *)qualifiedName attributes:(NSDictionary *)attributeDict {
+ qualifiedName:(NSString *)qualifiedName attributes:(NSDictionary *)attributeDict {
 	MWXMLLog(@"NSXMLParser: didStartElement: %@", qualifiedName);
 	
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	// Adjust path
 	self.currentPath = [currentPath stringByAppendingPathComponent:qualifiedName];
 	self.currentElementAttributes = attributeDict;
@@ -446,7 +447,7 @@
 		// Add attributes
 		for (NSString *key in attributeDict) {
 			[currentText appendFormat:@" %@=\"%@\"", key, 
-				[[attributeDict objectForKey:key] stringByEncodingHTMLEntities]];
+			 [[attributeDict objectForKey:key] stringByEncodingHTMLEntities]];
 		}
 		
 		// End tag or close
@@ -457,6 +458,7 @@
 		}
 		
 		// Dont continue
+		[pool release];
 		return;
 		
 	}
@@ -470,12 +472,13 @@
 		else if ([qualifiedName isEqualToString:@"rdf:RDF"]) feedType = FeedTypeRSS1;
 		else if ([qualifiedName isEqualToString:@"feed"]) feedType = FeedTypeAtom;
 		else {
-		
+			
 			// Invalid format so fail
 			[self parsingFailedWithErrorCode:MWErrorCodeFeedParsingError 
 							  andDescription:@"XML document is not a valid web feed document."];
 			
 		}
+		[pool release];
 		return;
 	}
 	
@@ -484,15 +487,16 @@
 		if ((feedType == FeedTypeRSS  && [currentPath isEqualToString:@"/rss/channel"]) ||
 			(feedType == FeedTypeRSS1 && [currentPath isEqualToString:@"/rdf:RDF/channel"]) ||
 			(feedType == FeedTypeAtom && [currentPath isEqualToString:@"/feed"])) {
+			[pool release];
 			return;
 		}
 	}
-			
+	
 	// Entering new item element
 	if ((feedType == FeedTypeRSS  && [currentPath isEqualToString:@"/rss/channel/item"]) ||
 		(feedType == FeedTypeRSS1 && [currentPath isEqualToString:@"/rdf:RDF/item"]) ||
 		(feedType == FeedTypeAtom && [currentPath isEqualToString:@"/feed/entry"])) {
-
+		
 		// Send off feed info to delegate
 		if (!hasEncounteredItems) {
 			hasEncounteredItems = YES;
@@ -500,7 +504,7 @@
 				
 				// Dispatch feed info to delegate
 				[self dispatchFeedInfoToDelegate];
-
+				
 				// Stop parsing if only requiring meta data
 				if (feedParseType == ParseTypeInfoOnly) {
 					
@@ -525,7 +529,8 @@
 		MWFeedItem *newItem = [[MWFeedItem alloc] init];
 		self.item = newItem;
 		[newItem release];
-
+		
+		[pool release];
 		return;
 	}
 	
@@ -549,30 +554,33 @@
 		
 	}
 	
+	[pool release];
 }
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName 
-									  namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
+  namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
 	MWXMLLog(@"NSXMLParser: didEndElement: %@", qName);
 	
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	// Parse content as structure (Atom feeds with element type="xhtml")
 	// - Use elementName not qualifiedName to ignore XML namespaces for XHTML entities
 	if (parseStructureAsContent) {
 		
 		// Check for finishing parsing structure as content
 		if (currentPath.length > pathOfElementWithXHTMLType.length) {
-
+			
 			// Close XHTML tag unless it is an empty element
 			if (!ELEMENT_IS_EMPTY(elementName)) [currentText appendFormat:@"</%@>", elementName];
 			
 			// Adjust path & don't continue
 			self.currentPath = [currentPath stringByDeletingLastPathComponent];
 			
+			[pool release];
 			// Return
 			return;
 			
 		}
-
+		
 		// Finish
 		parseStructureAsContent = NO;
 		self.pathOfElementWithXHTMLType = nil;
@@ -587,7 +595,7 @@
 		
 		// Remove newlines and whitespace from currentText
 		NSString *processedText = [currentText stringByRemovingNewLinesAndWhitespace];
-
+		
 		// Process
 		switch (feedType) {
 			case FeedTypeRSS: {
@@ -686,6 +694,8 @@
 		}	
 	}
 	
+	[pool release];
+	
 }
 
 //- (void)parser:(NSXMLParser *)parser foundAttributeDeclarationWithName:(NSString *)attributeName 
@@ -746,7 +756,7 @@
 
 - (void)parserDidEndDocument:(NSXMLParser *)parser {
 	MWXMLLog(@"NSXMLParser: parserDidEndDocument");
-
+	
 	// Debug Log
 	MWLog(@"MWFeedParser: Parsing finished");
 	
@@ -780,7 +790,7 @@
 
 - (void)dispatchFeedInfoToDelegate {
 	if (info) {
-	
+		
 		// Inform delegate
 		if ([delegate respondsToSelector:@selector(feedParser:didParseFeedInfo:)])
 			[delegate feedParser:self didParseFeedInfo:[[info retain] autorelease]];
@@ -796,11 +806,11 @@
 
 - (void)dispatchFeedItemToDelegate {
 	if (item) {
-
+		
 		// Process before hand
 		if (!item.summary) { item.summary = item.content; item.content = nil; }
 		if (!item.date && item.updated) { item.date = item.updated; }
-
+		
 		// Debug log
 		MWLog(@"MWFeedParser: Feed item \"%@\" successfully parsed", item.title);
 		
@@ -875,7 +885,7 @@
 		enclosure = [NSDictionary dictionaryWithDictionary:e];
 		[e release];
 	}
-					 
+	
 	// Add to item		 
 	if (enclosure) {
 		if (currentItem.enclosures) {
