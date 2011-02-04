@@ -41,6 +41,9 @@
 // Strip HTML tags
 - (NSString *)stringByConvertingHTMLToPlainText {
 	
+	// Pool
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	
 	// Character sets
 	NSCharacterSet *stopCharacters = [NSCharacterSet characterSetWithCharactersInString:[NSString stringWithFormat:@"< \t\n\r%C%C%C%C", 0x0085, 0x000C, 0x2028, 0x2029]];
 	NSCharacterSet *newLineAndWhitespaceCharacters = [NSCharacterSet characterSetWithCharactersInString:[NSString stringWithFormat:@" \t\n\r%C%C%C%C", 0x0085, 0x000C, 0x2028, 0x2029]];
@@ -63,7 +66,7 @@
 		
 		// Check if we've stopped at a tag/comment or whitespace
 		if ([scanner scanString:@"<" intoString:NULL]) {
-		
+			
 			// Stopped at a comment or tag
 			if ([scanner scanString:@"!--" intoString:NULL]) {
 				
@@ -102,7 +105,7 @@
 				// Scan past tag
 				[scanner scanUpToString:@">" intoString:NULL];
 				[scanner scanString:@">" intoString:NULL];
-
+				
 			}
 			
 		} else {
@@ -115,29 +118,39 @@
 		}
 		
 	} while (![scanner isAtEnd]);
-
+	
 	// Cleanup
 	[scanner release];
 	
 	// Decode HTML entities and return
-	NSString *retString = [result stringByDecodingHTMLEntities];
+	NSString *retString = [[result stringByDecodingHTMLEntities] retain];
 	[result release];
-	return retString;
+	
+	// Drain
+	[pool drain];
+	
+	// Return
+	return [retString autorelease];
 	
 }
 
 // Decode all HTML entities using GTM
 - (NSString *)stringByDecodingHTMLEntities {
-	return [NSString stringWithString:[self gtm_stringByUnescapingFromHTML]]; // gtm_stringByUnescapingFromHTML can return self so create new string ;)
+	// gtm_stringByUnescapingFromHTML can return self so create new string ;)
+	return [NSString stringWithString:[self gtm_stringByUnescapingFromHTML]]; 
 }
 
 // Encode all HTML entities using GTM
 - (NSString *)stringByEncodingHTMLEntities {
-	return [NSString stringWithString:[self gtm_stringByEscapingForAsciiHTML]]; // gtm_stringByUnescapingFromHTML can return self so create new string ;)
+	// gtm_stringByUnescapingFromHTML can return self so create new string ;)
+	return [NSString stringWithString:[self gtm_stringByEscapingForAsciiHTML]];
 }
 
 // Replace newlines with <br /> tags
 - (NSString *)stringWithNewLinesAsBRs {
+	
+	// Pool
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	// Strange New lines:
 	//	Next Line, U+0085
@@ -182,14 +195,22 @@
 	
 	// Cleanup & return
 	[scanner release];
-	NSString *retString = [NSString stringWithString:result];
+	NSString *retString = [[NSString stringWithString:result] retain];
 	[result release];
-	return retString;
+	
+	// Drain
+	[pool drain];
+	
+	// Return
+	return [retString autorelease];
 	
 }
 
 // Remove newlines and white space from strong
 - (NSString *)stringByRemovingNewLinesAndWhitespace {
+	
+	// Pool
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	// Strange New lines:
 	//	Next Line, U+0085
@@ -224,15 +245,23 @@
 	[scanner release];
 	
 	// Return
-	NSString *retString = [NSString stringWithString:result];
+	NSString *retString = [[NSString stringWithString:result] retain];
 	[result release];
-	return retString;
+	
+	// Drain
+	[pool drain];
+	
+	// Return
+	return [retString autorelease];
 	
 }
 
 // Strip HTML tags
 // DEPRECIATED - Please use NSString stringByConvertingHTMLToPlainText
 - (NSString *)stringByStrippingTags {
+	
+	// Pool
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	// Find first & and short-cut if we can
 	NSUInteger ampIndex = [self rangeOfString:@"<" options:NSLiteralSearch].location;
@@ -290,12 +319,17 @@
 	}
 	
 	// Remove multi-spaces and line breaks
-	finalString = [result stringByRemovingNewLinesAndWhitespace];
+	finalString = [[result stringByRemovingNewLinesAndWhitespace] retain];
 	
-	// Cleanup & return
+	// Cleanup
 	[result release];
 	[tags release];
-    return finalString;
+	
+	// Drain
+	[pool drain];
+	
+	// Return
+    return [finalString autorelease];
 	
 }
 

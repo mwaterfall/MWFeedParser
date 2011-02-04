@@ -432,6 +432,9 @@
 									   qualifiedName:(NSString *)qualifiedName attributes:(NSDictionary *)attributeDict {
 	MWXMLLog(@"NSXMLParser: didStartElement: %@", qualifiedName);
 	
+	// Pool
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	
 	// Adjust path
 	self.currentPath = [currentPath stringByAppendingPathComponent:qualifiedName];
 	self.currentElementAttributes = attributeDict;
@@ -457,6 +460,7 @@
 		}
 		
 		// Dont continue
+		[pool drain];
 		return;
 		
 	}
@@ -476,6 +480,7 @@
 							  andDescription:@"XML document is not a valid web feed document."];
 			
 		}
+		[pool drain];
 		return;
 	}
 	
@@ -484,6 +489,7 @@
 		if ((feedType == FeedTypeRSS  && [currentPath isEqualToString:@"/rss/channel"]) ||
 			(feedType == FeedTypeRSS1 && [currentPath isEqualToString:@"/rdf:RDF/channel"]) ||
 			(feedType == FeedTypeAtom && [currentPath isEqualToString:@"/feed"])) {
+			[pool drain];
 			return;
 		}
 	}
@@ -509,6 +515,7 @@
 					
 					// Finish
 					[self abortParsingEarly];
+					[pool drain];
 					return;
 					
 				}
@@ -525,8 +532,11 @@
 		MWFeedItem *newItem = [[MWFeedItem alloc] init];
 		self.item = newItem;
 		[newItem release];
-
+		
+		// Return
+		[pool drain];
 		return;
+		
 	}
 	
 	// Check if entering into an Atom content tag with type "xhtml"
@@ -549,11 +559,17 @@
 		
 	}
 	
+	// Drain
+	[pool drain];
+	
 }
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName 
 									  namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
 	MWXMLLog(@"NSXMLParser: didEndElement: %@", qName);
+	
+	// Pool
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	// Parse content as structure (Atom feeds with element type="xhtml")
 	// - Use elementName not qualifiedName to ignore XML namespaces for XHTML entities
@@ -569,6 +585,7 @@
 			self.currentPath = [currentPath stringByDeletingLastPathComponent];
 			
 			// Return
+			[pool drain];
 			return;
 			
 		}
@@ -685,6 +702,9 @@
 			
 		}	
 	}
+	
+	// Drain pool
+	[pool drain];
 	
 }
 

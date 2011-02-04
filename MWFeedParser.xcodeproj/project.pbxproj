@@ -79,8 +79,8 @@
 			isa = PBXGroup;
 			children = (
 				4CC89620119F0D1E00ED61B6 /* App */,
-				4CC8960C119F0CF000ED61B6 /* Categories */,
 				4CC89602119F0CDE00ED61B6 /* MWFeedParser */,
+				4CC8960C119F0CF000ED61B6 /* Categories */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -290,6 +290,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 3.0;
 				PRODUCT_NAME = MWFeedParser;
 				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = NO;
 			};
 			name = Debug;
 		};
@@ -304,7 +305,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 3.0;
 				PRODUCT_NAME = MWFeedParser;
 				SDKROOT = iphoneos;
-				VALIDATE_PRODUCT = YES;
+				VALIDATE_PRODUCT = NO;
 			};
 			name = Release;
 		};
