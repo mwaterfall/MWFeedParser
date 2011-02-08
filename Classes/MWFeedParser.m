@@ -111,12 +111,10 @@
 #pragma mark Parsing
 
 // Reset data variables before processing
-// Exclude state variables as they remain after parse, until next one
+// Exclude parse state variables as they are needed after parse
 - (void)reset {
 	self.asyncData = nil;
 	self.asyncTextEncodingName = nil;
-	if (feedParser) [[feedParser retain] autorelease]; // Autorelease as we might release early
-	self.feedParser = nil;
 	self.urlConnection = nil;
 	feedType = FeedTypeUnknown;
 	self.currentPath = @"/";
@@ -278,7 +276,7 @@
 				feedParser.delegate = self;
 				[feedParser setShouldProcessNamespaces:YES];
 				[feedParser parse];
-				[feedParser release], feedParser = nil; // Release after parse
+				self.feedParser = nil; // Release after parse
 				
 			} else {
 				[self parsingFailedWithErrorCode:MWErrorCodeFeedParsingError andDescription:@"Feed not a valid XML document"];
