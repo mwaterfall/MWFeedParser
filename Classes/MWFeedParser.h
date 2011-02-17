@@ -85,7 +85,7 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 	NSDateFormatter *dateFormatterRFC822, *dateFormatterRFC3339;
 	
 	// Parsing State
-	NSString *url;
+	NSURL *url;
 	BOOL aborted; // Whether parse stopped due to abort
 	BOOL parsing; // Whether the MWFeedParser has started parsing
 	BOOL stopped; // Whether the parse was stopped
@@ -128,8 +128,8 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 
 #pragma mark Public Methods
 
-// Init MWFeedParser with a URL string
-- (id)initWithFeedURL:(NSString *)feedURL;
+// Init MWFeedParser with a URL
+- (id)initWithFeedURL:(NSURL *)feedURL;
 
 // Begin parsing
 - (BOOL)parse;
@@ -138,6 +138,6 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 - (void)stopParsing;
 
 // Returns the URL
-- (NSString *)url;
+- (NSURL *)url;
 
 @end

@@ -59,7 +59,7 @@
 #pragma mark NSObject
 
 - (id)init {
-	if (self = [super init]) {
+	if ((self = [super init])) {
 
 		// Defaults
 		feedParseType = ParseTypeFull;
@@ -82,8 +82,8 @@
 
 // Initialise with a URL
 // Mainly for historic reasons before -parseURL:
-- (id)initWithFeedURL:(NSString *)feedURL {
-	if (self = [self init]) {
+- (id)initWithFeedURL:(NSURL *)feedURL {
+	if ((self = [self init])) {
 		
 		// Remember url
 		self.url = feedURL;
@@ -150,7 +150,7 @@
 	BOOL success = YES;
 	
 	// Request
-	NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:url] 
+	NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url
 												  cachePolicy:NSURLRequestReloadIgnoringLocalAndRemoteCacheData 
 											  timeoutInterval:60];
 	[request setValue:@"MWFeedParser" forHTTPHeaderField:@"User-Agent"];
@@ -167,7 +167,7 @@
 			asyncData = [[NSMutableData alloc] init];// Create data
 		} else {
 			[self parsingFailedWithErrorCode:MWErrorCodeConnectionFailed 
-							  andDescription:[NSString stringWithFormat:@"Asynchronous connection failed to URL: %@", url]];
+							  andDescription:[NSString stringWithFormat:@"Asynchronous connection failed to URL: %@", [url description]]];
 			success = NO;
 		}
 		
@@ -181,7 +181,7 @@
 			[self startParsingData:data textEncodingName:[response textEncodingName]]; // Process
 		} else {
 			[self parsingFailedWithErrorCode:MWErrorCodeConnectionFailed 
-							  andDescription:[NSString stringWithFormat:@"Synchronous connection failed to URL: %@", url]];
+							  andDescription:[NSString stringWithFormat:@"Synchronous connection failed to URL: %@", [url description]]];
 			success = NO;
 		}
 		
@@ -837,13 +837,17 @@
 
 // Set URL to parse and removing feed: uri scheme info
 // http://en.wikipedia.org/wiki/Feed:_URI_scheme
-- (void)setUrl:(NSString *)value {
-	NSString *newURL = nil;
+- (void)setUrl:(NSURL *)value {
+	NSURL *newURL = nil;
 	if (value) {
-		newURL = [NSString stringWithString:value];
-		if ([newURL hasPrefix:@"feed://"]) newURL = [NSString stringWithFormat:@"http://%@", [newURL substringFromIndex:7]];
-		if ([newURL hasPrefix:@"feed:"]) newURL = [newURL substringFromIndex:5];
-	}
+        if ([[value scheme] isEqualToString:@"feed"]) {
+            newURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@", 
+                                           ([[value resourceSpecifier] hasPrefix:@"//"] ? @"http:" : @""),
+                                           [value resourceSpecifier]]];
+        } else {
+            newURL = [[value copy] autorelease];
+        }
+ 	}
 	if (url) [url release];
 	url = [newURL retain];
 }
