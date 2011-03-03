@@ -56,8 +56,9 @@
 	self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh 
 																							target:self 
 																							action:@selector(refresh)] autorelease];
-	// Create parser
-	feedParser = [[MWFeedParser alloc] initWithFeedURL:@"http://images.apple.com/main/rss/hotnews/hotnews.rss"];
+	// Parse
+	NSURL *feedURL = [NSURL URLWithString:@"http://images.apple.com/main/rss/hotnews/hotnews.rss"];
+	feedParser = [[MWFeedParser alloc] initWithFeedURL:feedURL];
 	feedParser.delegate = self;
 	feedParser.feedParseType = ParseTypeFull; // Parse feed info and all items
 	feedParser.connectionType = ConnectionTypeAsynchronously;

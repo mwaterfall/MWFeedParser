@@ -38,7 +38,8 @@ There is an example iPhone application within the project which demonstrates how
 Create parser:
 
 	// Create feed parser and pass the URL of the feed
-	feedParser = [[MWFeedParser alloc] initWithFeedURL:@"http://images.apple.com/main/rss/hotnews/hotnews.rss"];
+	NSURL *feedURL = [NSURL URLWithString:@"http://images.apple.com/main/rss/hotnews/hotnews.rss"];
+	feedParser = [[MWFeedParser alloc] initWithFeedURL:feedURL];
 
 Set delegate:
 

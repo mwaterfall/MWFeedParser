@@ -32,7 +32,7 @@
 #pragma mark Private Properties
 
 // Feed Downloading Properties
-@property (nonatomic, copy) NSString *url;
+@property (nonatomic, copy) NSURL *url;
 @property (nonatomic, retain) NSURLConnection *urlConnection;
 @property (nonatomic, retain) NSMutableData *asyncData;
 @property (nonatomic, retain) NSString *asyncTextEncodingName;

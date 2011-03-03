@@ -82,8 +82,13 @@
 
 // Initialise with a URL
 // Mainly for historic reasons before -parseURL:
-- (id)initWithFeedURL:(NSString *)feedURL {
+- (id)initWithFeedURL:(NSURL *)feedURL {
 	if (self = [self init]) {
+		
+		// Check if an string was passed as old init asked for NSString not NSURL
+		if ([feedURL isKindOfClass:[NSString class]]) {
+			feedURL = [NSURL URLWithString:(NSString *)feedURL];
+		}
 		
 		// Remember url
 		self.url = feedURL;
@@ -150,7 +155,7 @@
 	BOOL success = YES;
 	
 	// Request
-	NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:url] 
+	NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url
 												  cachePolicy:NSURLRequestReloadIgnoringLocalAndRemoteCacheData 
 											  timeoutInterval:60];
 	[request setValue:@"MWFeedParser" forHTTPHeaderField:@"User-Agent"];
@@ -672,6 +677,7 @@
 				
 				break;
 			}
+			default: break;
 		}
 	}
 	
@@ -837,15 +843,35 @@
 
 // Set URL to parse and removing feed: uri scheme info
 // http://en.wikipedia.org/wiki/Feed:_URI_scheme
-- (void)setUrl:(NSString *)value {
-	NSString *newURL = nil;
-	if (value) {
-		newURL = [NSString stringWithString:value];
-		if ([newURL hasPrefix:@"feed://"]) newURL = [NSString stringWithFormat:@"http://%@", [newURL substringFromIndex:7]];
-		if ([newURL hasPrefix:@"feed:"]) newURL = [newURL substringFromIndex:5];
+- (void)setUrl:(NSURL *)value {
+	
+	// Check if an string was passed as old init asked for NSString not NSURL
+	if ([value isKindOfClass:[NSString class]]) {
+		value = [NSURL URLWithString:(NSString *)value];
 	}
+	
+	// Create new instance of NSURL and check URL scheme
+	NSURL *newURL = nil;
+	if (value) {
+		if ([value.scheme isEqualToString:@"feed"]) {
+			
+			// Remove feed URL scheme
+			newURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@",
+										  ([value.resourceSpecifier hasPrefix:@"//"] ? @"http:" : @""),
+										  value.resourceSpecifier]];
+			
+		} else {
+			
+			// Copy
+			newURL = [[value copy] autorelease];
+			
+		}
+	}
+	
+	// Set new url
 	if (url) [url release];
 	url = [newURL retain];
+	
 }
 
 #pragma mark -
@@ -883,6 +909,7 @@
 				}
 				break;
 			}
+			default: break;
 		}
 	}
 	if (encURL) {
