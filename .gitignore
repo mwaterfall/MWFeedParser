@@ -19,6 +19,8 @@ profile
 *.xcworkspace
 !default.xcworkspace
 xcuserdata
+*.xcodeproj/project.xcworkspace/
+*.xcodeproj/xcuserdata/
 
 #
 # OS X noise
@@ -40,7 +42,7 @@ Icon
 *.pyo
 
 #
-# Misc
+# GitTower
 #
 
 /Icon.png

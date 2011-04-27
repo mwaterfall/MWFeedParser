@@ -59,7 +59,7 @@
 #pragma mark NSObject
 
 - (id)init {
-	if (self = [super init]) {
+	if ((self = [super init])) {
 
 		// Defaults
 		feedParseType = ParseTypeFull;
@@ -83,7 +83,7 @@
 // Initialise with a URL
 // Mainly for historic reasons before -parseURL:
 - (id)initWithFeedURL:(NSURL *)feedURL {
-	if (self = [self init]) {
+	if ((self = [self init])) {
 		
 		// Check if an string was passed as old init asked for NSString not NSURL
 		if ([feedURL isKindOfClass:[NSString class]]) {
