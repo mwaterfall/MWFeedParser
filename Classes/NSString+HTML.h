@@ -41,6 +41,6 @@
 - (NSString *)stringByRemovingNewLinesAndWhitespace;
 
 // DEPRECIATED - Please use NSString stringByConvertingHTMLToPlainText
-- (NSString *)stringByStrippingTags; 
+- (NSString *)stringByStrippingTags NS_DEPRECATED(10_0, 10_4, 4_0, 4_0);
 
 @end
