@@ -1,4 +1,5 @@
 Tasks:
+	- Create static library target and add seperate demo Xcode project.
 	- Provide functionality to list available feeds when given the URL to a webpage with one or more web feeds associated with it.
 	- Support for the Media RSS extension (from Flickr, etc.)
 	- Support for the GeoRSS extension.
