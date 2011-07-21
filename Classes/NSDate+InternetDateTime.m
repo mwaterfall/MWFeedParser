@@ -14,6 +14,7 @@
 
 // Get a date from a string - hit (from specs) can be used to speed up
 + (NSDate *)dateFromInternetDateTimeString:(NSString *)dateString formatHint:(DateFormatHint)hint {
+    if (!dateString) return nil;
 	NSDate *date = nil;
 	if (hint != DateFormatHintRFC3339) {
 		// Try RFC822 first
@@ -29,7 +30,9 @@
 
 // See http://www.faqs.org/rfcs/rfc822.html
 + (NSDate *)dateFromRFC822String:(NSString *)dateString {
-
+    
+    if (!dateString) return nil;
+    
 	// Create date formatter
 	static NSDateFormatter *dateFormatter = nil;
 	if (!dateFormatter) {
@@ -39,7 +42,7 @@
 		[dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
 		[en_US_POSIX release];
 	}
-
+    
 	// Process
 	NSDate *date = nil;
 	NSString *RFC822String = [[NSString stringWithString:dateString] uppercaseString];
@@ -86,6 +89,8 @@
 // See http://www.faqs.org/rfcs/rfc3339.html
 + (NSDate *)dateFromRFC3339String:(NSString *)dateString {
 	
+    if (!dateString) return nil;
+    
 	// Create date formatter
 	static NSDateFormatter *dateFormatter = nil;
 	if (!dateFormatter) {
