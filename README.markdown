@@ -125,6 +125,7 @@ All properties of `MWFeedInfo` and `MWFeedItem` return the raw data as provided 
 	- (NSString *)stringByEncodingHTMLEntities;
 	- (NSString *)stringWithNewLinesAsBRs;
 	- (NSString *)stringByRemovingNewLinesAndWhitespace;
+	- (NSString *)stringByLinkifyingURLs;
 
 An example of this would be:
 

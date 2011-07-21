@@ -39,6 +39,7 @@
 - (NSString *)stringByEncodingHTMLEntities;
 - (NSString *)stringWithNewLinesAsBRs;
 - (NSString *)stringByRemovingNewLinesAndWhitespace;
+- (NSString *)stringByLinkifyingURLs;
 
 // DEPRECIATED - Please use NSString stringByConvertingHTMLToPlainText
 - (NSString *)stringByStrippingTags __attribute__((deprecated));

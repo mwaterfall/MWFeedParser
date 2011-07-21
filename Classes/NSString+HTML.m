@@ -256,6 +256,23 @@
 	
 }
 
+// Wrap plain URLs in <a href="..." class="linkified">...</a>
+//  - Ignores URLs inside tags (any URL beginning with =")
+//  - HTTP & HTTPS schemes only
+//  - Only works in iOS 4+ as we use NSRegularExpression (returns self if not supported so be careful with NSMutableStrings)
+//  - Expression: (?<!=")\b((http|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?)
+//  - Adapted from http://regexlib.com/REDetails.aspx?regexp_id=96
+- (NSString *)stringByLinkifyingURLs {
+    if (!NSClassFromString(@"NSRegularExpression")) return self;
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    NSString *pattern = @"(?<!=\")\\b((http|https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%%&amp;:/~\\+#]*[\\w\\-\\@?^=%%&amp;/~\\+#])?)";
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:nil];
+    NSString *modifiedString = [[regex stringByReplacingMatchesInString:self options:0 range:NSMakeRange(0, [self length])
+                                                           withTemplate:@"<a href=\"$1\" class=\"linkified\">$1</a>"] retain];
+    [pool drain];
+    return [modifiedString autorelease];
+}
+
 // Strip HTML tags
 // DEPRECIATED - Please use NSString stringByConvertingHTMLToPlainText
 - (NSString *)stringByStrippingTags {
