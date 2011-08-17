@@ -8,11 +8,28 @@
 
 #import "NSDate+InternetDateTime.h"
 
+// Always keep the formatter around as they're expensive to instantiate
+static NSDateFormatter *_internetDateTimeFormatter = nil;
+
+// Good info on internet dates here:
+// http://developer.apple.com/iphone/library/qa/qa2010/qa1480.html
 @implementation NSDate (InternetDateTime)
 
-// Good info on internet dates here: http://developer.apple.com/iphone/library/qa/qa2010/qa1480.html
+// Instantiate single date formatter
++ (NSDateFormatter *)internetDateTimeFormatter {
+    @synchronized(self) {
+        if (!_internetDateTimeFormatter) {
+            NSLocale *en_US_POSIX = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
+            _internetDateTimeFormatter = [[NSDateFormatter alloc] init];
+            [_internetDateTimeFormatter setLocale:en_US_POSIX];
+            [_internetDateTimeFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
+            [en_US_POSIX release];
+        }
+    }
+    return _internetDateTimeFormatter;
+}
 
-// Get a date from a string - hit (from specs) can be used to speed up
+// Get a date from a string - hint can be used to speed up
 + (NSDate *)dateFromInternetDateTimeString:(NSString *)dateString formatHint:(DateFormatHint)hint {
     [dateString retain]; // Keep dateString around a while (for thread-safety)
 	NSDate *date = nil;
@@ -36,18 +53,9 @@
     [dateString retain]; // Keep dateString around a while (for thread-safety)
     NSDate *date = nil;
     if (dateString) {
-        @synchronized(self) { // Lock with class
-            
-            // Create date formatter
-            static NSDateFormatter *dateFormatter = nil;
-            if (!dateFormatter) {
-                NSLocale *en_US_POSIX = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
-                dateFormatter = [[NSDateFormatter alloc] init];
-                [dateFormatter setLocale:en_US_POSIX];
-                [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-                [en_US_POSIX release];
-            }
-            
+        NSDateFormatter *dateFormatter = [NSDate internetDateTimeFormatter];
+        @synchronized(dateFormatter) {
+
             // Process
             NSString *RFC822String = [[NSString stringWithString:dateString] uppercaseString];
             if ([RFC822String rangeOfString:@","].location != NSNotFound) {
@@ -85,7 +93,7 @@
                     date = [dateFormatter dateFromString:RFC822String];
                 }
             }
-            if (!date) NSLog(@"Could not parse RFC822 date: \"%@\" Possibly invalid format.", dateString);
+            if (!date) NSLog(@"Could not parse RFC822 date: \"%@\" Possible invalid format.", dateString);
             
         }
     }
@@ -98,22 +106,14 @@
     [dateString retain]; // Keep dateString around a while (for thread-safety)
     NSDate *date = nil;
     if (dateString) {
-        @synchronized(self) { // Lock with class
-        
-            // Create date formatter
-            static NSDateFormatter *dateFormatter = nil;
-            if (!dateFormatter) {
-                NSLocale *en_US_POSIX = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
-                dateFormatter = [[NSDateFormatter alloc] init];
-                [dateFormatter setLocale:en_US_POSIX];
-                [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-                [en_US_POSIX release];
-            }
+        NSDateFormatter *dateFormatter = [NSDate internetDateTimeFormatter];
+        @synchronized(dateFormatter) {
             
             // Process date
             NSString *RFC3339String = [[NSString stringWithString:dateString] uppercaseString];
             RFC3339String = [RFC3339String stringByReplacingOccurrencesOfString:@"Z" withString:@"-0000"];
-            // Remove colon in timezone as iOS 4+ NSDateFormatter breaks. See https://devforums.apple.com/thread/45837
+            // Remove colon in timezone as it breaks NSDateFormatter in iOS 4+.
+            // - see https://devforums.apple.com/thread/45837
             if (RFC3339String.length > 20) {
                 RFC3339String = [RFC3339String stringByReplacingOccurrencesOfString:@":" 
                                                                          withString:@"" 
@@ -132,7 +132,7 @@
                 [dateFormatter setDateFormat:@"yyyy'-'MM'-'dd'T'HH':'mm':'ss"]; 
                 date = [dateFormatter dateFromString:RFC3339String];
             }
-            if (!date) NSLog(@"Could not parse RFC3339 date: \"%@\" Possibly invalid format.", dateString);
+            if (!date) NSLog(@"Could not parse RFC3339 date: \"%@\" Possible invalid format.", dateString);
             
         }
     }

@@ -17,7 +17,7 @@
 //  the License.
 //
 
-#import "GTMDefines.h"
+//#import "GTMDefines.h"
 #import "GTMNSString+HTML.h"
 
 typedef struct {
@@ -391,7 +391,7 @@ static int EscapeMapCompare(const void *ucharVoid, const void *mapVoid) {
 		NSMutableData *data = [NSMutableData dataWithLength:length * sizeof(UniChar)];
 		if (!data) {
 			// COV_NF_START  - Memory fail case
-			_GTMDevLog(@"couldn't alloc buffer");
+//			_GTMDevLog(@"couldn't alloc buffer");
 			return nil;
 			// COV_NF_END
 		}
@@ -401,7 +401,7 @@ static int EscapeMapCompare(const void *ucharVoid, const void *mapVoid) {
 	
 	if (!buffer || !data2) {
 		// COV_NF_START
-		_GTMDevLog(@"Unable to allocate buffer or data2");
+//		_GTMDevLog(@"Unable to allocate buffer or data2");
 		return nil;
 		// COV_NF_END
 	}
@@ -425,7 +425,7 @@ static int EscapeMapCompare(const void *ucharVoid, const void *mapVoid) {
 				[finalString appendString:val->escapeSequence];
 			}
 			else {
-				_GTMDevAssert(escapeUnicode && buffer[i] > 127, @"Illegal Character");
+//				_GTMDevAssert(escapeUnicode && buffer[i] > 127, @"Illegal Character");
 				[finalString appendFormat:@"&#%d;", buffer[i]];
 			}
 		} else {
