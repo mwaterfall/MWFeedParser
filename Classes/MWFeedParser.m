@@ -892,48 +892,41 @@
 #pragma mark -
 #pragma mark Misc
 
-// Create an enclosure NSDictionary from enclosure (or link) attributes
+// Create an enclosure (MWFeedItemEnclosure) from enclosure (or link) attributes
 - (BOOL)createEnclosureFromAttributes:(NSDictionary *)attributes andAddToItem:(MWFeedItem *)currentItem {
 	
 	// Create enclosure
-	NSDictionary *enclosure = nil;
-	NSString *encURL = nil, *encType = nil;
-	NSNumber *encLength = nil;
+	MWFeedItemEnclosure *enclosure = nil;
 	if (attributes) {
 		switch (feedType) {
 			case FeedTypeRSS: { // http://cyber.law.harvard.edu/rss/rss.html#ltenclosuregtSubelementOfLtitemgt
 				// <enclosure>
-				encURL = [attributes objectForKey:@"url"];
-				encType = [attributes objectForKey:@"type"];
-				encLength = [NSNumber numberWithLongLong:[((NSString *)[attributes objectForKey:@"length"]) longLongValue]];
+                enclosure = [[MWFeedItemEnclosure alloc] init];
+				enclosure.url = [NSURL URLWithString:(NSString *)[attributes objectForKey:@"url"]];
+				enclosure.type = [attributes objectForKey:@"type"];
+                enclosure.length = [((NSString *)[attributes objectForKey:@"length"]) integerValue];
 				break;
 			}
 			case FeedTypeRSS1: { // http://www.xs4all.nl/~foz/mod_enclosure.html
 				// <enc:enclosure>
-				encURL = [attributes objectForKey:@"rdf:resource"];
-				encType = [attributes objectForKey:@"enc:type"];
-				encLength = [NSNumber numberWithLongLong:[((NSString *)[attributes objectForKey:@"enc:length"]) longLongValue]];
+                enclosure = [[MWFeedItemEnclosure alloc] init];
+				enclosure.url = [NSURL URLWithString:(NSString *)[attributes objectForKey:@"rdf:resource"]];
+				enclosure.type = [attributes objectForKey:@"enc:type"];
+                enclosure.length = [((NSString *)[attributes objectForKey:@"enc:length"]) integerValue];
 				break;
 			}
 			case FeedTypeAtom: { // http://www.atomenabled.org/developers/syndication/atom-format-spec.php#rel_attribute
 				// <link rel="enclosure" href=...
 				if ([[attributes objectForKey:@"rel"] isEqualToString:@"enclosure"]) {
-					encURL = [attributes objectForKey:@"href"];
-					encType = [attributes objectForKey:@"type"];
-					encLength = [NSNumber numberWithLongLong:[((NSString *)[attributes objectForKey:@"length"]) longLongValue]];
+                    enclosure = [[MWFeedItemEnclosure alloc] init];
+                    enclosure.url = [NSURL URLWithString:(NSString *)[attributes objectForKey:@"href"]];
+                    enclosure.type = [attributes objectForKey:@"type"];
+                    enclosure.length = [((NSString *)[attributes objectForKey:@"length"]) integerValue];
 				}
 				break;
 			}
 			default: break;
 		}
-	}
-	if (encURL) {
-		NSMutableDictionary *e = [[NSMutableDictionary alloc] initWithCapacity:3];
-		[e setObject:encURL forKey:@"url"];
-		if (encType) [e setObject:encType forKey:@"type"];
-		if (encLength) [e setObject:encLength forKey:@"length"];
-		enclosure = [NSDictionary dictionaryWithDictionary:e];
-		[e release];
 	}
 					 
 	// Add to item		 
@@ -943,6 +936,7 @@
 		} else {
 			currentItem.enclosures = [NSArray arrayWithObject:enclosure];
 		}
+        [enclosure release];
 		return YES;
 	} else {
 		return NO;

@@ -30,6 +30,7 @@
 #import <Foundation/Foundation.h>
 #import "MWFeedInfo.h"
 #import "MWFeedItem.h"
+#import "MWFeedItemEnclosure.h"
 
 // Debug Logging
 #if 0 // Set to 1 to enable debug logging
