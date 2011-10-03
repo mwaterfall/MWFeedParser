@@ -50,7 +50,7 @@
 
 // Properties
 @synthesize url, delegate;
-@synthesize urlConnection, asyncData, asyncTextEncodingName, connectionType;
+@synthesize urlConnection, xmlData, xmlTextEncodingName, connectionType;
 @synthesize feedParseType, feedParser, currentPath, currentText, currentElementAttributes, item, info;
 @synthesize pathOfElementWithXHTMLType;
 @synthesize stopped, failed, parsing;
@@ -97,6 +97,15 @@
 	return self;
 }
 
+- (id)initWithFeedData:(NSData *)data textEncodingName:(NSString *)textEncodingName {
+    if ((self = [self init])) {
+		connectionType = ConnectionTypeLocalData;
+        self.xmlData = [NSMutableData dataWithData:data];
+        self.xmlTextEncodingName = textEncodingName;
+	}
+	return self;
+}
+
 - (void)dealloc {
 	[urlConnection release];
 	[url release];
@@ -117,9 +126,12 @@
 
 // Reset data variables before processing
 // Exclude parse state variables as they are needed after parse
+// Exclude data and encoding if using local data
 - (void)reset {
-	self.asyncData = nil;
-	self.asyncTextEncodingName = nil;
+    if(connectionType != ConnectionTypeLocalData) {
+        self.xmlData = nil;
+        self.xmlTextEncodingName = nil;
+    }
 	self.urlConnection = nil;
 	feedType = FeedTypeUnknown;
 	self.currentPath = @"/";
@@ -139,7 +151,7 @@
 	[self reset];
 	
 	// Perform checks before parsing
-	if (!url || !delegate) { [self parsingFailedWithErrorCode:MWErrorCodeNotInitiated 
+	if (connectionType!=ConnectionTypeLocalData && (!url || !delegate)) { [self parsingFailedWithErrorCode:MWErrorCodeNotInitiated 
 											   andDescription:@"Delegate or URL not specified"]; return NO; }
 	if (parsing) { [self parsingFailedWithErrorCode:MWErrorCodeGeneral 
 									 andDescription:@"Cannot start parsing as parsing is already in progress"]; return NO; }
@@ -169,14 +181,14 @@
 		// Async
 		urlConnection = [[NSURLConnection alloc] initWithRequest:request delegate:self];
 		if (urlConnection) {
-			asyncData = [[NSMutableData alloc] init];// Create data
+			xmlData = [[NSMutableData alloc] init];// Create data
 		} else {
 			[self parsingFailedWithErrorCode:MWErrorCodeConnectionFailed 
 							  andDescription:[NSString stringWithFormat:@"Asynchronous connection failed to URL: %@", url]];
 			success = NO;
 		}
 		
-	} else {
+	} else if (connectionType == ConnectionTypeSynchronously) {
 	
 		// Sync
 		NSURLResponse *response = nil;
@@ -190,7 +202,10 @@
 			success = NO;
 		}
 		
-	}
+	} else {
+        // Local data (no request)
+        [self startParsingData:self.xmlData textEncodingName:self.xmlTextEncodingName];
+    }
 	
 	// Cleanup & return
 	[request release];
@@ -317,8 +332,8 @@
 		// Stop downloading
 		[urlConnection cancel];
 		self.urlConnection = nil;
-		self.asyncData = nil;
-		self.asyncTextEncodingName = nil;
+		self.xmlData = nil;
+		self.xmlTextEncodingName = nil;
 		
 		// Abort
 		aborted = YES;
@@ -389,20 +404,20 @@
 #pragma mark NSURLConnection Delegate (Async)
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
-	[asyncData setLength:0];
-	self.asyncTextEncodingName = [response textEncodingName];
+	[xmlData setLength:0];
+	self.xmlTextEncodingName = [response textEncodingName];
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-	[asyncData appendData:data];
+	[xmlData appendData:data];
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
 	
 	// Failed
 	self.urlConnection = nil;
-	self.asyncData = nil;
-	self.asyncTextEncodingName = nil;
+	self.xmlData = nil;
+	self.xmlTextEncodingName = nil;
 	
     // Error
 	[self parsingFailedWithErrorCode:MWErrorCodeConnectionFailed andDescription:[error localizedDescription]];
@@ -412,15 +427,15 @@
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
 	
 	// Succeed
-	MWLog(@"MWFeedParser: Connection successful... received %d bytes of data", [asyncData length]);
+	MWLog(@"MWFeedParser: Connection successful... received %d bytes of data", [xmlData length]);
 	
 	// Parse
-	if (!stopped) [self startParsingData:asyncData textEncodingName:self.asyncTextEncodingName];
+	if (!stopped) [self startParsingData:xmlData textEncodingName:self.xmlTextEncodingName];
 	
     // Cleanup
     self.urlConnection = nil;
-    self.asyncData = nil;
-	self.asyncTextEncodingName = nil;
+    self.xmlData = nil;
+	self.xmlTextEncodingName = nil;
 
 }
 
@@ -877,48 +892,41 @@
 #pragma mark -
 #pragma mark Misc
 
-// Create an enclosure NSDictionary from enclosure (or link) attributes
+// Create an enclosure (MWFeedItemEnclosure) from enclosure (or link) attributes
 - (BOOL)createEnclosureFromAttributes:(NSDictionary *)attributes andAddToItem:(MWFeedItem *)currentItem {
 	
 	// Create enclosure
-	NSDictionary *enclosure = nil;
-	NSString *encURL = nil, *encType = nil;
-	NSNumber *encLength = nil;
+	MWFeedItemEnclosure *enclosure = nil;
 	if (attributes) {
 		switch (feedType) {
 			case FeedTypeRSS: { // http://cyber.law.harvard.edu/rss/rss.html#ltenclosuregtSubelementOfLtitemgt
 				// <enclosure>
-				encURL = [attributes objectForKey:@"url"];
-				encType = [attributes objectForKey:@"type"];
-				encLength = [NSNumber numberWithLongLong:[((NSString *)[attributes objectForKey:@"length"]) longLongValue]];
+                enclosure = [[MWFeedItemEnclosure alloc] init];
+				enclosure.url = [NSURL URLWithString:(NSString *)[attributes objectForKey:@"url"]];
+				enclosure.type = [attributes objectForKey:@"type"];
+                enclosure.length = [((NSString *)[attributes objectForKey:@"length"]) integerValue];
 				break;
 			}
 			case FeedTypeRSS1: { // http://www.xs4all.nl/~foz/mod_enclosure.html
 				// <enc:enclosure>
-				encURL = [attributes objectForKey:@"rdf:resource"];
-				encType = [attributes objectForKey:@"enc:type"];
-				encLength = [NSNumber numberWithLongLong:[((NSString *)[attributes objectForKey:@"enc:length"]) longLongValue]];
+                enclosure = [[MWFeedItemEnclosure alloc] init];
+				enclosure.url = [NSURL URLWithString:(NSString *)[attributes objectForKey:@"rdf:resource"]];
+				enclosure.type = [attributes objectForKey:@"enc:type"];
+                enclosure.length = [((NSString *)[attributes objectForKey:@"enc:length"]) integerValue];
 				break;
 			}
 			case FeedTypeAtom: { // http://www.atomenabled.org/developers/syndication/atom-format-spec.php#rel_attribute
 				// <link rel="enclosure" href=...
 				if ([[attributes objectForKey:@"rel"] isEqualToString:@"enclosure"]) {
-					encURL = [attributes objectForKey:@"href"];
-					encType = [attributes objectForKey:@"type"];
-					encLength = [NSNumber numberWithLongLong:[((NSString *)[attributes objectForKey:@"length"]) longLongValue]];
+                    enclosure = [[MWFeedItemEnclosure alloc] init];
+                    enclosure.url = [NSURL URLWithString:(NSString *)[attributes objectForKey:@"href"]];
+                    enclosure.type = [attributes objectForKey:@"type"];
+                    enclosure.length = [((NSString *)[attributes objectForKey:@"length"]) integerValue];
 				}
 				break;
 			}
 			default: break;
 		}
-	}
-	if (encURL) {
-		NSMutableDictionary *e = [[NSMutableDictionary alloc] initWithCapacity:3];
-		[e setObject:encURL forKey:@"url"];
-		if (encType) [e setObject:encType forKey:@"type"];
-		if (encLength) [e setObject:encLength forKey:@"length"];
-		enclosure = [NSDictionary dictionaryWithDictionary:e];
-		[e release];
 	}
 					 
 	// Add to item		 
@@ -928,6 +936,7 @@
 		} else {
 			currentItem.enclosures = [NSArray arrayWithObject:enclosure];
 		}
+        [enclosure release];
 		return YES;
 	} else {
 		return NO;
