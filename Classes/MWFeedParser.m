@@ -54,6 +54,9 @@
 @synthesize feedParseType, feedParser, currentPath, currentText, currentElementAttributes, item, info;
 @synthesize pathOfElementWithXHTMLType;
 @synthesize stopped, failed, parsing;
+#if NS_BLOCKS_AVAILABLE
+@synthesize startedBlock, feedInfoBlock, feedItemBlock, completionBlock, failureBlock;
+#endif
 
 #pragma mark -
 #pragma mark NSObject
@@ -109,6 +112,13 @@
 	[item release];
 	[info release];
 	[pathOfElementWithXHTMLType release];
+    #if NS_BLOCKS_AVAILABLE
+    [startedBlock release];
+    [feedInfoBlock release];
+    [feedItemBlock release];
+    [completionBlock release];
+    [failureBlock release];
+    #endif
 	[super dealloc];
 }
 
@@ -139,8 +149,6 @@
 	[self reset];
 	
 	// Perform checks before parsing
-	if (!url || !delegate) { [self parsingFailedWithErrorCode:MWErrorCodeNotInitiated 
-											   andDescription:@"Delegate or URL not specified"]; return NO; }
 	if (parsing) { [self parsingFailedWithErrorCode:MWErrorCodeGeneral 
 									 andDescription:@"Cannot start parsing as parsing is already in progress"]; return NO; }
 	
@@ -343,6 +351,13 @@
 		if ([delegate respondsToSelector:@selector(feedParserDidFinish:)])
 			[delegate feedParserDidFinish:self];
 		
+        // Call block
+        #if NS_BLOCKS_AVAILABLE
+        if (completionBlock) {
+            completionBlock();
+        }
+        #endif
+        
 		// Reset
 		[self reset];
 		
@@ -380,6 +395,13 @@
 		// Inform delegate
 		if ([delegate respondsToSelector:@selector(feedParser:didFailWithError:)])
 			[delegate feedParser:self didFailWithError:error];
+        
+        // Call block
+        #if NS_BLOCKS_AVAILABLE
+        if (failureBlock) {
+            failureBlock(error);
+        }
+        #endif
 		
 	}
 	
@@ -765,6 +787,13 @@
 	// Inform delegate
 	if ([delegate respondsToSelector:@selector(feedParserDidStart:)])
 		[delegate feedParserDidStart:self];
+    
+    // Call block
+    #if NS_BLOCKS_AVAILABLE
+    if (startedBlock) {
+        startedBlock();
+    }
+    #endif
 	
 }
 
@@ -809,6 +838,13 @@
 		if ([delegate respondsToSelector:@selector(feedParser:didParseFeedInfo:)])
 			[delegate feedParser:self didParseFeedInfo:[[info retain] autorelease]];
 		
+        // Call block
+        #if NS_BLOCKS_AVAILABLE
+        if (feedInfoBlock) {
+            feedInfoBlock(info);
+        }
+        #endif
+        
 		// Debug log
 		MWLog(@"MWFeedParser: Feed info for \"%@\" successfully parsed", info.title);
 		
@@ -831,6 +867,13 @@
 		// Inform delegate
 		if ([delegate respondsToSelector:@selector(feedParser:didParseFeedItem:)])
 			[delegate feedParser:self didParseFeedItem:[[item retain] autorelease]];
+        
+        // Call block
+        #if NS_BLOCKS_AVAILABLE
+        if (feedItemBlock) {
+            feedItemBlock(item);
+        }
+        #endif
 		
 		// Finish
 		self.item = nil;

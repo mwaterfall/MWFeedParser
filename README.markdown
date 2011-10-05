@@ -91,6 +91,46 @@ The method `feedParserDidFinish:` will only be called when the feed has successf
 
 For a usage example, please see `RootViewController.m` in the demo project.
 
+## Alternative block based API
+You can also use blocks to define callbacks, on platforms that support them instead of using the traditional delegate based approach. 
+
+Create parser:
+
+	// Create feed parser and pass the URL of the feed
+	NSURL *feedURL = [NSURL URLWithString:@"http://images.apple.com/main/rss/hotnews/hotnews.rss"];
+	__block MWFeedParser *feedParser = [[MWFeedParser alloc] initWithFeedURL:feedURL];
+	feedParser.connectionType = ConnectionTypeAsynchronously;
+
+Set callback block(s):
+
+	// Callback blocks
+	parser.startedBlock = ^{
+		NSLog(@"Started parsing URL: %@", feedURL);
+	};
+	
+	feedParser.feedInfoBlock = ^(MWFeedInfo *feedInfo){
+	  NSLog(@"Feed: %@", feedInfo.title);
+	};
+	
+	feedParser.feedItemBlock = ^(MWFeedItem *item){
+		NSLog(@"Item: %@", item.title);
+	};
+	
+	parser.failureBlock = ^(NSError *error){
+		NSLog(@"Failed parsing with error: %@", error);
+	};
+
+	parser.completionBlock = ^{
+		NSLog(@"Completed parsing URL: %@", feedURL);
+	};
+	
+Initiate parsing:
+
+	// Begin parsing
+	[feedParser parse];
+
+*Note the use of the __block qualifier when declaring the parser. This tells the block not to retain the request, preventing a retain-cycle, since the parser will retain the block.*
+
 
 ## Available data
 
