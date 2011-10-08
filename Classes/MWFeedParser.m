@@ -887,7 +887,7 @@
 			case FeedTypeRSS: { // http://cyber.law.harvard.edu/rss/rss.html#ltenclosuregtSubelementOfLtitemgt
 				// <enclosure>
                 enclosure = [[MWFeedItemEnclosure alloc] init];
-				enclosure.url = [NSURL URLWithString:(NSString *)[attributes objectForKey:@"url"]];
+				enclosure.url = (NSString *)[attributes objectForKey:@"url"];
 				enclosure.type = [attributes objectForKey:@"type"];
                 enclosure.length = [((NSString *)[attributes objectForKey:@"length"]) integerValue];
 				break;
@@ -895,7 +895,7 @@
 			case FeedTypeRSS1: { // http://www.xs4all.nl/~foz/mod_enclosure.html
 				// <enc:enclosure>
                 enclosure = [[MWFeedItemEnclosure alloc] init];
-				enclosure.url = [NSURL URLWithString:(NSString *)[attributes objectForKey:@"rdf:resource"]];
+				enclosure.url = (NSString *)[attributes objectForKey:@"rdf:resource"];
 				enclosure.type = [attributes objectForKey:@"enc:type"];
                 enclosure.length = [((NSString *)[attributes objectForKey:@"enc:length"]) integerValue];
 				break;
@@ -904,7 +904,7 @@
 				// <link rel="enclosure" href=...
 				if ([[attributes objectForKey:@"rel"] isEqualToString:@"enclosure"]) {
                     enclosure = [[MWFeedItemEnclosure alloc] init];
-                    enclosure.url = [NSURL URLWithString:(NSString *)[attributes objectForKey:@"href"]];
+                    enclosure.url = (NSString *)[attributes objectForKey:@"href"];
                     enclosure.type = [attributes objectForKey:@"type"];
                     enclosure.length = [((NSString *)[attributes objectForKey:@"length"]) integerValue];
 				}
