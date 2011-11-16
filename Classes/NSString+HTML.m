@@ -32,13 +32,8 @@
 
 @implementation NSString (HTML)
 
-#pragma mark -
-#pragma mark Class Methods
+#pragma mark - Instance Methods
 
-#pragma mark -
-#pragma mark Instance Methods
-
-// Strip HTML tags
 - (NSString *)stringByConvertingHTMLToPlainText {
 	
 	// Pool
@@ -47,7 +42,7 @@
 	// Character sets
 	NSCharacterSet *stopCharacters = [NSCharacterSet characterSetWithCharactersInString:[NSString stringWithFormat:@"< \t\n\r%C%C%C%C", 0x0085, 0x000C, 0x2028, 0x2029]];
 	NSCharacterSet *newLineAndWhitespaceCharacters = [NSCharacterSet characterSetWithCharactersInString:[NSString stringWithFormat:@" \t\n\r%C%C%C%C", 0x0085, 0x000C, 0x2028, 0x2029]];
-	NSCharacterSet *tagNameCharacters = [NSCharacterSet characterSetWithCharactersInString:@"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"]; /**/
+	NSCharacterSet *tagNameCharacters = [NSCharacterSet characterSetWithCharactersInString:@"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"];
 	
 	// Scan and find all tags
 	NSMutableString *result = [[NSMutableString alloc] initWithCapacity:self.length];
@@ -134,19 +129,22 @@
 	
 }
 
-// Decode all HTML entities using GTM
 - (NSString *)stringByDecodingHTMLEntities {
-	// gtm_stringByUnescapingFromHTML can return self so create new string ;)
-	return [NSString stringWithString:[self gtm_stringByUnescapingFromHTML]]; 
+    // Can return self so create new string if we're a mutable string
+    return [NSString stringWithString:[self gtm_stringByUnescapingFromHTML]];
 }
 
-// Encode all HTML entities using GTM
+
 - (NSString *)stringByEncodingHTMLEntities {
-	// gtm_stringByUnescapingFromHTML can return self so create new string ;)
-	return [NSString stringWithString:[self gtm_stringByEscapingForAsciiHTML]];
+    // Can return self so create new string if we're a mutable string
+    return [NSString stringWithString:[self gtm_stringByEscapingForAsciiHTML]];
 }
 
-// Replace newlines with <br /> tags
+- (NSString *)stringByEncodingHTMLEntities:(BOOL)isUnicode {
+    // Can return self so create new string if we're a mutable string
+    return [NSString stringWithString:(isUnicode ? [self gtm_stringByEscapingForHTML] : [self gtm_stringByEscapingForAsciiHTML])];
+}
+
 - (NSString *)stringWithNewLinesAsBRs {
 	
 	// Pool
@@ -206,7 +204,6 @@
 	
 }
 
-// Remove newlines and white space from strong
 - (NSString *)stringByRemovingNewLinesAndWhitespace {
 	
 	// Pool
@@ -256,12 +253,6 @@
 	
 }
 
-// Wrap plain URLs in <a href="..." class="linkified">...</a>
-//  - Ignores URLs inside tags (any URL beginning with =")
-//  - HTTP & HTTPS schemes only
-//  - Only works in iOS 4+ as we use NSRegularExpression (returns self if not supported so be careful with NSMutableStrings)
-//  - Expression: (?<!=")\b((http|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?)
-//  - Adapted from http://regexlib.com/REDetails.aspx?regexp_id=96
 - (NSString *)stringByLinkifyingURLs {
     if (!NSClassFromString(@"NSRegularExpression")) return self;
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -273,8 +264,6 @@
     return [modifiedString autorelease];
 }
 
-// Strip HTML tags
-// DEPRECIATED - Please use NSString stringByConvertingHTMLToPlainText
 - (NSString *)stringByStrippingTags {
 	
 	// Pool

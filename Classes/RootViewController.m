@@ -79,6 +79,15 @@
 	self.tableView.alpha = 0.3;
 }
 
+- (void)updateTableWithParsedItems {
+	self.itemsToDisplay = [parsedItems sortedArrayUsingDescriptors:
+						   [NSArray arrayWithObject:[[[NSSortDescriptor alloc] initWithKey:@"date" 
+																				 ascending:NO] autorelease]]];
+	self.tableView.userInteractionEnabled = YES;
+	self.tableView.alpha = 1;
+	[self.tableView reloadData];
+}
+
 #pragma mark -
 #pragma mark MWFeedParserDelegate
 
@@ -98,22 +107,23 @@
 
 - (void)feedParserDidFinish:(MWFeedParser *)parser {
 	NSLog(@"Finished Parsing%@", (parser.stopped ? @" (Stopped)" : @""));
-	self.itemsToDisplay = [parsedItems sortedArrayUsingDescriptors:
-						   [NSArray arrayWithObject:[[[NSSortDescriptor alloc] initWithKey:@"date" 
-																				 ascending:NO] autorelease]]];
-	self.tableView.userInteractionEnabled = YES;
-	self.tableView.alpha = 1;
-	[self.tableView reloadData];
+    [self updateTableWithParsedItems];
 }
 
 - (void)feedParser:(MWFeedParser *)parser didFailWithError:(NSError *)error {
 	NSLog(@"Finished Parsing With Error: %@", error);
-	self.title = @"Failed";
-	self.itemsToDisplay = [NSArray array];
-	[parsedItems removeAllObjects];
-	self.tableView.userInteractionEnabled = YES;
-	self.tableView.alpha = 1;
-	[self.tableView reloadData];
+    if (parsedItems.count == 0) {
+        self.title = @"Failed"; // Show failed message in title
+    } else {
+        // Failed but some items parsed, so show and inform of error
+        UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:@"Parsing Incomplete"
+                                                         message:@"There was an error during the parsing of this feed. Not all of the feed items could parsed."
+                                                        delegate:nil
+                                               cancelButtonTitle:@"Dismiss"
+                                               otherButtonTitles:nil] autorelease];
+        [alert show];
+    }
+    [self updateTableWithParsedItems];
 }
 
 #pragma mark -
