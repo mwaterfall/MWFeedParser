@@ -21,7 +21,7 @@
 #import "GTMNSString+HTML.h"
 
 typedef struct {
-	NSString *escapeSequence;
+	__unsafe_unretained NSString *escapeSequence;
 	unichar uchar;
 } HTMLEscapeMap;
 
@@ -385,7 +385,7 @@ static int EscapeMapCompare(const void *ucharVoid, const void *mapVoid) {
 	
 	// this block is common between GTMNSString+HTML and GTMNSString+XML but
 	// it's so short that it isn't really worth trying to share.
-	const unichar *buffer = CFStringGetCharactersPtr((CFStringRef)self);
+	const unichar *buffer = CFStringGetCharactersPtr((__bridge_retained CFStringRef)self);
 	if (!buffer) {
 		// We want this buffer to be autoreleased.
 		NSMutableData *data = [NSMutableData dataWithLength:length * sizeof(UniChar)];
@@ -416,7 +416,7 @@ static int EscapeMapCompare(const void *ucharVoid, const void *mapVoid) {
 									 sizeof(HTMLEscapeMap), EscapeMapCompare);
 		if (val || (escapeUnicode && buffer[i] > 127)) {
 			if (buffer2Length) {
-				CFStringAppendCharacters((CFMutableStringRef)finalString, 
+				CFStringAppendCharacters((__bridge_retained CFMutableStringRef)finalString, 
 										 buffer2, 
 										 buffer2Length);
 				buffer2Length = 0;
@@ -434,7 +434,7 @@ static int EscapeMapCompare(const void *ucharVoid, const void *mapVoid) {
 		}
 	}
 	if (buffer2Length) {
-		CFStringAppendCharacters((CFMutableStringRef)finalString, 
+		CFStringAppendCharacters((__bridge_retained CFMutableStringRef)finalString, 
 								 buffer2, 
 								 buffer2Length);
 	}

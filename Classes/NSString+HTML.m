@@ -36,8 +36,10 @@
 
 - (NSString *)stringByConvertingHTMLToPlainText {
 	
-	// Pool
+#if !__has_feature(objc_arc)
+    // Pool
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+#endif
 	
 	// Character sets
 	NSCharacterSet *stopCharacters = [NSCharacterSet characterSetWithCharactersInString:[NSString stringWithFormat:@"< \t\n\r%C%C%C%C", 0x0085, 0x000C, 0x2028, 0x2029]];
@@ -114,18 +116,17 @@
 		
 	} while (![scanner isAtEnd]);
 	
-	// Cleanup
-	[scanner release];
 	
 	// Decode HTML entities and return
-	NSString *retString = [[result stringByDecodingHTMLEntities] retain];
-	[result release];
+	NSString *retString = [result stringByDecodingHTMLEntities] ;
 	
+#if !__has_feature(objc_arc)
 	// Drain
 	[pool drain];
+#endif
 	
 	// Return
-	return [retString autorelease];
+	return retString;
 	
 }
 
@@ -147,8 +148,10 @@
 
 - (NSString *)stringWithNewLinesAsBRs {
 	
-	// Pool
+#if !__has_feature(objc_arc)
+    // Pool
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+#endif
 	
 	// Strange New lines:
 	//	Next Line, U+0085
@@ -190,24 +193,25 @@
 		}
 		
 	} while (![scanner isAtEnd]);
+
+	NSString *retString = [NSString stringWithString:result] ;
 	
-	// Cleanup & return
-	[scanner release];
-	NSString *retString = [[NSString stringWithString:result] retain];
-	[result release];
-	
+#if !__has_feature(objc_arc)
 	// Drain
 	[pool drain];
+#endif
 	
 	// Return
-	return [retString autorelease];
+	return retString ;
 	
 }
 
 - (NSString *)stringByRemovingNewLinesAndWhitespace {
 	
-	// Pool
+#if !__has_feature(objc_arc)
+    // Pool
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+#endif
 	
 	// Strange New lines:
 	//	Next Line, U+0085
@@ -238,36 +242,42 @@
 		
 	}
 	
-	// Cleanup
-	[scanner release];
 	
-	// Return
-	NSString *retString = [[NSString stringWithString:result] retain];
-	[result release];
+	NSString *retString = [NSString stringWithString:result] ;
 	
+#if !__has_feature(objc_arc)
 	// Drain
 	[pool drain];
+#endif
 	
 	// Return
-	return [retString autorelease];
+	return retString ;
 	
 }
 
 - (NSString *)stringByLinkifyingURLs {
     if (!NSClassFromString(@"NSRegularExpression")) return self;
+#if !__has_feature(objc_arc)
+    // Pool
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+#endif
     NSString *pattern = @"(?<!=\")\\b((http|https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%%&amp;:/~\\+#]*[\\w\\-\\@?^=%%&amp;/~\\+#])?)";
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:nil];
-    NSString *modifiedString = [[regex stringByReplacingMatchesInString:self options:0 range:NSMakeRange(0, [self length])
-                                                           withTemplate:@"<a href=\"$1\" class=\"linkified\">$1</a>"] retain];
-    [pool drain];
-    return [modifiedString autorelease];
+    NSString *modifiedString = [regex stringByReplacingMatchesInString:self options:0 range:NSMakeRange(0, [self length])
+                                                           withTemplate:@"<a href=\"$1\" class=\"linkified\">$1</a>"];
+#if !__has_feature(objc_arc)
+	// Drain
+	[pool drain];
+#endif
+    return modifiedString ;
 }
 
 - (NSString *)stringByStrippingTags {
 	
-	// Pool
+#if !__has_feature(objc_arc)
+    // Pool
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+#endif
 	
 	// Find first & and short-cut if we can
 	NSUInteger ampIndex = [self rangeOfString:@"<" options:NSLiteralSearch].location;
@@ -291,7 +301,6 @@
 		if (tag) {
 			NSString *t = [[NSString alloc] initWithFormat:@"%@>", tag];
 			[tags addObject:t];
-			[t release];
 		}
 		
 	} while (![scanner isAtEnd]);
@@ -325,17 +334,15 @@
 	}
 	
 	// Remove multi-spaces and line breaks
-	finalString = [[result stringByRemovingNewLinesAndWhitespace] retain];
+	finalString = [result stringByRemovingNewLinesAndWhitespace];
 	
-	// Cleanup
-	[result release];
-	[tags release];
-	
+#if !__has_feature(objc_arc)
 	// Drain
 	[pool drain];
+#endif
 	
 	// Return
-    return [finalString autorelease];
+    return finalString ;
 	
 }
 

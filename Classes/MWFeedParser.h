@@ -70,7 +70,7 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 @private
 	
 	// Required
-	id <MWFeedParserDelegate> delegate;
+	//id <MWFeedParserDelegate> delegate;
 	
 	// Connection
 	NSURLConnection *urlConnection;
