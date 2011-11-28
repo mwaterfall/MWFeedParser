@@ -416,10 +416,7 @@
 	MWXMLLog(@"NSXMLParser: didStartElement: %@", qualifiedName);
 	
 	
-#if !__has_feature(objc_arc)
-    // Pool
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-#endif
+    @autoreleasepool {
 	
 	// Adjust path
 	self.currentPath = [currentPath stringByAppendingPathComponent:qualifiedName];
@@ -445,10 +442,7 @@
 			[currentText appendFormat:@">", elementName];
 		}
 		
-#if !__has_feature(objc_arc)
-		// Dont continue
-		[pool drain];
-#endif
+
 		return;
 		
 	}
@@ -468,9 +462,7 @@
 							  andDescription:@"XML document is not a valid web feed document."];
 			
 		}
-#if !__has_feature(objc_arc)
-		[pool drain];
-#endif
+
 		return;
 	}
 	
@@ -479,9 +471,6 @@
 		if ((feedType == FeedTypeRSS  && [currentPath isEqualToString:@"/rss/channel"]) ||
 			(feedType == FeedTypeRSS1 && [currentPath isEqualToString:@"/rdf:RDF/channel"]) ||
 			(feedType == FeedTypeAtom && [currentPath isEqualToString:@"/feed"])) {
-#if !__has_feature(objc_arc)
-            [pool drain];
-#endif
 			return;
 		}
 	}
@@ -507,9 +496,7 @@
 					
 					// Finish
 					[self abortParsingEarly];
-#if !__has_feature(objc_arc)
-                    [pool drain];
-#endif
+
 					return;
 					
 				}
@@ -527,9 +514,7 @@
 		self.item = newItem;
 
 		
-#if !__has_feature(objc_arc)
-		[pool drain];
-#endif
+
         // Return
 		return;
 		
@@ -556,10 +541,7 @@
 	}
 	
 	
-#if !__has_feature(objc_arc)
-    // Drain
-    [pool drain];
-#endif
+    }
 	
 }
 
@@ -568,10 +550,7 @@
 	MWXMLLog(@"NSXMLParser: didEndElement: %@", qName);
 	
 	
-#if !__has_feature(objc_arc)
-    // Pool
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-#endif
+    @autoreleasepool {
 	
 	// Parse content as structure (Atom feeds with element type="xhtml")
 	// - Use elementName not qualifiedName to ignore XML namespaces for XHTML entities
@@ -586,9 +565,6 @@
 			// Adjust path & don't continue
 			self.currentPath = [currentPath stringByDeletingLastPathComponent];
 			
-#if !__has_feature(objc_arc)
-            [pool drain];
-#endif
             // Return
 			return;
 			
@@ -708,10 +684,7 @@
 		}	
 	}
 	
-#if !__has_feature(objc_arc)
-    // Drain pool
-    [pool drain];
-#endif
+    }
 	
 }
 
