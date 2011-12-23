@@ -42,23 +42,17 @@
 	if (title)   [string appendFormat:@"“%@”", EXCERPT(title, 50)];
 	//if (link)    [string appendFormat:@" (%@)", link];
 	//if (summary) [string appendFormat:@", %@", MWExcerpt(summary, 50)];
-	return [string autorelease];
+	return string;
 }
 
-- (void)dealloc {
-	[title release];
-	[link release];
-	[summary release];
-	[super dealloc];
-}
 
 #pragma mark NSCoding
 
 - (id)initWithCoder:(NSCoder *)decoder {
 	if ((self = [super init])) {
-		title = [[decoder decodeObjectForKey:@"title"] retain];
-		link = [[decoder decodeObjectForKey:@"link"] retain];
-		summary = [[decoder decodeObjectForKey:@"summary"] retain];
+		title = [decoder decodeObjectForKey:@"title"];
+		link = [decoder decodeObjectForKey:@"link"];
+		summary = [decoder decodeObjectForKey:@"summary"];
 	}
 	return self;
 }
