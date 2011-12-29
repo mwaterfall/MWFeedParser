@@ -45,7 +45,18 @@
 	//     length: how big it is in bytes (NSNumber)
 	//     type: what its type is, a standard MIME type  (NSString)
 	NSArray *enclosures;
-
+    
+    // Rick Russell (@ossmac) 12/28/2011
+    //
+    // CustomProperties: is a NSDictionary that contains any items that were
+    // requested in the feed request by passing in a NSArray of NSStrings with the
+    // keys to parse
+    // - NSDictionary will contain keys matching the values passed in the NSArray
+    //   and the values will be NSStrings of the values for that key if they are 
+    //   found in the item being parsed. If the key is not found for the item in
+    //   the XML being parsed it will be nil.
+    NSDictionary *customProperities;
+    
 }
 
 @property (nonatomic, copy) NSString *identifier;
@@ -56,5 +67,7 @@
 @property (nonatomic, copy) NSString *summary;
 @property (nonatomic, copy) NSString *content;
 @property (nonatomic, copy) NSArray *enclosures;
+@property (nonatomic, copy) NSDictionary *customProperities;
 
 @end
+
