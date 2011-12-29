@@ -655,7 +655,7 @@
 					else if ([currentPath isEqualToString:@"/rdf:RDF/item/enc:enclosure"]) { [self createEnclosureFromAttributes:currentElementAttributes andAddToItem:item]; processed = YES; }
                     else if ([customKeys count]) {
                         [customKeys enumerateObjectsUsingBlock:^(id key, NSUInteger idx, BOOL *stop) {
-                            NSString *path = [NSString stringWithFormat:@"/rss/channel/item/%@", key];
+                            NSString *path = [NSString stringWithFormat:@"/rdf:RDF/item/%@", key];
                             if ([currentPath isEqualToString: path]) { if (processedText.length > 0) [tmpDictionary setValue:processedText forKey:key]; }
                         }];
                     }
@@ -683,7 +683,7 @@
 					else if ([currentPath isEqualToString:@"/feed/entry/updated"]) { if (processedText.length > 0) item.updated = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
                     else if ([customKeys count]) {
                         [customKeys enumerateObjectsUsingBlock:^(id key, NSUInteger idx, BOOL *stop) {
-                            NSString *path = [NSString stringWithFormat:@"/rss/channel/item/%@", key];
+                            NSString *path = [NSString stringWithFormat:@"/feed/entry/%@", key];
                             if ([currentPath isEqualToString: path]) { if (processedText.length > 0) [tmpDictionary setValue:processedText forKey:key]; }
                         }];
                     }
