@@ -710,7 +710,7 @@
 		if (((feedType == FeedTypeRSS || feedType == FeedTypeRSS1) && [qName isEqualToString:@"item"]) ||
 			(feedType == FeedTypeAtom && [qName isEqualToString:@"entry"])) {
             if([tmpDictionary count]) {
-                item.customProperities = tmpDictionary;
+                item.customProperties = tmpDictionary;
                 MWXMLLog(@"NSXMLParser: customProperity: %@ - %@", );
             }
             [tmpDictionary release];

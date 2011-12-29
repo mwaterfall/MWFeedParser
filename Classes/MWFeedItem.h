@@ -67,7 +67,7 @@
 @property (nonatomic, copy) NSString *summary;
 @property (nonatomic, copy) NSString *content;
 @property (nonatomic, copy) NSArray *enclosures;
-@property (nonatomic, copy) NSDictionary *customProperities;
+@property (nonatomic, copy) NSDictionary *customProperties;
 
 @end
 
