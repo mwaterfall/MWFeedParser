@@ -55,14 +55,13 @@ typedef enum { SectionDetailSummary } DetailRows;
 	
 	// Super
     [super viewDidLoad];
-
+    
 	// Date
 	if (item.date) {
 		NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
 		[formatter setDateStyle:NSDateFormatterMediumStyle];
 		[formatter setTimeStyle:NSDateFormatterMediumStyle];
 		self.dateString = [formatter stringFromDate:item.date];
-		[formatter release];
 	}
 	
 	// Summary
@@ -93,12 +92,12 @@ typedef enum { SectionDetailSummary } DetailRows;
 
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-
+    
     // Get cell
 	static NSString *CellIdentifier = @"CellA";
 	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
 	if (cell == nil) {
-		cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+		cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
 		cell.selectionStyle = UITableViewCellSelectionStyleNone;
 	}
 	
@@ -170,7 +169,7 @@ typedef enum { SectionDetailSummary } DetailRows;
 #pragma mark Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-
+    
 	// Open URL
 	if (indexPath.section == SectionHeader && indexPath.row == SectionHeaderURL) {
 		if (item.link) {
@@ -180,19 +179,7 @@ typedef enum { SectionDetailSummary } DetailRows;
 	
 	// Deselect
 	[self.tableView deselectRowAtIndexPath:indexPath animated:YES];
-
+    
 }
-
-#pragma mark -
-#pragma mark Memory management
-
-- (void)dealloc {
-	[dateString release];
-	[summaryString release];
-	[item release];
-    [super dealloc];
-}
-
 
 @end
-

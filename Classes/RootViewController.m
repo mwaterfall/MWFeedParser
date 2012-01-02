@@ -40,7 +40,7 @@
 #pragma mark View lifecycle
 
 - (void)viewDidLoad {
-		
+    
 	// Super
 	[super viewDidLoad];
 	
@@ -53,9 +53,9 @@
 	self.itemsToDisplay = [NSArray array];
 	
 	// Refresh button
-	self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh 
-																							target:self 
-																							action:@selector(refresh)] autorelease];
+	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh 
+                                                                                           target:self 
+                                                                                           action:@selector(refresh)];
 	// Parse
 	NSURL *feedURL = [NSURL URLWithString:@"http://images.apple.com/main/rss/hotnews/hotnews.rss"];
 	feedParser = [[MWFeedParser alloc] initWithFeedURL:feedURL];
@@ -63,7 +63,7 @@
 	feedParser.feedParseType = ParseTypeFull; // Parse feed info and all items
 	feedParser.connectionType = ConnectionTypeAsynchronously;
 	[feedParser parse];
-
+    
 }
 
 #pragma mark -
@@ -81,8 +81,8 @@
 
 - (void)updateTableWithParsedItems {
 	self.itemsToDisplay = [parsedItems sortedArrayUsingDescriptors:
-						   [NSArray arrayWithObject:[[[NSSortDescriptor alloc] initWithKey:@"date" 
-																				 ascending:NO] autorelease]]];
+						   [NSArray arrayWithObject:[[NSSortDescriptor alloc] initWithKey:@"date" 
+                                                                                ascending:NO] ]];
 	self.tableView.userInteractionEnabled = YES;
 	self.tableView.alpha = 1;
 	[self.tableView reloadData];
@@ -116,11 +116,11 @@
         self.title = @"Failed"; // Show failed message in title
     } else {
         // Failed but some items parsed, so show and inform of error
-        UIAlertView *alert = [[[UIAlertView alloc] initWithTitle:@"Parsing Incomplete"
-                                                         message:@"There was an error during the parsing of this feed. Not all of the feed items could parsed."
-                                                        delegate:nil
-                                               cancelButtonTitle:@"Dismiss"
-                                               otherButtonTitles:nil] autorelease];
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Parsing Incomplete"
+                                                        message:@"There was an error during the parsing of this feed. Not all of the feed items could parsed."
+                                                       delegate:nil
+                                              cancelButtonTitle:@"Dismiss"
+                                              otherButtonTitles:nil];
         [alert show];
     }
     [self updateTableWithParsedItems];
@@ -146,7 +146,7 @@
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier] autorelease];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier];
 		cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     }
     
@@ -174,27 +174,15 @@
 #pragma mark Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-
+    
 	// Show detail
 	DetailTableViewController *detail = [[DetailTableViewController alloc] initWithStyle:UITableViewStyleGrouped];
 	detail.item = (MWFeedItem *)[itemsToDisplay objectAtIndex:indexPath.row];
 	[self.navigationController pushViewController:detail animated:YES];
-	[detail release];
 	
 	// Deselect
 	[self.tableView deselectRowAtIndexPath:indexPath animated:YES];
 	
-}
-
-#pragma mark -
-#pragma mark Memory management
-
-- (void)dealloc {
-	[formatter release];
-	[parsedItems release];
-	[itemsToDisplay release];
-	[feedParser release];
-    [super dealloc];
 }
 
 @end
