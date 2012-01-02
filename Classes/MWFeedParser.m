@@ -33,7 +33,7 @@
 #import "NSDate+InternetDateTime.h"
 
 // NSXMLParser Logging
-#if 1 // Set to 1 to enable XML parsing logs
+#if 0 // Set to 1 to enable XML parsing logs
 #define MWXMLLog(x, ...) NSLog(x, ## __VA_ARGS__);
 #else
 #define MWXMLLog(x, ...)
