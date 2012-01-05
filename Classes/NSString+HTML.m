@@ -182,7 +182,7 @@
 			
 			// Scan other new line characters and add <br /> s
 			if (temp) {
-				for (int i = 0; i < temp.length; i++) {
+				for (NSUInteger i = 0; i < temp.length; i++) {
 					[result appendString:@"<br />"];
 				}
 			}
