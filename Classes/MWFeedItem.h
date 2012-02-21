@@ -39,6 +39,9 @@
 	NSString *summary; // Description of item
 	NSString *content; // More detailed content (if available)
 	
+    //Basic wordpress support
+    NSString *commentNumber; 
+    NSString *commentFeed; 
 	// Enclosures: Holds 1 or more item enclosures (i.e. podcasts, mp3. pdf, etc)
 	//  - NSArray of NSDictionaries with the following keys:
 	//     url: where the enclosure is located (NSString)
@@ -56,5 +59,7 @@
 @property (nonatomic, copy) NSString *summary;
 @property (nonatomic, copy) NSString *content;
 @property (nonatomic, copy) NSArray *enclosures;
+@property (nonatomic, copy) NSString *commentNumber;
+@property (nonatomic, copy) NSString *commentFeed;
 
 @end
