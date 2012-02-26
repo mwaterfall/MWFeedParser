@@ -46,6 +46,8 @@
 	//     type: what its type is, a standard MIME type  (NSString)
 	NSArray *enclosures;
 
+    // Holds URL strings of images extracted from <img> tags in content of item
+    NSArray *images;
 }
 
 @property (nonatomic, copy) NSString *identifier;
@@ -56,5 +58,6 @@
 @property (nonatomic, copy) NSString *summary;
 @property (nonatomic, copy) NSString *content;
 @property (nonatomic, copy) NSArray *enclosures;
+@property (nonatomic, copy) NSArray *images;
 
 @end
