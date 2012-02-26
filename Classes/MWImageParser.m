@@ -29,11 +29,44 @@
 
 #import "MWImageParser.h"
 
+#include "tidy.h"
+#include "buffio.h"
+
 @implementation MWImageParser
 
 @synthesize xmlParser, images;
 
 + (NSArray *)parseImagesFromXHTMLString:(NSString *)html {
+    // HTML may be malformed and needs to be run through Tidy
+
+    TidyBuffer output = {0};
+    TidyBuffer errbuf = {0};
+
+    TidyDoc tdoc = tidyCreate();
+
+    // Stup Tidy to convert into XML
+    if (!tidyOptSetBool(tdoc, TidyXmlOut, yes)) {
+        return nil;
+    }
+    // Capture diagnostics
+    if (tidySetErrorBuffer(tdoc, &errbuf) < 0) {
+        return nil;
+    }
+    // Parse the input
+    if (tidyParseString(tdoc, [html UTF8String]) < 0) {
+        return nil;
+    }
+    // Tidy it up!
+    if (tidyCleanAndRepair(tdoc) < 0) {
+        return nil;
+    }
+    // Pretty Print
+    if (tidySaveBuffer(tdoc, &output) < 0) {
+        return nil;
+    }
+
+    html = [NSString stringWithUTF8String:(char *)output.bp];
+
     MWImageParser *parser = [[MWImageParser new] autorelease];
     parser.images = [NSMutableArray array];
     parser.xmlParser = [[[NSXMLParser alloc] initWithData:[html dataUsingEncoding:NSUTF8StringEncoding]] autorelease];

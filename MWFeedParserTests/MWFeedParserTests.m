@@ -54,13 +54,10 @@
 
 @implementation MWFeedParserTests
 
-- (void)testAdmeImages {
+
+- (void)testImagesAtUrl:(NSURL *)url {
     DummyDelegate *delegate = [[DummyDelegate new] autorelease];
-    MWFeedParser *feedParser = [[[MWFeedParser alloc] initWithFeedURL:
-                                 [NSURL fileURLWithPath:
-                                  [[NSBundle bundleForClass:[self class]] pathForResource:@"adme-rss"
-                                                                                   ofType:@"xml"
-                                                                              inDirectory:@"samples"]]] autorelease];
+    MWFeedParser *feedParser = [[[MWFeedParser alloc] initWithFeedURL:url] autorelease];
     feedParser.delegate = delegate;
     feedParser.connectionType = ConnectionTypeSynchronously;
     [feedParser parse];
@@ -70,7 +67,24 @@
         STAssertTrue(!!item.title, @"Item should have title");
         STAssertTrue([item.images count] > 0, @"Item should have images: %@", item.summary);
     }
-
 }
+
+/*
+- (void)testAdmeImages {
+    [self testImagesAtUrl:
+     [NSURL fileURLWithPath:
+      [[NSBundle bundleForClass:[self class]] pathForResource:@"adme-rss"
+                                                       ofType:@"xml"
+                                                  inDirectory:@"samples"]]];
+}*/
+
+- (void)testPhotobucketImages {
+    [self testImagesAtUrl:
+     [NSURL fileURLWithPath:
+      [[NSBundle bundleForClass:[self class]] pathForResource:@"photobucket-rss"
+                                                       ofType:@"xml"
+                                                  inDirectory:@"samples"]]];
+}
+
 
 @end
