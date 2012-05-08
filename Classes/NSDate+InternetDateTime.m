@@ -23,7 +23,6 @@ static NSDateFormatter *_internetDateTimeFormatter = nil;
             _internetDateTimeFormatter = [[NSDateFormatter alloc] init];
             [_internetDateTimeFormatter setLocale:en_US_POSIX];
             [_internetDateTimeFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-            [en_US_POSIX release];
         }
     }
     return _internetDateTimeFormatter;
@@ -31,7 +30,7 @@ static NSDateFormatter *_internetDateTimeFormatter = nil;
 
 // Get a date from a string - hint can be used to speed up
 + (NSDate *)dateFromInternetDateTimeString:(NSString *)dateString formatHint:(DateFormatHint)hint {
-    [dateString retain]; // Keep dateString around a while (for thread-safety)
+     // Keep dateString around a while (for thread-safety)
 	NSDate *date = nil;
     if (dateString) {
         if (hint != DateFormatHintRFC3339) {
@@ -44,13 +43,13 @@ static NSDateFormatter *_internetDateTimeFormatter = nil;
             if (!date) date = [NSDate dateFromRFC822String:dateString];
         }
     }
-    [dateString release]; // Finished with date string
+     // Finished with date string
 	return date;
 }
 
 // See http://www.faqs.org/rfcs/rfc822.html
 + (NSDate *)dateFromRFC822String:(NSString *)dateString {
-    [dateString retain]; // Keep dateString around a while (for thread-safety)
+     // Keep dateString around a while (for thread-safety)
     NSDate *date = nil;
     if (dateString) {
         NSDateFormatter *dateFormatter = [NSDate internetDateTimeFormatter];
@@ -97,13 +96,13 @@ static NSDateFormatter *_internetDateTimeFormatter = nil;
             
         }
     }
-    [dateString release]; // Finished with date string
+     // Finished with date string
     return date;
 }
 
 // See http://www.faqs.org/rfcs/rfc3339.html
 + (NSDate *)dateFromRFC3339String:(NSString *)dateString {
-    [dateString retain]; // Keep dateString around a while (for thread-safety)
+     // Keep dateString around a while (for thread-safety)
     NSDate *date = nil;
     if (dateString) {
         NSDateFormatter *dateFormatter = [NSDate internetDateTimeFormatter];
@@ -136,7 +135,7 @@ static NSDateFormatter *_internetDateTimeFormatter = nil;
             
         }
     }
-    [dateString release]; // Finished with date string
+     // Finished with date string
 	return date;
 }
 
