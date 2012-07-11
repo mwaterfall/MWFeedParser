@@ -162,7 +162,7 @@
 	NSMutableString *result = [[NSMutableString alloc] init];
 	NSString *temp;
 	NSCharacterSet *newLineCharacters = [NSCharacterSet characterSetWithCharactersInString:
-										 [NSString stringWithFormat:@"\n\r%C%C%C%C", 0x0085, 0x000C, 0x2028, 0x2029]];
+										 [NSString stringWithFormat:@"\n\r%c%c%c%c", 0x0085, 0x000C, 0x2028, 0x2029]];
 	// Scan
 	do {
 		
@@ -221,7 +221,7 @@
 	NSMutableString *result = [[NSMutableString alloc] init];
 	NSString *temp;
 	NSCharacterSet *newLineAndWhitespaceCharacters = [NSCharacterSet characterSetWithCharactersInString:
-													  [NSString stringWithFormat:@" \t\n\r%C%C%C%C", 0x0085, 0x000C, 0x2028, 0x2029]];
+													  [NSString stringWithFormat:@" \t\n\r%c%c%c%c", 0x0085, 0x000C, 0x2028, 0x2029]];
 	// Scan
 	while (![scanner isAtEnd]) {
 		
