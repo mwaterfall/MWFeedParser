@@ -204,6 +204,9 @@
 		
 		// Create feed info
 		MWFeedInfo *i = [[MWFeedInfo alloc] init];
+        
+		i.feedURL = self.url;
+        
 		self.info = i;
 		[i release];
 		
