@@ -33,7 +33,7 @@
 
 @implementation MWFeedInfo
 
-@synthesize title, link, summary;
+@synthesize title, link, summary, feedURL;
 
 #pragma mark NSObject
 
@@ -49,6 +49,7 @@
 	[title release];
 	[link release];
 	[summary release];
+	[feedURL release];
 	[super dealloc];
 }
 
@@ -59,6 +60,7 @@
 		title = [[decoder decodeObjectForKey:@"title"] retain];
 		link = [[decoder decodeObjectForKey:@"link"] retain];
 		summary = [[decoder decodeObjectForKey:@"summary"] retain];
+		feedURL = [[decoder decodeObjectForKey:@"feedURL"] retain];
 	}
 	return self;
 }
@@ -67,6 +69,7 @@
 	if (title) [encoder encodeObject:title forKey:@"title"];
 	if (link) [encoder encodeObject:link forKey:@"link"];
 	if (summary) [encoder encodeObject:summary forKey:@"summary"];
+	if (feedURL) [encoder encodeObject:feedURL forKey:@"feedURL"];
 }
 
 @end
