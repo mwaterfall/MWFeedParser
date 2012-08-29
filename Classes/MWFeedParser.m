@@ -457,10 +457,10 @@
 		
 		// End tag or close
 		if (ELEMENT_IS_EMPTY(elementName)) {
-			[currentText appendFormat:@" />", elementName];
-		} else {
-			[currentText appendFormat:@">", elementName];
-		}
+            [currentText appendString:@" />"];
+        } else {
+            [currentText appendString:@">"];
+        }
 		
 		// Dont continue
 		[pool drain];
