@@ -231,13 +231,14 @@
                 
                 // try to retrieve encoding from xml
                 if (!string) {
-                    string = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
-                    if (string) {
+                    NSString *acsiiString = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
+                    if (acsiiString) {
                         NSRegularExpression *xmlEncoding = [NSRegularExpression regularExpressionWithPattern:@"encoding=(\".*?\")" options:0 error:NULL];
-                        NSRange range = [xmlEncoding rangeOfFirstMatchInString:string
+                        NSRange range = [xmlEncoding rangeOfFirstMatchInString:acsiiString
                                                                        options:0
-                                                                         range:NSMakeRange(0, [[[string componentsSeparatedByString:@"\n"] objectAtIndex:0] length])];
-                        NSString *encoding = [string substringWithRange:range];
+                                                                         range:NSMakeRange(0, [[[acsiiString componentsSeparatedByString:@"\n"] objectAtIndex:0] length])];
+                        NSString *encoding = [acsiiString substringWithRange:range];
+                        [acsiiString release];
                         
                         if (encoding) {
                             NSRegularExpression *xmlEncodingFromString = [NSRegularExpression regularExpressionWithPattern:@"(\".*?\")" options:0 error:NULL];
@@ -252,9 +253,10 @@
                         MWLog(@"MWFeedParser: detected encoding : '%@' with value '%u'", encoding, nsEncoding);
                     }
                     string = [[NSString alloc] initWithData:data encoding:nsEncoding];
-                    data = [string dataUsingEncoding:nsEncoding];
+                    data = [string dataUsingEncoding:nsEncoding];                    
                 }
 			}
+            [string release];
 		}
 		
 		// Create NSXMLParser
