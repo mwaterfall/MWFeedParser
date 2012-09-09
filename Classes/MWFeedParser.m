@@ -213,7 +213,7 @@
 			// Not UTF-8 so convert
 			MWLog(@"MWFeedParser: XML document was not UTF-8 so we're converting it");
 			NSString *string = nil;
-			
+            
 			// Attempt to detect encoding from response header
 			NSStringEncoding nsEncoding = 0;
 			if (textEncodingName) {
@@ -227,47 +227,34 @@
 			// If that failed then make our own attempts
 			if (!string) {
 				// http://www.mikeash.com/pyblog/friday-qa-2010-02-19-character-encodings.html
-				string			    = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-				if (!string) string = [[NSString alloc] initWithData:data encoding:NSISOLatin1StringEncoding];
-				if (!string) string = [[NSString alloc] initWithData:data encoding:NSMacOSRomanStringEncoding];
+				string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                
+                // try to retrieve encoding from xml
+                if (!string) {
+                    string = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
+                    if (string) {
+                        NSRegularExpression *xmlEncoding = [NSRegularExpression regularExpressionWithPattern:@"encoding=(\".*?\")" options:0 error:NULL];
+                        NSRange range = [xmlEncoding rangeOfFirstMatchInString:string
+                                                                       options:0
+                                                                         range:NSMakeRange(0, [[[string componentsSeparatedByString:@"\n"] objectAtIndex:0] length])];
+                        NSString *encoding = [string substringWithRange:range];
+                        
+                        if (encoding) {
+                            NSRegularExpression *xmlEncodingFromString = [NSRegularExpression regularExpressionWithPattern:@"(\".*?\")" options:0 error:NULL];
+                            range = [xmlEncodingFromString rangeOfFirstMatchInString:encoding
+                                                                             options:0
+                                                                               range:NSMakeRange(0, [encoding length])];
+                            encoding = [encoding substringWithRange:range];
+                            encoding = [encoding substringWithRange:NSMakeRange(1, [encoding length] - 2)];
+                            CFStringEncoding cfEncoding = CFStringConvertIANACharSetNameToEncoding((CFStringRef)encoding);
+                            nsEncoding = CFStringConvertEncodingToNSStringEncoding(cfEncoding);
+                        }
+                        MWLog(@"MWFeedParser: detected encoding : '%@' with value '%u'", encoding, nsEncoding);
+                    }
+                    string = [[NSString alloc] initWithData:data encoding:nsEncoding];
+                    data = [string dataUsingEncoding:nsEncoding];
+                }
 			}
-			
-			// Nil data
-			data = nil;
-			
-			// Parse
-			if (string) {
-				
-				// Set XML encoding to UTF-8
-				if ([string hasPrefix:@"<?xml"]) {
-					NSRange a = [string rangeOfString:@"?>"];
-					if (a.location != NSNotFound) {
-						NSString *xmlDec = [string substringToIndex:a.location];
-						if ([xmlDec rangeOfString:@"encoding=\"UTF-8\"" 
-										  options:NSCaseInsensitiveSearch].location == NSNotFound) {
-							NSRange b = [xmlDec rangeOfString:@"encoding=\""];
-							if (b.location != NSNotFound) {
-								NSUInteger s = b.location+b.length;
-								NSRange c = [xmlDec rangeOfString:@"\"" options:0 range:NSMakeRange(s, [xmlDec length] - s)];
-								if (c.location != NSNotFound) {
-									NSString *temp = [[string stringByReplacingCharactersInRange:NSMakeRange(b.location,c.location+c.length-b.location)
-																					  withString:@"encoding=\"UTF-8\""] retain];
-									[string release];
-									string = temp;
-								}
-							}
-						}
-					}
-				}
-				
-				// Convert string to UTF-8 data
-				if (string) {
-					data = [string dataUsingEncoding:NSUTF8StringEncoding];
-					[string release];
-				}
-				
-			}
-			
 		}
 		
 		// Create NSXMLParser
@@ -275,7 +262,7 @@
 			NSXMLParser *newFeedParser = [[NSXMLParser alloc] initWithData:data];
 			self.feedParser = newFeedParser;
 			[newFeedParser release];
-			if (feedParser) { 
+			if (feedParser) {
 				
 				// Parse!
 				feedParser.delegate = self;
@@ -289,7 +276,7 @@
 		} else {
 			[self parsingFailedWithErrorCode:MWErrorCodeFeedParsingError andDescription:@"Error with feed encoding"];
 		}
-
+        
 	}
 }
 
