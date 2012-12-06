@@ -8,30 +8,41 @@
 
 #import "NSDate+InternetDateTime.h"
 
-// Always keep the formatter around as they're expensive to instantiate
-static NSDateFormatter *_internetDateTimeFormatter = nil;
-
 // Good info on internet dates here:
 // http://developer.apple.com/iphone/library/qa/qa2010/qa1480.html
 @implementation NSDate (InternetDateTime)
 
++ (NSDateFormatter const *)rfc3339InternetDateTimeGenerator {
+		static dispatch_once_t once;
+		static NSDateFormatter const * _rfc3339InternetDateTimeGenerator;
+		dispatch_once(&once, ^{
+			_rfc3339InternetDateTimeGenerator = [self internetDateTimeFormatter].copy;
+			_rfc3339InternetDateTimeGenerator.calendar
+			  = [[NSCalendar alloc] initWithCalendarIdentifier:NSGregorianCalendar];
+			[_rfc3339InternetDateTimeGenerator setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss'Z'"];
+		});
+    return _rfc3339InternetDateTimeGenerator;
+}
+
 // Instantiate single date formatter
 + (NSDateFormatter *)internetDateTimeFormatter {
-    @synchronized(self) {
-        if (!_internetDateTimeFormatter) {
-            NSLocale *en_US_POSIX = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
-            _internetDateTimeFormatter = [[NSDateFormatter alloc] init];
-            [_internetDateTimeFormatter setLocale:en_US_POSIX];
-            [_internetDateTimeFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
-            [en_US_POSIX release];
-        }
-    }
+		static dispatch_once_t once;
+		static NSDateFormatter *_internetDateTimeFormatter;
+		dispatch_once(&once, ^{
+			NSLocale *en_US_POSIX = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US_POSIX"];
+			_internetDateTimeFormatter = [[NSDateFormatter alloc] init];
+			[_internetDateTimeFormatter setLocale:en_US_POSIX];
+			[_internetDateTimeFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
+		});
     return _internetDateTimeFormatter;
+}
+
+- (NSString* )rfc3339String { 
+	return [[NSDate rfc3339InternetDateTimeGenerator] stringFromDate:self];
 }
 
 // Get a date from a string - hint can be used to speed up
 + (NSDate *)dateFromInternetDateTimeString:(NSString *)dateString formatHint:(DateFormatHint)hint {
-    [dateString retain]; // Keep dateString around a while (for thread-safety)
 	NSDate *date = nil;
     if (dateString) {
         if (hint != DateFormatHintRFC3339) {
@@ -44,13 +55,11 @@ static NSDateFormatter *_internetDateTimeFormatter = nil;
             if (!date) date = [NSDate dateFromRFC822String:dateString];
         }
     }
-    [dateString release]; // Finished with date string
 	return date;
 }
 
 // See http://www.faqs.org/rfcs/rfc822.html
 + (NSDate *)dateFromRFC822String:(NSString *)dateString {
-    [dateString retain]; // Keep dateString around a while (for thread-safety)
     NSDate *date = nil;
     if (dateString) {
         NSDateFormatter *dateFormatter = [NSDate internetDateTimeFormatter];
@@ -97,13 +106,11 @@ static NSDateFormatter *_internetDateTimeFormatter = nil;
             
         }
     }
-    [dateString release]; // Finished with date string
     return date;
 }
 
 // See http://www.faqs.org/rfcs/rfc3339.html
 + (NSDate *)dateFromRFC3339String:(NSString *)dateString {
-    [dateString retain]; // Keep dateString around a while (for thread-safety)
     NSDate *date = nil;
     if (dateString) {
         NSDateFormatter *dateFormatter = [NSDate internetDateTimeFormatter];
@@ -120,10 +127,10 @@ static NSDateFormatter *_internetDateTimeFormatter = nil;
                                                                             options:0
                                                                               range:NSMakeRange(20, RFC3339String.length-20)];
             }
-            if (!date) { // 1996-12-19T16:39:57-0800
-                [dateFormatter setDateFormat:@"yyyy'-'MM'-'dd'T'HH':'mm':'ssZZZ"]; 
-                date = [dateFormatter dateFromString:RFC3339String];
-            }
+			// 1996-12-19T16:39:57-0800
+            [dateFormatter setDateFormat:@"yyyy'-'MM'-'dd'T'HH':'mm':'ssZZZ"];
+            date = [dateFormatter dateFromString:RFC3339String];
+
             if (!date) { // 1937-01-01T12:00:27.87+0020
                 [dateFormatter setDateFormat:@"yyyy'-'MM'-'dd'T'HH':'mm':'ss.SSSZZZ"]; 
                 date = [dateFormatter dateFromString:RFC3339String];
@@ -136,7 +143,6 @@ static NSDateFormatter *_internetDateTimeFormatter = nil;
             
         }
     }
-    [dateString release]; // Finished with date string
 	return date;
 }
 
