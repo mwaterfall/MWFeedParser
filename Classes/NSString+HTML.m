@@ -40,8 +40,8 @@
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
 	// Character sets
-	NSCharacterSet *stopCharacters = [NSCharacterSet characterSetWithCharactersInString:[NSString stringWithFormat:@"< \t\n\r%C%C%C%C", 0x0085, 0x000C, 0x2028, 0x2029]];
-	NSCharacterSet *newLineAndWhitespaceCharacters = [NSCharacterSet characterSetWithCharactersInString:[NSString stringWithFormat:@" \t\n\r%C%C%C%C", 0x0085, 0x000C, 0x2028, 0x2029]];
+	NSCharacterSet *stopCharacters = [NSCharacterSet characterSetWithCharactersInString:@"< \t\n\r\xc2\x85\x0c\u2028\u2029"];
+	NSCharacterSet *newLineAndWhitespaceCharacters = [NSCharacterSet characterSetWithCharactersInString:@" \t\n\r\xc2\x85\x0c\u2028\u2029"];
 	NSCharacterSet *tagNameCharacters = [NSCharacterSet characterSetWithCharactersInString:@"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"];
 	
 	// Scan and find all tags
@@ -161,8 +161,7 @@
 	[scanner setCharactersToBeSkipped:nil];
 	NSMutableString *result = [[NSMutableString alloc] init];
 	NSString *temp;
-	NSCharacterSet *newLineCharacters = [NSCharacterSet characterSetWithCharactersInString:
-										 [NSString stringWithFormat:@"\n\r%C%C%C%C", 0x0085, 0x000C, 0x2028, 0x2029]];
+	NSCharacterSet *newLineCharacters = [NSCharacterSet characterSetWithCharactersInString:@"\n\r\xc2\x85\x0c\u2028\u2029"];
 	// Scan
 	do {
 		
@@ -220,8 +219,7 @@
 	[scanner setCharactersToBeSkipped:nil];
 	NSMutableString *result = [[NSMutableString alloc] init];
 	NSString *temp;
-	NSCharacterSet *newLineAndWhitespaceCharacters = [NSCharacterSet characterSetWithCharactersInString:
-													  [NSString stringWithFormat:@" \t\n\r%C%C%C%C", 0x0085, 0x000C, 0x2028, 0x2029]];
+	NSCharacterSet *newLineAndWhitespaceCharacters = [NSCharacterSet characterSetWithCharactersInString:@" \t\n\r\xc2\x85\x0c\u2028\u2029"];
 	// Scan
 	while (![scanner isAtEnd]) {
 		
