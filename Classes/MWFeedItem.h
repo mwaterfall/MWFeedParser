@@ -38,6 +38,9 @@
 	NSDate *updated; // Date the item was updated if available
 	NSString *summary; // Description of item
 	NSString *content; // More detailed content (if available)
+
+	// Categories: Holds a list of category names (NSString) for the given item
+	NSArray *categories;
 	
 	// Enclosures: Holds 1 or more item enclosures (i.e. podcasts, mp3. pdf, etc)
 	//  - NSArray of NSDictionaries with the following keys:
@@ -55,6 +58,7 @@
 @property (nonatomic, copy) NSDate *updated;
 @property (nonatomic, copy) NSString *summary;
 @property (nonatomic, copy) NSString *content;
+@property (nonatomic, copy) NSArray *categories;
 @property (nonatomic, copy) NSArray *enclosures;
 
 @end

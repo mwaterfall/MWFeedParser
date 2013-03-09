@@ -63,6 +63,8 @@
 
 // Misc
 - (BOOL)createEnclosureFromAttributes:(NSDictionary *)attributes andAddToItem:(MWFeedItem *)currentItem;
+- (BOOL)processCategory:(NSString *)category andAddToItem:(MWFeedItem *)currentItem;
+- (BOOL)processAtomCategoryFromAttributes:(NSDictionary *)attributes andAddToItem:(MWFeedItem *)currentItem;
 - (BOOL)processAtomLink:(NSDictionary *)attributes andAddToMWObject:(id)MWObject;
 
 @end
