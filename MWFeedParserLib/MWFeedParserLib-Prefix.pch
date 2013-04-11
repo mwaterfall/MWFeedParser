@@ -1,0 +1,7 @@
+//
+// Prefix header for all source files of the 'MWFeedParserLib' target in the 'MWFeedParserLib' project
+//
+
+#ifdef __OBJC__
+	#import <Foundation/Foundation.h>
+#endif
