@@ -621,6 +621,17 @@
 					else if ([currentPath isEqualToString:@"/rss/channel/item/content:encoded"]) { if (processedText.length > 0) item.content = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rss/channel/item/pubDate"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC822]; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rss/channel/item/enclosure"]) { [self createEnclosureFromAttributes:currentElementAttributes andAddToItem:item]; processed = YES; }
+                    else if ([currentPath isEqualToString:@"/rss/channel/item/category"]) {
+						if (processedText.length > 0) {
+							if (item.categories) {
+								item.categories = [item.categories arrayByAddingObject:processedText];
+							}
+							else {
+								item.categories = [NSArray arrayWithObject:processedText];
+							}
+						}
+						processed = YES;
+					}
 					else if ([currentPath isEqualToString:@"/rss/channel/item/dc:date"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
 				}
 				
