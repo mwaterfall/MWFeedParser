@@ -43,33 +43,22 @@
 	if (date)    [string appendFormat:@" - %@", date];
 	//if (link)    [string appendFormat:@" (%@)", link];
 	//if (summary) [string appendFormat:@", %@", EXCERPT(summary, 50)];
-	return [string autorelease];
+	return string;
 }
 
-- (void)dealloc {
-	[identifier release];
-	[title release];
-	[link release];
-	[date release];
-	[updated release];
-	[summary release];
-	[content release];
-	[enclosures release];
-	[super dealloc];
-}
 
 #pragma mark NSCoding
 
 - (id)initWithCoder:(NSCoder *)decoder {
 	if ((self = [super init])) {
-		identifier = [[decoder decodeObjectForKey:@"identifier"] retain];
-		title = [[decoder decodeObjectForKey:@"title"] retain];
-		link = [[decoder decodeObjectForKey:@"link"] retain];
-		date = [[decoder decodeObjectForKey:@"date"] retain];
-		updated = [[decoder decodeObjectForKey:@"updated"] retain];
-		summary = [[decoder decodeObjectForKey:@"summary"] retain];
-		content = [[decoder decodeObjectForKey:@"content"] retain];
-		enclosures = [[decoder decodeObjectForKey:@"enclosures"] retain];
+		identifier = [decoder decodeObjectForKey:@"identifier"];
+		title = [decoder decodeObjectForKey:@"title"];
+		link = [decoder decodeObjectForKey:@"link"];
+		date = [decoder decodeObjectForKey:@"date"];
+		updated = [decoder decodeObjectForKey:@"updated"];
+		summary = [decoder decodeObjectForKey:@"summary"];
+		content = [decoder decodeObjectForKey:@"content"];
+		enclosures = [decoder decodeObjectForKey:@"enclosures"];
 	}
 	return self;
 }

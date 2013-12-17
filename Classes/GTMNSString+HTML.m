@@ -21,7 +21,7 @@
 #import "GTMNSString+HTML.h"
 
 typedef struct {
-	NSString *escapeSequence;
+	__unsafe_unretained NSString *escapeSequence;
 	unichar uchar;
 } HTMLEscapeMap;
 

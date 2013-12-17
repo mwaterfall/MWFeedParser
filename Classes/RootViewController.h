@@ -43,6 +43,6 @@
 }
 
 // Properties
-@property (nonatomic, retain) NSArray *itemsToDisplay;
+@property (nonatomic, strong) NSArray *itemsToDisplay;
 
 @end

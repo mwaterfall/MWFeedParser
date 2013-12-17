@@ -62,7 +62,6 @@ typedef enum { SectionDetailSummary } DetailRows;
 		[formatter setDateStyle:NSDateFormatterMediumStyle];
 		[formatter setTimeStyle:NSDateFormatterMediumStyle];
 		self.dateString = [formatter stringFromDate:item.date];
-		[formatter release];
 	}
 	
 	// Summary
@@ -98,7 +97,7 @@ typedef enum { SectionDetailSummary } DetailRows;
 	static NSString *CellIdentifier = @"CellA";
 	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
 	if (cell == nil) {
-		cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+		cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
 		cell.selectionStyle = UITableViewCellSelectionStyleNone;
 	}
 	
@@ -186,12 +185,6 @@ typedef enum { SectionDetailSummary } DetailRows;
 #pragma mark -
 #pragma mark Memory management
 
-- (void)dealloc {
-	[dateString release];
-	[summaryString release];
-	[item release];
-    [super dealloc];
-}
 
 
 @end
