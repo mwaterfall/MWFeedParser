@@ -49,7 +49,7 @@
 @implementation MWFeedParser
 
 // Properties
-@synthesize url, delegate;
+@synthesize url, request, delegate;
 @synthesize urlConnection, asyncData, asyncTextEncodingName, connectionType;
 @synthesize feedParseType, feedParser, currentPath, currentText, currentElementAttributes, item, info;
 @synthesize pathOfElementWithXHTMLType;
@@ -80,22 +80,34 @@
 }
 
 // Initialise with a URL
-// Mainly for historic reasons before -parseURL:
 - (id)initWithFeedURL:(NSURL *)feedURL {
 	if ((self = [self init])) {
 		
-		// Check if an string was passed as old init asked for NSString not NSURL
+        // URL
 		if ([feedURL isKindOfClass:[NSString class]]) {
 			feedURL = [NSURL URLWithString:(NSString *)feedURL];
 		}
-		
-		// Remember url
 		self.url = feedURL;
+        
+        // Create default request with no caching
+        NSMutableURLRequest *req = [[NSMutableURLRequest alloc] initWithURL:url
+                                                                 cachePolicy:NSURLRequestReloadIgnoringLocalAndRemoteCacheData
+                                                             timeoutInterval:60];
+        [req setValue:@"MWFeedParser" forHTTPHeaderField:@"User-Agent"];
+        self.request = req;
 		
 	}
 	return self;
 }
 
+// Init with a custom feed request
+- (id)initWithFeedRequest:(NSMutableURLRequest *)feedRequest {
+    if (self = [self init]) {
+        self.url = feedRequest.URL;
+        self.request = feedRequest;
+    }
+    return self;
+}
 
 #pragma mark -
 #pragma mark Parsing
@@ -138,13 +150,7 @@
 	
 	// Start
 	BOOL success = YES;
-	
-	// Request
-	NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url
-												  cachePolicy:NSURLRequestReloadIgnoringLocalAndRemoteCacheData 
-											  timeoutInterval:60];
-	[request setValue:@"MWFeedParser" forHTTPHeaderField:@"User-Agent"];
-	
+    
 	// Debug Log
 	MWLog(@"MWFeedParser: Connecting & downloading feed data");
 	
@@ -152,7 +158,7 @@
 	if (connectionType == ConnectionTypeAsynchronously) {
 		
 		// Async
-		urlConnection = [[NSURLConnection alloc] initWithRequest:request delegate:self];
+		urlConnection = [[NSURLConnection alloc] initWithRequest:self.request delegate:self];
 		if (urlConnection) {
 			asyncData = [[NSMutableData alloc] init];// Create data
 		} else {
