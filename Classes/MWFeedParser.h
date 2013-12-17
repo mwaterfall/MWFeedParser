@@ -54,6 +54,15 @@ typedef enum { ConnectionTypeAsynchronously, ConnectionTypeSynchronously } Conne
 typedef enum { ParseTypeFull, ParseTypeItemsOnly, ParseTypeInfoOnly } ParseType;
 typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedType;
 
+// Block types
+#if NS_BLOCKS_AVAILABLE
+typedef void (^MWFeedParserStartedBlock)(void);
+typedef void (^MWFeedParserFeedInfoBlock)(MWFeedInfo *info);
+typedef void (^MWFeedParserItemBlock)(MWFeedItem *item);
+typedef void (^MWFeedParserCompletedBlock)(void);
+typedef void (^MWFeedParserFailedBlock)(NSError *error);
+#endif
+
 // Delegate
 @protocol MWFeedParserDelegate <NSObject>
 @optional
@@ -69,8 +78,17 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 
 @private
 	
-	// Required
+	// Delegate
 	id <MWFeedParserDelegate> delegate;
+    
+    // Blocks
+    #if NS_BLOCKS_AVAILABLE
+    MWFeedParserStartedBlock startedBlock;
+    MWFeedParserFeedInfoBlock feedInfoBlock;
+    MWFeedParserItemBlock feedItemBlock;
+    MWFeedParserCompletedBlock completionBlock;
+    MWFeedParserFailedBlock failureBlock;
+    #endif
 	
 	// Connection
 	NSURLConnection *urlConnection;
@@ -125,6 +143,16 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 
 // Whether parsing is in progress
 @property (nonatomic, readonly, getter=isParsing) BOOL parsing;
+
+
+#pragma mark Block Properties
+#if NS_BLOCKS_AVAILABLE
+@property (nonatomic, copy) MWFeedParserStartedBlock startedBlock;
+@property (nonatomic, copy) MWFeedParserFeedInfoBlock feedInfoBlock;
+@property (nonatomic, copy) MWFeedParserItemBlock feedItemBlock;
+@property (nonatomic, copy) MWFeedParserCompletedBlock completionBlock;
+@property (nonatomic, copy) MWFeedParserFailedBlock failureBlock;
+#endif
 
 #pragma mark Public Methods
 
