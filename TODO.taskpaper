@@ -1,4 +1,7 @@
 Tasks:
+	- Ensure all uses of `substring` is safe for composed characters.
+	- Version project
+	- Update related projects.
 	- Create static library target and add seperate demo Xcode project.
 	- Provide functionality to list available feeds when given the URL to a webpage with one or more web feeds associated with it.
 	- Support for the Media RSS extension (from Flickr, etc.)
@@ -6,3 +9,5 @@ Tasks:
 	- Look into web feed icons.
 	- Look into supporting/detecting images in feed items.
 	- Get timezones from date/time stamps in NSDate+InternetDateTime.h
+	- Plain text function respects paragraphs
+	- Move demo to new project
