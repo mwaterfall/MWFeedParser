@@ -24,6 +24,7 @@
 		4CC8960B119F0CED00ED61B6 /* MWFeedItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CC89608119F0CED00ED61B6 /* MWFeedItem.m */; };
 		4CC8960F119F0CFB00ED61B6 /* NSString+XMLEntities.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CC8960E119F0CFB00ED61B6 /* NSString+XMLEntities.m */; };
 		4CC89612119F0D0C00ED61B6 /* RootViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CC89611119F0D0C00ED61B6 /* RootViewController.m */; };
+		D97132801436D6600037DA50 /* MWFeedItemEnclosure.m in Sources */ = {isa = PBXBuildFile; fileRef = D971327F1436D6600037DA50 /* MWFeedItemEnclosure.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -58,6 +59,8 @@
 		4CC89610119F0D0C00ED61B6 /* RootViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RootViewController.h; sourceTree = "<group>"; };
 		4CC89611119F0D0C00ED61B6 /* RootViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RootViewController.m; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* MWFeedParser-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MWFeedParser-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
+		D971327E1436D6600037DA50 /* MWFeedItemEnclosure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MWFeedItemEnclosure.h; sourceTree = "<group>"; };
+		D971327F1436D6600037DA50 /* MWFeedItemEnclosure.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MWFeedItemEnclosure.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -162,6 +165,8 @@
 				4CC89606119F0CED00ED61B6 /* MWFeedInfo.m */,
 				4CC89607119F0CED00ED61B6 /* MWFeedItem.h */,
 				4CC89608119F0CED00ED61B6 /* MWFeedItem.m */,
+				D971327E1436D6600037DA50 /* MWFeedItemEnclosure.h */,
+				D971327F1436D6600037DA50 /* MWFeedItemEnclosure.m */,
 			);
 			name = MWFeedParser;
 			sourceTree = "<group>";
@@ -270,6 +275,7 @@
 				4C65F2EB12085ACE00606CFC /* GTMNSString+HTML.m in Sources */,
 				4C65F318120863F800606CFC /* NSString+HTML.m in Sources */,
 				4C661F44125E3F2D007F1792 /* NSDate+InternetDateTime.m in Sources */,
+				D97132801436D6600037DA50 /* MWFeedItemEnclosure.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,5 +1,5 @@
 //
-//  MWFeedItem.h
+//  MWFeedItemEnclosure.m
 //  MWFeedParser
 //
 //  Copyright (c) 2010 Michael Waterfall
@@ -29,26 +29,16 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MWFeedItem : NSObject <NSCoding> {
-	
-	NSString *identifier; // Item identifier
-	NSString *title; // Item title
-	NSString *link; // Item URL
-	NSDate *date; // Date the item was published
-	NSDate *updated; // Date the item was updated if available
-	NSString *summary; // Description of item
-	NSString *content; // More detailed content (if available)
-	NSArray *enclosures; // Array of feed enclosures (MWFeedItemEnclosure)
- 
+@interface MWFeedItemEnclosure : NSObject <NSCoding> {
+    
+    NSString *url; // Enclosure url
+    NSString *type; // Mime-type enclosure
+    NSInteger length; // File size in bytes
+    
 }
 
-@property (nonatomic, copy) NSString *identifier;
-@property (nonatomic, copy) NSString *title;
-@property (nonatomic, copy) NSString *link;
-@property (nonatomic, copy) NSDate *date;
-@property (nonatomic, copy) NSDate *updated;
-@property (nonatomic, copy) NSString *summary;
-@property (nonatomic, copy) NSString *content;
-@property (nonatomic, copy) NSArray *enclosures;
+@property (nonatomic, copy) NSString *url;
+@property (nonatomic, copy) NSString *type;
+@property (nonatomic) NSInteger length;
 
 @end

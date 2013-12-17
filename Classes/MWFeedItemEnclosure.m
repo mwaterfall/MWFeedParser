@@ -1,5 +1,5 @@
 //
-//  MWFeedItem.h
+//  MWFeedItemEnclosure.m
 //  MWFeedParser
 //
 //  Copyright (c) 2010 Michael Waterfall
@@ -27,28 +27,43 @@
 //  THE SOFTWARE.
 //
 
-#import <Foundation/Foundation.h>
+#import "MWFeedItemEnclosure.h"
 
-@interface MWFeedItem : NSObject <NSCoding> {
-	
-	NSString *identifier; // Item identifier
-	NSString *title; // Item title
-	NSString *link; // Item URL
-	NSDate *date; // Date the item was published
-	NSDate *updated; // Date the item was updated if available
-	NSString *summary; // Description of item
-	NSString *content; // More detailed content (if available)
-	NSArray *enclosures; // Array of feed enclosures (MWFeedItemEnclosure)
- 
+@implementation MWFeedItemEnclosure
+
+@synthesize url, type, length;
+
+#pragma mark NSObject
+
+- (NSString *)description {
+	NSMutableString *string = [[NSMutableString alloc] initWithFormat:@"%@: ", NSStringFromClass([self class])];
+	if (url)   [string appendFormat:@"“%@”", url];
+	if (type)    [string appendFormat:@" (%@)", type];
+	if (length)    [string appendFormat:@" %i bytes", length];
+	return [string autorelease];
 }
 
-@property (nonatomic, copy) NSString *identifier;
-@property (nonatomic, copy) NSString *title;
-@property (nonatomic, copy) NSString *link;
-@property (nonatomic, copy) NSDate *date;
-@property (nonatomic, copy) NSDate *updated;
-@property (nonatomic, copy) NSString *summary;
-@property (nonatomic, copy) NSString *content;
-@property (nonatomic, copy) NSArray *enclosures;
+- (void)dealloc {
+	[url release];
+	[type release];
+	[super dealloc];
+}
+
+#pragma mark NSCoding
+
+- (id)initWithCoder:(NSCoder *)decoder {
+	if ((self = [super init])) {
+		url = [[decoder decodeObjectForKey:@"url"] retain];
+		type = [[decoder decodeObjectForKey:@"type"] retain];
+		length = [decoder decodeIntegerForKey:@"length"];
+	}
+	return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+	if (url) [encoder encodeObject:url forKey:@"url"];
+	if (type) [encoder encodeObject:type forKey:@"type"];
+	if (length) [encoder encodeInteger:length forKey:@"length"];
+}
 
 @end

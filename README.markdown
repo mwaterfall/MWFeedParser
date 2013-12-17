@@ -14,8 +14,12 @@ MWFeedParser is an Objective-C framework for downloading and parsing RSS (1.* an
 - Updated date  (the date the item was updated, if available)
 - Summary (brief description of item)
 - Content (detailed item content, if available)
-- Enclosures (i.e. podcasts, mp3, pdf, etc)
 - Identifier (an item's guid/id)
+
+#### Enclosures 
+- URL
+- Filetype
+- Size
 
 If you use MWFeedParser on your iPhone/iPad app then please do let me know, I'd love to check it out :)
 
@@ -79,7 +83,7 @@ Once parsing has been initiated, the delegate will receive the feed data as it i
 	- (void)feedParserDidFinish:(MWFeedParser *)parser; // Parsing complete or stopped at any time by `stopParsing`
 	- (void)feedParser:(MWFeedParser *)parser didFailWithError:(NSError *)error; // Parsing failed
 
-`MWFeedInfo` and `MWFeedItem` contains properties (title, link, summary, etc.) that will hold the parsed data. View `MWFeedInfo.h` and `MWFeedItem.h` for more information.
+`MWFeedInfo`, `MWFeedItem` and `MWFeedItemEnclosure` contains properties (title, link, summary, etc.) that will hold the parsed data. View `MWFeedInfo.h`, `MWFeedItem.h` and `MWFeedItemEnclosure.h` for more information.
 
 ***Important:*** There are some occasions where feeds do not contain some information, such as titles, links or summaries. Before using any data, you should check to see if that data exists:
 
@@ -109,8 +113,13 @@ Here is a list of the available properties for feed info and item objects:
 - `item.updated` (`NSDate`)
 - `item.summary` (`NSString`)
 - `item.content` (`NSString`)
-- `item.enclosures` (`NSArray` of `NSDictionary` with keys `url`, `type` and `length`)
+- `item.enclosures` (`NSArray` of `MWFeedItemEnclosure`)
 - `item.identifier` (`NSString`)
+
+#### MWFeedItemEnclosure
+- `enclosure.url` (`NSURL`)
+- `enclosure.type` (`NSString`)
+- `enclosure.length` (`NSInteger`)
 
 
 ## Using the data
