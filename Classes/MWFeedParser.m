@@ -194,6 +194,7 @@
 		
 		// Create feed info
 		MWFeedInfo *i = [[MWFeedInfo alloc] init];
+        i.url = self.url;
 		self.info = i;
 		
 		// Check whether it's UTF-8
