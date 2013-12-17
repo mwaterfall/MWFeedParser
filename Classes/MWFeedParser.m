@@ -580,10 +580,16 @@
             switch (feedType) {
                 case FeedTypeRSS: {
                     
+                    // Specifications
+                    // http://cyber.law.harvard.edu/rss/index.html
+                    // http://web.resource.org/rss/1.0/modules/dc/ Dublin core also seems to be used for RSS 2 as well
+                    
                     // Item
                     if (!processed) {
                         if ([currentPath isEqualToString:@"/rss/channel/item/title"]) { if (processedText.length > 0) item.title = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/rss/channel/item/link"]) { if (processedText.length > 0) item.link = processedText; processed = YES; }
+                        else if ([currentPath isEqualToString:@"/rss/channel/item/author"]) { if (processedText.length > 0) item.author = processedText; processed = YES; }
+                        else if ([currentPath isEqualToString:@"/rss/channel/item/dc:creator"]) { if (processedText.length > 0) item.author = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/rss/channel/item/guid"]) { if (processedText.length > 0) item.identifier = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/rss/channel/item/description"]) { if (processedText.length > 0) item.summary = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/rss/channel/item/content:encoded"]) { if (processedText.length > 0) item.content = processedText; processed = YES; }
@@ -603,13 +609,18 @@
                 }
                 case FeedTypeRSS1: {
                     
+                    // Specifications
+                    // http://web.resource.org/rss/1.0/spec
+                    // http://web.resource.org/rss/1.0/modules/dc/
+                    
                     // Item
                     if (!processed) {
                         if ([currentPath isEqualToString:@"/rdf:RDF/item/title"]) { if (processedText.length > 0) item.title = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/rdf:RDF/item/link"]) { if (processedText.length > 0) item.link = processedText; processed = YES; }
-                        else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:identifier"]) { if (processedText.length > 0) item.identifier = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/rdf:RDF/item/description"]) { if (processedText.length > 0) item.summary = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/rdf:RDF/item/content:encoded"]) { if (processedText.length > 0) item.content = processedText; processed = YES; }
+                        else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:identifier"]) { if (processedText.length > 0) item.identifier = processedText; processed = YES; }
+                        else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:creator"]) { if (processedText.length > 0) item.author = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:date"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
                         else if ([currentPath isEqualToString:@"/rdf:RDF/item/enc:enclosure"]) { [self createEnclosureFromAttributes:currentElementAttributes andAddToItem:item]; processed = YES; }
                     }
@@ -625,6 +636,10 @@
                 }
                 case FeedTypeAtom: {
                     
+                    // Specifications
+                    // http://www.ietf.org/rfc/rfc4287.txt
+                    // http://www.intertwingly.net/wiki/pie/DublinCore
+                    
                     // Item
                     if (!processed) {
                         if ([currentPath isEqualToString:@"/feed/entry/title"]) { if (processedText.length > 0) item.title = processedText; processed = YES; }
@@ -632,6 +647,8 @@
                         else if ([currentPath isEqualToString:@"/feed/entry/id"]) { if (processedText.length > 0) item.identifier = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/feed/entry/summary"]) { if (processedText.length > 0) item.summary = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/feed/entry/content"]) { if (processedText.length > 0) item.content = processedText; processed = YES; }
+                        else if ([currentPath isEqualToString:@"/feed/entry/author/name"]) { if (processedText.length > 0) item.author = processedText; processed = YES; }
+                        else if ([currentPath isEqualToString:@"/feed/entry/dc:creator"]) { if (processedText.length > 0) item.author = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/feed/entry/published"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
                         else if ([currentPath isEqualToString:@"/feed/entry/updated"]) { if (processedText.length > 0) item.updated = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
                     }
