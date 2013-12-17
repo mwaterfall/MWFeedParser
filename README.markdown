@@ -16,6 +16,7 @@ MWFeedParser is an Objective-C framework for downloading and parsing RSS (1.* an
 - Content (detailed item content, if available)
 - Enclosures (i.e. podcasts, mp3, pdf, etc)
 - Identifier (an item's guid/id)
+- customProperties (Dictionary containing any custom elements if the keys are requested in the customKeys configuration property. The dictionary will use the element name as the key and the values will be stored as strings in the dictionary)
 
 If you use MWFeedParser on your iPhone/iPad app then please do let me know, I'd love to check it out :)
 
@@ -25,7 +26,7 @@ If you use MWFeedParser on your iPhone/iPad app then please do let me know, I'd 
 limited to) that of events, news, experiences and activities, for the 
 purpose of any concept relating to diary/journal keeping.
 
-The full licence can be found at the end of this document.
+The full license can be found at the end of this document.
 
 
 ## Demo / Example App
@@ -56,6 +57,11 @@ Set whether the parser should connect and download the feed data synchronously o
 	// Connection type
 	feedParser.connectionType = ConnectionTypeSynchronously;
 	
+An array of the elements of to search for in the items in addition to the standard fields:
+
+	// Custom Keys
+	feedParser.customKeys = [NSArray arrayWithObjects: @"itunes:duration", @"itunes:author",nil];
+
 Initiate parsing:
 
 	// Begin parsing
@@ -111,7 +117,7 @@ Here is a list of the available properties for feed info and item objects:
 - `item.content` (`NSString`)
 - `item.enclosures` (`NSArray` of `NSDictionary` with keys `url`, `type` and `length`)
 - `item.identifier` (`NSString`)
-
+- `item.customProperties` (`NSDictionary`)
 
 ## Using the data
 

@@ -83,6 +83,11 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 	NSXMLParser *feedParser;
 	FeedType feedType;
 	NSDateFormatter *dateFormatterRFC822, *dateFormatterRFC3339;
+    
+    // Rick Russell (@ossmac) - 12/28/2011
+    // This is an array of custom keys as NSStrings that are to be parsed
+    // from each item.
+    NSArray *customKeys;
 	
 	// Parsing State
 	NSURL *url;
@@ -116,6 +121,9 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 
 // Set whether to download asynchronously or synchronously
 @property (nonatomic) ConnectionType connectionType;
+
+// Set with a array of NSStrings as custom keys to parse from the feed
+@property (nonatomic, copy) NSArray *customKeys;
 
 // Whether parsing was stopped
 @property (nonatomic, readonly, getter=isStopped) BOOL stopped;

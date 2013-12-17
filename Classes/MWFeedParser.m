@@ -50,8 +50,8 @@
 
 // Properties
 @synthesize url, delegate;
-@synthesize urlConnection, asyncData, asyncTextEncodingName, connectionType;
-@synthesize feedParseType, feedParser, currentPath, currentText, currentElementAttributes, item, info;
+@synthesize urlConnection, asyncData, asyncTextEncodingName, connectionType, customKeys;
+@synthesize feedParseType, feedParser, currentPath, currentText, currentElementAttributes, item, info, tmpDictionary;
 @synthesize pathOfElementWithXHTMLType;
 @synthesize stopped, failed, parsing;
 
@@ -109,6 +109,7 @@
 	[item release];
 	[info release];
 	[pathOfElementWithXHTMLType release];
+    [customKeys release];
 	[super dealloc];
 }
 
@@ -535,6 +536,7 @@
 		MWFeedItem *newItem = [[MWFeedItem alloc] init];
 		self.item = newItem;
 		[newItem release];
+        tmpDictionary = [[NSMutableDictionary alloc] init];
 		
 		// Return
 		[pool drain];
@@ -569,6 +571,7 @@
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName 
 									  namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
+
 	MWXMLLog(@"NSXMLParser: didEndElement: %@", qName);
 	
 	// Pool
@@ -621,7 +624,13 @@
 					else if ([currentPath isEqualToString:@"/rss/channel/item/content:encoded"]) { if (processedText.length > 0) item.content = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rss/channel/item/pubDate"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC822]; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rss/channel/item/enclosure"]) { [self createEnclosureFromAttributes:currentElementAttributes andAddToItem:item]; processed = YES; }
-					else if ([currentPath isEqualToString:@"/rss/channel/item/dc:date"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
+					else if ([currentPath isEqualToString:@"/rss/channel/item/dc:date"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; } 
+                    else if ([customKeys count]) {
+                        [customKeys enumerateObjectsUsingBlock:^(id key, NSUInteger idx, BOOL *stop) {
+                            NSString *path = [NSString stringWithFormat:@"/rss/channel/item/%@", key];
+                            if ([currentPath isEqualToString: path]) { if (processedText.length > 0) [tmpDictionary setValue:processedText forKey:key]; }
+                        }];
+                    }
 				}
 				
 				// Info
@@ -644,6 +653,12 @@
 					else if ([currentPath isEqualToString:@"/rdf:RDF/item/content:encoded"]) { if (processedText.length > 0) item.content = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:date"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
 					else if ([currentPath isEqualToString:@"/rdf:RDF/item/enc:enclosure"]) { [self createEnclosureFromAttributes:currentElementAttributes andAddToItem:item]; processed = YES; }
+                    else if ([customKeys count]) {
+                        [customKeys enumerateObjectsUsingBlock:^(id key, NSUInteger idx, BOOL *stop) {
+                            NSString *path = [NSString stringWithFormat:@"/rdf:RDF/item/%@", key];
+                            if ([currentPath isEqualToString: path]) { if (processedText.length > 0) [tmpDictionary setValue:processedText forKey:key]; }
+                        }];
+                    }
 				}
 				
 				// Info
@@ -666,6 +681,12 @@
 					else if ([currentPath isEqualToString:@"/feed/entry/content"]) { if (processedText.length > 0) item.content = processedText; processed = YES; }
 					else if ([currentPath isEqualToString:@"/feed/entry/published"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
 					else if ([currentPath isEqualToString:@"/feed/entry/updated"]) { if (processedText.length > 0) item.updated = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
+                    else if ([customKeys count]) {
+                        [customKeys enumerateObjectsUsingBlock:^(id key, NSUInteger idx, BOOL *stop) {
+                            NSString *path = [NSString stringWithFormat:@"/feed/entry/%@", key];
+                            if ([currentPath isEqualToString: path]) { if (processedText.length > 0) [tmpDictionary setValue:processedText forKey:key]; }
+                        }];
+                    }
 				}
 				
 				// Info
@@ -688,7 +709,12 @@
 	if (!processed) {
 		if (((feedType == FeedTypeRSS || feedType == FeedTypeRSS1) && [qName isEqualToString:@"item"]) ||
 			(feedType == FeedTypeAtom && [qName isEqualToString:@"entry"])) {
-			
+            if([tmpDictionary count]) {
+                item.customProperties = tmpDictionary;
+                MWXMLLog(@"NSXMLParser: customProperity: %@ - %@", );
+            }
+            [tmpDictionary release];
+            
 			// Dispatch item to delegate
 			[self dispatchFeedItemToDelegate];
 			
