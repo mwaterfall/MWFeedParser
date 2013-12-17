@@ -50,7 +50,7 @@
 @class MWFeedParser;
 
 // Types
-typedef enum { ConnectionTypeAsynchronously, ConnectionTypeSynchronously } ConnectionType;
+typedef enum { ConnectionTypeAsynchronously, ConnectionTypeSynchronously, ConnectionTypeLocalData } ConnectionType;
 typedef enum { ParseTypeFull, ParseTypeItemsOnly, ParseTypeInfoOnly } ParseType;
 typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedType;
 
@@ -74,8 +74,8 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 	
 	// Connection
 	NSURLConnection *urlConnection;
-	NSMutableData *asyncData;
-	NSString *asyncTextEncodingName;
+	NSMutableData *xmlData;
+	NSString *xmlTextEncodingName;
 	ConnectionType connectionType;
 	
 	// Parsing
@@ -130,6 +130,7 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 
 // Init MWFeedParser with a URL string
 - (id)initWithFeedURL:(NSURL *)feedURL;
+- (id)initWithFeedData:(NSData *)data textEncodingName:(NSString *)textEncodingName;
 
 // Begin parsing
 - (BOOL)parse;

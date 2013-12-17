@@ -34,8 +34,8 @@
 // Feed Downloading Properties
 @property (nonatomic, copy) NSURL *url;
 @property (nonatomic, retain) NSURLConnection *urlConnection;
-@property (nonatomic, retain) NSMutableData *asyncData;
-@property (nonatomic, retain) NSString *asyncTextEncodingName;
+@property (nonatomic, retain) NSMutableData *xmlData;
+@property (nonatomic, retain) NSString *xmlTextEncodingName;
 
 // Parsing Properties
 @property (nonatomic, retain) NSXMLParser *feedParser;
