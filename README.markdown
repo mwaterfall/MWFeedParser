@@ -166,6 +166,20 @@ MWFeedParser is not currently thread-safe.
 
 ## Adding to your project
 
+### Method 1: Use CocoaPods
+
+[CocoaPods](http://cocoapods.org) is great. If you are using CocoaPods ([and here's how to get started](http://guides.cocoapods.org/using/using-cocoapods.html)), simply add `pod 'MWFeedParser'` to your podfile and run `pod install`. You're good to go! Here's an example podfile:
+
+```
+platform :ios, '7'
+    pod 'MWFeedParser'
+```
+
+If you are just interested in using the HTML and/or InternetDateTime categories in your app, you can just specify those in your podfile with `pod 'MWFeedParser/NSString+HTML'` or `pod 'MWFeedParser/NSDate+InternetDateTime'`.
+
+
+### Method 2: Including Source Directly Into Your Project
+
 1. Open `MWFeedParser.xcodeproj`.
 2. Drag the `MWFeedParser` & `Categories` groups into your project, ensuring you check **Copy items into destination group's folder**.
 3. Import `MWFeedParser.h` into your source as required.
