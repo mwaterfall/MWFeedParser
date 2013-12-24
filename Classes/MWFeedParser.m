@@ -515,7 +515,7 @@
             // New item
             MWFeedItem *newItem = [[MWFeedItem alloc] init];
             self.item = newItem;
-            
+			self.currentCustomProperties = [[NSMutableDictionary alloc] init];
             // Return
             return;
             
@@ -583,6 +583,19 @@
             // Remove newlines and whitespace from currentText
             NSString *processedText = [currentText stringByRemovingNewLinesAndWhitespace];
 
+			void (^fillCustomKeysWithBasePath)(NSString *) = ^ (NSString *path){
+				[self.customKeys enumerateObjectsUsingBlock:^(id key, NSUInteger idx, BOOL *stop) {
+					NSString *path = [NSString stringWithFormat:@"/rss/channel/item/%@", key];
+					if ([currentPath isEqualToString: path]) {
+						if (processedText.length > 0) {
+							self.currentCustomProperties[key] = processedText;
+						} else if (currentElementAttributes.count) {
+							self.currentCustomProperties[key] = currentElementAttributes;
+						}
+					}
+				}];
+			};
+			
             // Process
             switch (feedType) {
                 case FeedTypeRSS: {
@@ -603,6 +616,7 @@
                         else if ([currentPath isEqualToString:@"/rss/channel/item/pubDate"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC822]; processed = YES; }
                         else if ([currentPath isEqualToString:@"/rss/channel/item/enclosure"]) { [self createEnclosureFromAttributes:currentElementAttributes andAddToItem:item]; processed = YES; }
                         else if ([currentPath isEqualToString:@"/rss/channel/item/dc:date"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
+						else if (self.customKeys.count) { fillCustomKeysWithBasePath(@"/rss/channel/item/%@"); }
                     }
                     
                     // Info
@@ -630,6 +644,7 @@
                         else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:creator"]) { if (processedText.length > 0) item.author = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:date"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
                         else if ([currentPath isEqualToString:@"/rdf:RDF/item/enc:enclosure"]) { [self createEnclosureFromAttributes:currentElementAttributes andAddToItem:item]; processed = YES; }
+						else if (self.customKeys.count) { fillCustomKeysWithBasePath(@"/rdf:RDF/item/%@"); }
                     }
                     
                     // Info
@@ -658,6 +673,7 @@
                         else if ([currentPath isEqualToString:@"/feed/entry/dc:creator"]) { if (processedText.length > 0) item.author = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/feed/entry/published"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
                         else if ([currentPath isEqualToString:@"/feed/entry/updated"]) { if (processedText.length > 0) item.updated = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
+						else if (self.customKeys.count) { fillCustomKeysWithBasePath(@"/feed/entry/%@"); }
                     }
                     
                     // Info
@@ -681,6 +697,9 @@
             if (((feedType == FeedTypeRSS || feedType == FeedTypeRSS1) && [qName isEqualToString:@"item"]) ||
                 (feedType == FeedTypeAtom && [qName isEqualToString:@"entry"])) {
                 
+				if(self.currentCustomProperties.count) {
+					item.customProperties = self.currentCustomProperties;
+				}
                 // Dispatch item to delegate
                 [self dispatchFeedItemToDelegate];
                 

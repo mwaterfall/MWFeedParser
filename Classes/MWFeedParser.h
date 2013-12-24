@@ -126,6 +126,9 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 // Whether parsing is in progress
 @property (nonatomic, readonly, getter=isParsing) BOOL parsing;
 
+// Defines custom item keys
+@property (nonatomic, copy) NSArray *customKeys;
+
 #pragma mark Public Methods
 
 // Init MWFeedParser with a URL string
