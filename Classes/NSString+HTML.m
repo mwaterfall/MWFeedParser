@@ -67,6 +67,12 @@
                     [scanner scanUpToString:@"-->" intoString:NULL]; 
                     [scanner scanString:@"-->" intoString:NULL];
                     
+                } else if ([scanner scanString:@"script" intoString:NULL]) {
+                    
+                    // Script tag where things don't need escaping!
+                    [scanner scanUpToString:@"</script>" intoString:NULL];
+                    [scanner scanString:@"</script>" intoString:NULL];
+                    
                 } else {
                     
                     // Tag - remove and replace with space unless it's
