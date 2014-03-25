@@ -3,21 +3,21 @@
 //  MWFeedParser
 //
 //  Copyright (c) 2010 Michael Waterfall
-//  
+//
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
 //  in the Software without restriction, including without limitation the rights
 //  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 //  copies of the Software, and to permit persons to whom the Software is
 //  furnished to do so, subject to the following conditions:
-//  
+//
 //  1. The above copyright notice and this permission notice shall be included
 //     in all copies or substantial portions of the Software.
-//  
+//
 //  2. This Software cannot be used to archive or collect data such as (but not
-//     limited to) that of events, news, experiences and activities, for the 
+//     limited to) that of events, news, experiences and activities, for the
 //     purpose of any concept relating to diary/journal keeping.
-//  
+//
 //  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 //  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 //  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -36,7 +36,7 @@
 
 - (NSString *)stringByConvertingHTMLToPlainText {
     @autoreleasepool {
-	
+        
         // Character sets
         NSCharacterSet *stopCharacters = [NSCharacterSet characterSetWithCharactersInString:[NSString stringWithFormat:@"< \t\n\r%C%C%C%C", (unichar)0x0085, (unichar)0x000C, (unichar)0x2028, (unichar)0x2029]];
         NSCharacterSet *newLineAndWhitespaceCharacters = [NSCharacterSet characterSetWithCharactersInString:[NSString stringWithFormat:@" \t\n\r%C%C%C%C", (unichar)0x0085, (unichar)0x000C, (unichar)0x2028, (unichar)0x2029]];
@@ -60,11 +60,11 @@
             // Check if we've stopped at a tag/comment or whitespace
             if ([scanner scanString:@"<" intoString:NULL]) {
                 
-                // Stopped at a comment or tag
+                // Stopped at a comment, script tag, or other tag
                 if ([scanner scanString:@"!--" intoString:NULL]) {
                     
                     // Comment
-                    [scanner scanUpToString:@"-->" intoString:NULL]; 
+                    [scanner scanUpToString:@"-->" intoString:NULL];
                     [scanner scanString:@"-->" intoString:NULL];
                     
                 } else if ([scanner scanString:@"script" intoString:NULL]) {
@@ -122,10 +122,10 @@
         
         // Decode HTML entities and return
         NSString *retString = [result stringByDecodingHTMLEntities];
-
+        
         // Return
         return retString;
-            
+        
     }
 }
 
@@ -191,7 +191,7 @@
         
         // Cleanup & return
         NSString *retString = [NSString stringWithString:result];
-
+        
         // Return
         return retString;
         
@@ -246,14 +246,14 @@
         NSString *pattern = @"(?<!=\")\\b((http|https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%%&amp;:/~\\+#]*[\\w\\-\\@?^=%%&amp;/~\\+#])?)";
         NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:nil];
         NSString *modifiedString = [regex stringByReplacingMatchesInString:self options:0 range:NSMakeRange(0, [self length])
-                                                               withTemplate:@"<a href=\"$1\" class=\"linkified\">$1</a>"];
+                                                              withTemplate:@"<a href=\"$1\" class=\"linkified\">$1</a>"];
         return modifiedString;
     }
 }
 
 - (NSString *)stringByStrippingTags {
 	@autoreleasepool {
-	
+        
         // Find first & and short-cut if we can
         NSUInteger ampIndex = [self rangeOfString:@"<" options:NSLiteralSearch].location;
         if (ampIndex == NSNotFound) {
@@ -302,9 +302,9 @@
             }
             
             // Replace
-            [result replaceOccurrencesOfString:t 
+            [result replaceOccurrencesOfString:t
                                     withString:replacement
-                                       options:NSLiteralSearch 
+                                       options:NSLiteralSearch
                                          range:NSMakeRange(0, result.length)];
         }
         
@@ -312,10 +312,10 @@
         finalString = [result stringByRemovingNewLinesAndWhitespace];
         
         // Cleanup
-
+        
         // Return
         return finalString;
-            
+        
 	}
 }
 
