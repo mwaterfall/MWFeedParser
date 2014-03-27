@@ -83,7 +83,9 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 	NSXMLParser *feedParser;
 	FeedType feedType;
 	NSDateFormatter *dateFormatterRFC822, *dateFormatterRFC3339;
-	
+	NSArray *customFeedChannelKeys;
+	NSArray *customFeedItemKeys;
+    
 	// Parsing State
 	NSURL *url;
 	BOOL aborted; // Whether parse stopped due to abort
@@ -116,6 +118,12 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 
 // Set whether to download asynchronously or synchronously
 @property (nonatomic) ConnectionType connectionType;
+
+// Custom attributes to find in the feed channel
+@property (nonatomic) NSArray *customFeedChannelKeys;
+
+// Custom attributes to find in the feed item
+@property (nonatomic) NSArray *customFeedItemKeys;
 
 // Whether parsing was stopped
 @property (nonatomic, readonly, getter=isStopped) BOOL stopped;
