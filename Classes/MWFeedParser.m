@@ -926,22 +926,25 @@
 // Process ATOM link and determine whether to ignore it, add it as the link element or add as enclosure
 // Links can be added to MWObject (info or item)
 - (BOOL)processAtomLink:(NSDictionary *)attributes andAddToMWObject:(id)MWObject {
-	if (attributes && [attributes objectForKey:@"rel"]) {
-		
-		// Use as link if rel == alternate
-		if ([[attributes objectForKey:@"rel"] isEqualToString:@"alternate"]) {
-			[MWObject setLink:[attributes objectForKey:@"href"]]; // Can be added to MWFeedItem or MWFeedInfo
-			return YES;
-		}
-		
-		// Use as enclosure if rel == enclosure
-		if ([[attributes objectForKey:@"rel"] isEqualToString:@"enclosure"]) {
-			if ([MWObject isMemberOfClass:[MWFeedItem class]]) { // Enclosures can only be added to MWFeedItem
-				[self createEnclosureFromAttributes:attributes andAddToItem:(MWFeedItem *)MWObject];
-				return YES;
-			}
-		}
-		
+	if (attributes){
+        if([attributes objectForKey:@"rel"]) {
+            
+            // Use as link if rel == alternate
+            if ([[attributes objectForKey:@"rel"] isEqualToString:@"alternate"]) {
+                [MWObject setLink:[attributes objectForKey:@"href"]]; // Can be added to MWFeedItem or MWFeedInfo
+                return YES;
+            }
+            
+            // Use as enclosure if rel == enclosure
+            if ([[attributes objectForKey:@"rel"] isEqualToString:@"enclosure"]) {
+                if ([MWObject isMemberOfClass:[MWFeedItem class]]) { // Enclosures can only be added to MWFeedItem
+                    [self createEnclosureFromAttributes:attributes andAddToItem:(MWFeedItem *)MWObject];
+                    return YES;
+                }
+            }
+        } else if ([attributes objectForKey:@"href"]) {
+            [MWObject setLink:[attributes objectForKey:@"href"]];
+        }
 	}
 	return NO;
 }
