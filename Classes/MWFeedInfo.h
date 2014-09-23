@@ -42,5 +42,6 @@
 @property (nonatomic, copy) NSString *link;
 @property (nonatomic, copy) NSString *summary;
 @property (nonatomic, copy) NSURL *url;
+@property (nonatomic, copy) NSString *language;
 
 @end
