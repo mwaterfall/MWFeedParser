@@ -59,7 +59,8 @@
 	// Parse
 //	NSURL *feedURL = [NSURL URLWithString:@"http://images.apple.com/main/rss/hotnews/hotnews.rss"];
 //	NSURL *feedURL = [NSURL URLWithString:@"http://feeds.mashable.com/Mashable"];
-	NSURL *feedURL = [NSURL URLWithString:@"http://techcrunch.com/feed/"];
+//	NSURL *feedURL = [NSURL URLWithString:@"http://techcrunch.com/feed/"];
+    NSURL *feedURL = [NSURL URLWithString:@"https://gdata.youtube.com/feeds/api/playlists/PLvEIxIeBRKSjprrvlbAcbVjzHsnH9PjDX?v=2"];
 	feedParser = [[MWFeedParser alloc] initWithFeedURL:feedURL];
 	feedParser.delegate = self;
 	feedParser.feedParseType = ParseTypeFull; // Parse feed info and all items
@@ -99,12 +100,16 @@
 
 - (void)feedParser:(MWFeedParser *)parser didParseFeedInfo:(MWFeedInfo *)info {
 	NSLog(@"Parsed Feed Info: “%@”", info.title);
+    //NSLog(@"Parsed Feed Info texts: “%@”", info.rawTexts);
+    //NSLog(@"Parsed Feed Info attrs: “%@”", info.rawAttrs);
 	self.title = info.title;
 }
 
 - (void)feedParser:(MWFeedParser *)parser didParseFeedItem:(MWFeedItem *)item {
 	NSLog(@"Parsed Feed Item: “%@”", item.title);
-	if (item) [parsedItems addObject:item];	
+    //NSLog(@"Parsed Feed Item texts: “%@”", item.rawTexts);
+    //NSLog(@"Parsed Feed Item attrs: “%@”", item.rawAttrs);
+	if (item) [parsedItems addObject:item];
 }
 
 - (void)feedParserDidFinish:(MWFeedParser *)parser {

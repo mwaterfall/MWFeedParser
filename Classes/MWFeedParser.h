@@ -126,6 +126,9 @@ typedef enum { FeedTypeUnknown, FeedTypeRSS, FeedTypeRSS1, FeedTypeAtom } FeedTy
 // Whether parsing is in progress
 @property (nonatomic, readonly, getter=isParsing) BOOL parsing;
 
+// Allow user to access raw data for feed info and items for ATOM feeds
+@property (nonatomic, readonly, getter=isParsing) BOOL enableRawAtom;
+
 #pragma mark Public Methods
 
 // Init MWFeedParser with a URL string

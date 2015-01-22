@@ -54,6 +54,7 @@
 @synthesize feedParseType, feedParser, currentPath, currentText, currentElementAttributes, item, info;
 @synthesize pathOfElementWithXHTMLType;
 @synthesize stopped, failed, parsing;
+@synthesize enableRawAtom;
 
 #pragma mark -
 #pragma mark NSObject
@@ -63,7 +64,8 @@
 
 		// Defaults
 		feedParseType = ParseTypeFull;
-		connectionType = ConnectionTypeSynchronously;
+		connectionType = ConnectionTypeAsynchronously;
+		enableRawAtom = YES;
 		
 		// Date Formatters
 		// Good info on internet dates here: http://developer.apple.com/iphone/library/qa/qa2010/qa1480.html
@@ -658,6 +660,16 @@
                         else if ([currentPath isEqualToString:@"/feed/entry/dc:creator"]) { if (processedText.length > 0) item.author = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/feed/entry/published"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
                         else if ([currentPath isEqualToString:@"/feed/entry/updated"]) { if (processedText.length > 0) item.updated = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
+
+						if (self.enableRawAtom) {
+							if (currentText.length > 0) {
+								NSString* text = [NSString stringWithString:currentText];
+								item.rawTexts[currentPath] = text;
+							}
+							if (currentElementAttributes.count > 0) {
+								item.rawAttrs[currentPath] = currentElementAttributes;
+							}
+						}
                     }
                     
                     // Info
@@ -666,9 +678,19 @@
                         else if ([currentPath isEqualToString:@"/feed/description"]) { if (processedText.length > 0) info.summary = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/feed/link"]) { [self processAtomLink:currentElementAttributes andAddToMWObject:info]; processed = YES;}
 
-                        else if ([currentPath isEqualToString:@"/feed/subtitle"]) { if (processedText.length > 0) info.subtitle = processedText; processed = YES; }
+						if (self.enableRawAtom) {
+							if (currentText.length > 0) {
+								NSString* text = [NSString stringWithString:currentText];
+								info.rawTexts[currentPath] = text;
+							}
+							if (currentElementAttributes.count > 0) {
+								info.rawAttrs[currentPath] = currentElementAttributes;
+							}
+						}
                     }
-                    
+
+					//	NSLog(@"ATOM raw: %@\n%@\n%@", currentPath, currentText, currentElementAttributes);
+
                     break;
                 }
                 default: break;
