@@ -1,3 +1,8 @@
+I'm working on YouTube feed parsing and I'd like to add support for some extra fields like info.subtitle.
+
+Documents: https://developers.google.com/youtube/2.0/developers_guide_protocol_playlists
+Example: https://gdata.youtube.com/feeds/api/playlists/PLvEIxIeBRKSjprrvlbAcbVjzHsnH9PjDX?v=2
+
 # MWFeedParser — An RSS and Atom web feed parser for iOS
 
 MWFeedParser is an Objective-C framework for downloading and parsing RSS (1.* and 2.*) and Atom web feeds. It is a very simple and clean implementation that reads the following information from a web feed:

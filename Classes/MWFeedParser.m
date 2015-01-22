@@ -665,6 +665,8 @@
                         if ([currentPath isEqualToString:@"/feed/title"]) { if (processedText.length > 0) info.title = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/feed/description"]) { if (processedText.length > 0) info.summary = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/feed/link"]) { [self processAtomLink:currentElementAttributes andAddToMWObject:info]; processed = YES;}
+
+                        else if ([currentPath isEqualToString:@"/feed/subtitle"]) { if (processedText.length > 0) info.subtitle = processedText; processed = YES; }
                     }
                     
                     break;
