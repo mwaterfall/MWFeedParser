@@ -34,6 +34,18 @@
 @implementation MWFeedItem
 
 @synthesize identifier, title, link, date, updated, summary, content, author, enclosures;
+@synthesize rawTexts, rawAttrs;
+
+- (id)init
+{
+	self = [super init];
+	if (self)
+	{
+		rawTexts = [[NSMutableDictionary alloc] init];
+		rawAttrs = [[NSMutableDictionary alloc] init];
+	}
+	return self;
+}
 
 #pragma mark NSObject
 

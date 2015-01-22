@@ -46,7 +46,8 @@
 	//     length: how big it is in bytes (NSNumber)
 	//     type: what its type is, a standard MIME type  (NSString)
 	NSArray *enclosures;
-
+	NSMutableDictionary *rawTexts;	//	raw data
+	NSMutableDictionary *rawAttrs;	//	raw data
 }
 
 @property (nonatomic, copy) NSString *identifier;
@@ -58,5 +59,7 @@
 @property (nonatomic, copy) NSString *content;
 @property (nonatomic, copy) NSString *author;
 @property (nonatomic, copy) NSArray *enclosures;
+@property (nonatomic, copy) NSMutableDictionary *rawTexts;
+@property (nonatomic, copy) NSMutableDictionary *rawAttrs;
 
 @end

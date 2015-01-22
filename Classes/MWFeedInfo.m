@@ -34,6 +34,18 @@
 @implementation MWFeedInfo
 
 @synthesize title, link, summary, url;
+@synthesize rawTexts, rawAttrs;
+
+- (id)init
+{
+	self = [super init];
+	if (self)
+	{
+		rawTexts = [[NSMutableDictionary alloc] init];
+		rawAttrs = [[NSMutableDictionary alloc] init];
+	}
+	return self;
+}
 
 #pragma mark NSObject
 
