@@ -4,8 +4,8 @@ Documents: https://developers.google.com/youtube/2.0/developers_guide_protocol_p
 Example: https://gdata.youtube.com/feeds/api/playlists/PLvEIxIeBRKSjprrvlbAcbVjzHsnH9PjDX?v=2
 
 For example:
-	let sub = info.rawTexts["/feed/subtitle"] as String?
-	let url = item.rawAttrs["/feed/entry/media:group/media:thumbnail"]?["url"] as String?
+- let sub = info.rawTexts["/feed/subtitle"] as String?
+- let url = item.rawAttrs["/feed/entry/media:group/media:thumbnail"]?["url"] as String?
 
 # MWFeedParser — An RSS and Atom web feed parser for iOS
 
