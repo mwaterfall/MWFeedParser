@@ -667,7 +667,14 @@
 								item.rawTexts[currentPath] = text;
 							}
 							if (currentElementAttributes.count > 0) {
-								item.rawAttrs[currentPath] = currentElementAttributes;
+								if (item.rawAttrs[currentPath] == nil) {
+									item.rawAttrs[currentPath] = currentElementAttributes;
+								} else if ([item.rawAttrs[currentPath] isKindOfClass:NSArray.class]) {
+									[item.rawAttrs[currentPath] addObject:currentElementAttributes];
+								} else {
+									NSDictionary* attr = item.rawAttrs[currentPath];
+									item.rawAttrs[currentPath] = [NSMutableArray arrayWithObjects:attr, currentElementAttributes, nil];
+								}
 							}
 						}
                     }

@@ -5,7 +5,7 @@ Example: https://gdata.youtube.com/feeds/api/playlists/PLvEIxIeBRKSjprrvlbAcbVjz
 
 For example:
 - let sub = info.rawTexts["/feed/subtitle"] as String?
-- let url = item.rawAttrs["/feed/entry/media:group/media:thumbnail"]?["url"] as String?
+- let url = item.rawAttrs["/feed/entry/media:group/media:thumbnail"]?[2]?["url"] as String?
 
 # MWFeedParser — An RSS and Atom web feed parser for iOS
 
