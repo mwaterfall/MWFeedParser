@@ -260,15 +260,22 @@
 		
 		// Create NSXMLParser
 		if (data) {
+			dispatch_queue_t reentrantAvoidanceQueue = dispatch_queue_create("reentrantAvoidanceQueue", DISPATCH_QUEUE_SERIAL);
+            		dispatch_async(reentrantAvoidanceQueue, ^{
 			NSXMLParser *newFeedParser = [[NSXMLParser alloc] initWithData:data];
 			self.feedParser = newFeedParser;
+			 });
+			dispatch_sync(reentrantAvoidanceQueue, ^{ });
 			if (feedParser) { 
-				
+				dispatch_queue_t reentrantAvoidanceQueue = dispatch_queue_create("reentrantAvoidanceQueue", DISPATCH_QUEUE_SERIAL);
+        			dispatch_async(reentrantAvoidanceQueue, ^{
 				// Parse!
 				feedParser.delegate = self;
 				[feedParser setShouldProcessNamespaces:YES];
 				[feedParser parse];
 				self.feedParser = nil; // Release after parse
+				 });
+                		dispatch_sync(reentrantAvoidanceQueue, ^{ })
 				
 			} else {
 				[self parsingFailedWithErrorCode:MWErrorCodeFeedParsingError andDescription:@"Feed not a valid XML document"];
