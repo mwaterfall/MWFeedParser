@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "EAFC7DF71C9A026E00C52496"
-               BuildableName = "MWFeedParser tvOS Framework.framework"
+               BuildableName = "MWFeedParser.framework"
                BlueprintName = "MWFeedParser tvOS Framework"
                ReferencedContainer = "container:MWFeedParser.xcodeproj">
             </BuildableReference>
@@ -46,7 +46,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "EAFC7DF71C9A026E00C52496"
-            BuildableName = "MWFeedParser tvOS Framework.framework"
+            BuildableName = "MWFeedParser.framework"
             BlueprintName = "MWFeedParser tvOS Framework"
             ReferencedContainer = "container:MWFeedParser.xcodeproj">
          </BuildableReference>
@@ -64,7 +64,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "EAFC7DF71C9A026E00C52496"
-            BuildableName = "MWFeedParser tvOS Framework.framework"
+            BuildableName = "MWFeedParser.framework"
             BlueprintName = "MWFeedParser tvOS Framework"
             ReferencedContainer = "container:MWFeedParser.xcodeproj">
          </BuildableReference>

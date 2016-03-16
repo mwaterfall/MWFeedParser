@@ -53,6 +53,12 @@
 		EAFC7E0C1C9A02AD00C52496 /* GTMNSString+HTML.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C65F2EA12085ACE00606CFC /* GTMNSString+HTML.m */; };
 		EAFC7E0D1C9A02B000C52496 /* NSString+XMLEntities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CC8960D119F0CFB00ED61B6 /* NSString+XMLEntities.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EAFC7E0E1C9A02B000C52496 /* NSString+XMLEntities.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CC8960E119F0CFB00ED61B6 /* NSString+XMLEntities.m */; };
+		EAFC7E1F1C9A058000C52496 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFC7E1E1C9A058000C52496 /* AppDelegate.swift */; };
+		EAFC7E211C9A058000C52496 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAFC7E201C9A058000C52496 /* ViewController.swift */; };
+		EAFC7E241C9A058000C52496 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EAFC7E221C9A058000C52496 /* Main.storyboard */; };
+		EAFC7E261C9A058100C52496 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EAFC7E251C9A058100C52496 /* Assets.xcassets */; };
+		EAFC7E2B1C9A05C300C52496 /* MWFeedParser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAFC7DF81C9A026E00C52496 /* MWFeedParser.framework */; };
+		EAFC7E2D1C9A05DB00C52496 /* MWFeedParser.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EAFC7DF81C9A026E00C52496 /* MWFeedParser.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,6 +68,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = EAFC7D771C99F7A600C52496;
 			remoteInfo = "MWFeedParser iOS Framework";
+		};
+		EAFC7E2E1C9A05DB00C52496 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EAFC7DF71C9A026E00C52496;
+			remoteInfo = "MWFeedParser tvOS Framework";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -73,6 +86,17 @@
 			dstSubfolderSpec = 10;
 			files = (
 				EAFC7D801C99F7A600C52496 /* MWFeedParser.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EAFC7E301C9A05DB00C52496 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				EAFC7E2D1C9A05DB00C52496 /* MWFeedParser.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -118,6 +142,13 @@
 		EAFC7DF81C9A026E00C52496 /* MWFeedParser.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MWFeedParser.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAFC7DFA1C9A026E00C52496 /* MWFeedParser tvOS Framework.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MWFeedParser tvOS Framework.h"; sourceTree = "<group>"; };
 		EAFC7DFC1C9A026F00C52496 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EAFC7E1C1C9A058000C52496 /* MWFeedParser tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "MWFeedParser tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		EAFC7E1E1C9A058000C52496 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		EAFC7E201C9A058000C52496 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		EAFC7E231C9A058000C52496 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		EAFC7E251C9A058100C52496 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		EAFC7E271C9A058100C52496 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EAFC7E311C9A063400C52496 /* MWFeedParser tvOS-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MWFeedParser tvOS-Bridging-Header.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,6 +177,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EAFC7E191C9A058000C52496 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EAFC7E2B1C9A05C300C52496 /* MWFeedParser.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -165,6 +204,7 @@
 				1D6058910D05DD3D006BFB54 /* MWFeedParser.app */,
 				EAFC7D781C99F7A600C52496 /* MWFeedParser.framework */,
 				EAFC7DF81C9A026E00C52496 /* MWFeedParser.framework */,
+				EAFC7E1C1C9A058000C52496 /* MWFeedParser tvOS.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -178,6 +218,7 @@
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				EAFC7D791C99F7A600C52496 /* MWFeedParser iOS Framework */,
 				EAFC7DF91C9A026E00C52496 /* MWFeedParser tvOS Framework */,
+				EAFC7E1D1C9A058000C52496 /* MWFeedParser tvOS */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 			);
@@ -290,6 +331,19 @@
 			path = "MWFeedParser tvOS Framework";
 			sourceTree = "<group>";
 		};
+		EAFC7E1D1C9A058000C52496 /* MWFeedParser tvOS */ = {
+			isa = PBXGroup;
+			children = (
+				EAFC7E1E1C9A058000C52496 /* AppDelegate.swift */,
+				EAFC7E201C9A058000C52496 /* ViewController.swift */,
+				EAFC7E311C9A063400C52496 /* MWFeedParser tvOS-Bridging-Header.h */,
+				EAFC7E221C9A058000C52496 /* Main.storyboard */,
+				EAFC7E251C9A058100C52496 /* Assets.xcassets */,
+				EAFC7E271C9A058100C52496 /* Info.plist */,
+			);
+			path = "MWFeedParser tvOS";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -383,13 +437,33 @@
 			productReference = EAFC7DF81C9A026E00C52496 /* MWFeedParser.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		EAFC7E1B1C9A058000C52496 /* MWFeedParser tvOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EAFC7E281C9A058100C52496 /* Build configuration list for PBXNativeTarget "MWFeedParser tvOS" */;
+			buildPhases = (
+				EAFC7E181C9A058000C52496 /* Sources */,
+				EAFC7E191C9A058000C52496 /* Frameworks */,
+				EAFC7E1A1C9A058000C52496 /* Resources */,
+				EAFC7E301C9A05DB00C52496 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EAFC7E2F1C9A05DB00C52496 /* PBXTargetDependency */,
+			);
+			name = "MWFeedParser tvOS";
+			productName = "MWFeedParser tvOS";
+			productReference = EAFC7E1C1C9A058000C52496 /* MWFeedParser tvOS.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastSwiftUpdateCheck = 0720;
+				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = "Michael Waterfall";
 				TargetAttributes = {
 					1D6058900D05DD3D006BFB54 = {
@@ -400,6 +474,10 @@
 						DevelopmentTeam = 4C34FT6ABU;
 					};
 					EAFC7DF71C9A026E00C52496 = {
+						CreatedOnToolsVersion = 7.2.1;
+						DevelopmentTeam = 4C34FT6ABU;
+					};
+					EAFC7E1B1C9A058000C52496 = {
 						CreatedOnToolsVersion = 7.2.1;
 						DevelopmentTeam = 4C34FT6ABU;
 					};
@@ -415,6 +493,7 @@
 				French,
 				German,
 				en,
+				Base,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* CustomTemplate */;
 			projectDirPath = "";
@@ -422,6 +501,7 @@
 			targets = (
 				1D6058900D05DD3D006BFB54 /* MWFeedParser */,
 				EAFC7D771C99F7A600C52496 /* MWFeedParser iOS Framework */,
+				EAFC7E1B1C9A058000C52496 /* MWFeedParser tvOS */,
 				EAFC7DF71C9A026E00C52496 /* MWFeedParser tvOS Framework */,
 			);
 		};
@@ -450,6 +530,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EAFC7E1A1C9A058000C52496 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EAFC7E261C9A058100C52496 /* Assets.xcassets in Resources */,
+				EAFC7E241C9A058000C52496 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -496,6 +585,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EAFC7E181C9A058000C52496 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EAFC7E211C9A058000C52496 /* ViewController.swift in Sources */,
+				EAFC7E1F1C9A058000C52496 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -504,7 +602,23 @@
 			target = EAFC7D771C99F7A600C52496 /* MWFeedParser iOS Framework */;
 			targetProxy = EAFC7D7D1C99F7A600C52496 /* PBXContainerItemProxy */;
 		};
+		EAFC7E2F1C9A05DB00C52496 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EAFC7DF71C9A026E00C52496 /* MWFeedParser tvOS Framework */;
+			targetProxy = EAFC7E2E1C9A05DB00C52496 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		EAFC7E221C9A058000C52496 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EAFC7E231C9A058000C52496 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		1D6058940D05DD3E006BFB54 /* Debug */ = {
@@ -522,6 +636,7 @@
 				INFOPLIST_FILE = "MWFeedParser-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yourcompany.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = MWFeedParser;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = NO;
@@ -541,6 +656,7 @@
 				INFOPLIST_FILE = "MWFeedParser-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yourcompany.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = MWFeedParser;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = NO;
@@ -550,9 +666,9 @@
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_IDENTITY = "";
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -566,7 +682,6 @@
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_IDENTITY = "";
 				GCC_C_LANGUAGE_STANDARD = c99;
@@ -795,6 +910,102 @@
 			};
 			name = Release;
 		};
+		EAFC7E291C9A058100C52496 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "MWFeedParser tvOS/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "TM.MWFeedParser-tvOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SWIFT_OBJC_BRIDGING_HEADER = "MWFeedParser tvOS/MWFeedParser tvOS-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.1;
+			};
+			name = Debug;
+		};
+		EAFC7E2A1C9A058100C52496 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				INFOPLIST_FILE = "MWFeedParser tvOS/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "TM.MWFeedParser-tvOS";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = appletvos;
+				SWIFT_OBJC_BRIDGING_HEADER = "MWFeedParser tvOS/MWFeedParser tvOS-Bridging-Header.h";
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 9.1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -829,6 +1040,14 @@
 			buildConfigurations = (
 				EAFC7DFE1C9A026F00C52496 /* Debug */,
 				EAFC7DFF1C9A026F00C52496 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		EAFC7E281C9A058100C52496 /* Build configuration list for PBXNativeTarget "MWFeedParser tvOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EAFC7E291C9A058100C52496 /* Debug */,
+				EAFC7E2A1C9A058100C52496 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 		};
