@@ -28,10 +28,15 @@
 		EAFC7D891C99F7C000C52496 /* MWFeedInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CC89606119F0CED00ED61B6 /* MWFeedInfo.m */; };
 		EAFC7D8A1C99F7C000C52496 /* MWFeedItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CC89607119F0CED00ED61B6 /* MWFeedItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EAFC7D8B1C99F7C000C52496 /* MWFeedItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CC89608119F0CED00ED61B6 /* MWFeedItem.m */; };
-		EAFC7D941C99F92200C52496 /* NSString+HTML.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C65F317120863F800606CFC /* NSString+HTML.m */; };
 		EAFC7D951C99F92200C52496 /* NSDate+InternetDateTime.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C661F43125E3F2D007F1792 /* NSDate+InternetDateTime.m */; };
-		EAFC7D961C99F92200C52496 /* GTMNSString+HTML.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C65F2EA12085ACE00606CFC /* GTMNSString+HTML.m */; };
-		EAFC7D971C99F92200C52496 /* NSString+XMLEntities.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CC8960E119F0CFB00ED61B6 /* NSString+XMLEntities.m */; };
+		EAFC7DE81C9A00E300C52496 /* NSString+HTML.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C65F317120863F800606CFC /* NSString+HTML.m */; };
+		EAFC7DE91C9A00E500C52496 /* NSString+HTML.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C65F316120863F800606CFC /* NSString+HTML.h */; };
+		EAFC7DEA1C9A00EC00C52496 /* NSDate+InternetDateTime.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C661F42125E3F2D007F1792 /* NSDate+InternetDateTime.h */; };
+		EAFC7DEB1C9A00EC00C52496 /* NSDate+InternetDateTime.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C661F43125E3F2D007F1792 /* NSDate+InternetDateTime.m */; };
+		EAFC7DEC1C9A010000C52496 /* GTMNSString+HTML.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C65F2E912085ACE00606CFC /* GTMNSString+HTML.h */; };
+		EAFC7DED1C9A010000C52496 /* GTMNSString+HTML.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C65F2EA12085ACE00606CFC /* GTMNSString+HTML.m */; };
+		EAFC7DEE1C9A010B00C52496 /* NSString+XMLEntities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CC8960D119F0CFB00ED61B6 /* NSString+XMLEntities.h */; };
+		EAFC7DEF1C9A010B00C52496 /* NSString+XMLEntities.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CC8960E119F0CFB00ED61B6 /* NSString+XMLEntities.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -255,11 +260,15 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EAFC7DEC1C9A010000C52496 /* GTMNSString+HTML.h in Headers */,
 				EAFC7D7B1C99F7A600C52496 /* MWFeedParser iOS Framework.h in Headers */,
+				EAFC7DE91C9A00E500C52496 /* NSString+HTML.h in Headers */,
+				EAFC7DEA1C9A00EC00C52496 /* NSDate+InternetDateTime.h in Headers */,
 				EAFC7D861C99F7C000C52496 /* MWFeedParser_Private.h in Headers */,
 				EAFC7D8A1C99F7C000C52496 /* MWFeedItem.h in Headers */,
 				EAFC7D881C99F7C000C52496 /* MWFeedInfo.h in Headers */,
 				EAFC7D851C99F7C000C52496 /* MWFeedParser.h in Headers */,
+				EAFC7DEE1C9A010B00C52496 /* NSString+XMLEntities.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -370,12 +379,9 @@
 			files = (
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				1D3623260D0F684500981E51 /* MWFeedParserAppDelegate.m in Sources */,
-				EAFC7D971C99F92200C52496 /* NSString+XMLEntities.m in Sources */,
-				EAFC7D941C99F92200C52496 /* NSString+HTML.m in Sources */,
 				4CC89612119F0D0C00ED61B6 /* RootViewController.m in Sources */,
 				EAFC7D951C99F92200C52496 /* NSDate+InternetDateTime.m in Sources */,
 				4CAD0E1211DA03BD0086F5F8 /* DetailTableViewController.m in Sources */,
-				EAFC7D961C99F92200C52496 /* GTMNSString+HTML.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -383,9 +389,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EAFC7DEF1C9A010B00C52496 /* NSString+XMLEntities.m in Sources */,
 				EAFC7D8B1C99F7C000C52496 /* MWFeedItem.m in Sources */,
 				EAFC7D871C99F7C000C52496 /* MWFeedParser.m in Sources */,
+				EAFC7DE81C9A00E300C52496 /* NSString+HTML.m in Sources */,
 				EAFC7D891C99F7C000C52496 /* MWFeedInfo.m in Sources */,
+				EAFC7DEB1C9A00EC00C52496 /* NSDate+InternetDateTime.m in Sources */,
+				EAFC7DED1C9A010000C52496 /* GTMNSString+HTML.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
