@@ -10,25 +10,50 @@ Pod::Spec.new do |s|
     s.author = { 'Michael Waterfall' => 'michaelwaterfall@gmail.com' }
     s.source = {
         :git => 'https://github.com/mwaterfall/MWFeedParser.git',
-        :tag => '1.0.1'
+        :tag => 's.version.to_s'
     }
-    s.platform = :ios, '5.1.1'
+
     s.requires_arc = true
-    s.subspec 'FeedParser' do |ss|
-        ss.source_files = 'Classes/MWFeedInfo.{h,m}',
-                          'Classes/MWFeedItem.{h,m}',
-                          'Classes/MWFeedParser.{h,m}',
-                          'Classes/MWFeedParser_Private.h'
-        ss.dependency 'MWFeedParser/NSString+HTML'
-        ss.dependency 'MWFeedParser/NSDate+InternetDateTime'
+    s.ios.deployment_target = '7.0'
+    s.tvos.deployment_target = '9.0'
+
+    s.default_subspec = 'Default'
+
+    # Default subspec that includes the most commonly-used components
+    s.subspec 'Default' do |default|
+        default.dependency 'MWFeedParser/Core'
+        default.dependency 'MWFeedParser/NSString+HTML'
+        default.dependency 'MWFeedParser/NSDate+InternetDateTime'
     end
-    s.subspec 'NSString+HTML' do |ss|
-        s.platform = nil
-        ss.source_files = 'Classes/NSString+HTML.{h,m}',
-                          'Classes/GTMNSString+HTML.{h,m}'
+
+    # The Core subspec, containing the library core needed in all cases
+    s.subspec 'Core' do |core|
+        core.source_files = 'Classes/MWFeedInfo.{h,m}',
+                            'Classes/MWFeedItem.{h,m}',
+                            'Classes/MWFeedParser.{h,m}',
+                            'Classes/MWFeedParser_Private.h'
+        core.public_header_files =  'Classes/MWFeedInfo.h',
+                                    'Classes/MWFeedItem.h',
+                                    'Classes/MWFeedParser.h',
+                                    'Classes/MWFeedParser_Private.h'
     end
-    s.subspec 'NSDate+InternetDateTime' do |ss|
-        s.platform = nil
-        ss.source_files = 'Classes/NSDate+InternetDateTime.{h,m}'
+
+    s.subspec 'NSString+HTML' do |html|
+        html.source_files = 'Classes/NSString+HTML.{h,m}',
+                            'Classes/GTMNSString+HTML.{h,m}'
+        html.public_header_files =  'Classes/NSString+HTML.h',
+                                    'Classes/GTMNSString+HTML.h'
+    end
+
+    s.subspec 'NSDate+InternetDateTime' do |internetdatetime|
+        internetdatetime.source_files = 'Classes/NSDate+InternetDateTime.{h,m}'
+        internetdatetime.public_header_files =  'Classes/NSDate+InternetDateTime.h'
+    end
+
+    s.subspec 'Swift' do |swift|
+        swift.ios.deployment_target = '8.0'
+        swift.osx.deployment_target = '10.9'
+        swift.watchos.deployment_target = '2.0'
+        swift.tvos.deployment_target = '9.0'
     end
 end

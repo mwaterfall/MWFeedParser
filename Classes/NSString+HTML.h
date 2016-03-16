@@ -61,7 +61,7 @@
 //  - Adapted from http://regexlib.com/REDetails.aspx?regexp_id=96
 - (NSString *)stringByLinkifyingURLs;
 
-// DEPRECIATED - Please use NSString stringByConvertingHTMLToPlainText
+// DEPRECATED - Please use NSString stringByConvertingHTMLToPlainText
 - (NSString *)stringByStrippingTags __attribute__((deprecated));
 
 @end

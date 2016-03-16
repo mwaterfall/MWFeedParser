@@ -32,7 +32,7 @@
 // Import new HTML category
 #import "NSString+HTML.h"
 
-// THIS CLASS IS DEPRECIATED 03/08/2010
+// THIS CLASS IS DEPRECATED 03/08/2010
 // REPLACED BY NSString+HTML
 
 @interface NSString (XMLEntities)
