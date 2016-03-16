@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "EAFC7D771C99F7A600C52496"
-               BuildableName = "MWFeedParser.framework"
-               BlueprintName = "MWFeedParser iOS Framework"
+               BlueprintIdentifier = "EAFC7DF71C9A026E00C52496"
+               BuildableName = "MWFeedParser tvOS Framework.framework"
+               BlueprintName = "MWFeedParser tvOS Framework"
                ReferencedContainer = "container:MWFeedParser.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,9 +45,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "EAFC7D771C99F7A600C52496"
-            BuildableName = "MWFeedParser.framework"
-            BlueprintName = "MWFeedParser iOS Framework"
+            BlueprintIdentifier = "EAFC7DF71C9A026E00C52496"
+            BuildableName = "MWFeedParser tvOS Framework.framework"
+            BlueprintName = "MWFeedParser tvOS Framework"
             ReferencedContainer = "container:MWFeedParser.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -63,9 +63,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "EAFC7D771C99F7A600C52496"
-            BuildableName = "MWFeedParser.framework"
-            BlueprintName = "MWFeedParser iOS Framework"
+            BlueprintIdentifier = "EAFC7DF71C9A026E00C52496"
+            BuildableName = "MWFeedParser tvOS Framework.framework"
+            BlueprintName = "MWFeedParser tvOS Framework"
             ReferencedContainer = "container:MWFeedParser.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
