@@ -146,13 +146,13 @@
 			name = "Google Toolbox for Mac";
 			sourceTree = "<group>";
 		};
-		4C65F3151208638600606CFC /* Depreciated */ = {
+		4C65F3151208638600606CFC /* Deprecated */ = {
 			isa = PBXGroup;
 			children = (
 				4CC8960D119F0CFB00ED61B6 /* NSString+XMLEntities.h */,
 				4CC8960E119F0CFB00ED61B6 /* NSString+XMLEntities.m */,
 			);
-			name = Depreciated;
+			name = Deprecated;
 			sourceTree = "<group>";
 		};
 		4CC89602119F0CDE00ED61B6 /* MWFeedParser */ = {
@@ -177,7 +177,7 @@
 				4C661F42125E3F2D007F1792 /* NSDate+InternetDateTime.h */,
 				4C661F43125E3F2D007F1792 /* NSDate+InternetDateTime.m */,
 				4C65F30F12085FF400606CFC /* Google Toolbox for Mac */,
-				4C65F3151208638600606CFC /* Depreciated */,
+				4C65F3151208638600606CFC /* Deprecated */,
 			);
 			name = Categories;
 			sourceTree = "<group>";

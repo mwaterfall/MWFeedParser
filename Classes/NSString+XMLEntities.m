@@ -29,7 +29,7 @@
 
 #import "NSString+XMLEntities.h"
 
-// THIS CLASS IS DEPRECIATED 03/08/2010
+// THIS CLASS IS DEPRECATED 03/08/2010
 // REPLACED BY NSString+HTML
 
 @implementation NSString (XMLEntities)
