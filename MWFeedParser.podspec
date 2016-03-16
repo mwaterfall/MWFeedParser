@@ -12,8 +12,9 @@ Pod::Spec.new do |s|
         :git => 'https://github.com/mwaterfall/MWFeedParser.git',
         :tag => 's.version.to_s'
     }
-    s.platform = :ios, '5.1.1'
     s.requires_arc = true
+    s.ios.deployment_target = '5.1.1'
+    s.tvos.deployment_target = '9.0'
     s.subspec 'FeedParser' do |ss|
         ss.source_files = 'Classes/MWFeedInfo.{h,m}',
                           'Classes/MWFeedItem.{h,m}',
