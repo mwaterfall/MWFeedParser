@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
     s.author = { 'Michael Waterfall' => 'michaelwaterfall@gmail.com' }
     s.source = {
         :git => 'https://github.com/mwaterfall/MWFeedParser.git',
-        :tag => '1.0.1'
+        :tag => 's.version.to_s'
     }
     s.platform = :ios, '5.1.1'
     s.requires_arc = true
