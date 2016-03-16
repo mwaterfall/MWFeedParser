@@ -21,12 +21,12 @@
 		EAFC7D7B1C99F7A600C52496 /* MWFeedParser iOS Framework.h in Headers */ = {isa = PBXBuildFile; fileRef = EAFC7D7A1C99F7A600C52496 /* MWFeedParser iOS Framework.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EAFC7D7F1C99F7A600C52496 /* MWFeedParser.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EAFC7D781C99F7A600C52496 /* MWFeedParser.framework */; };
 		EAFC7D801C99F7A600C52496 /* MWFeedParser.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = EAFC7D781C99F7A600C52496 /* MWFeedParser.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		EAFC7D851C99F7C000C52496 /* MWFeedParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CC89603119F0CED00ED61B6 /* MWFeedParser.h */; };
+		EAFC7D851C99F7C000C52496 /* MWFeedParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CC89603119F0CED00ED61B6 /* MWFeedParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EAFC7D861C99F7C000C52496 /* MWFeedParser_Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CAA79C911A406890009078E /* MWFeedParser_Private.h */; };
 		EAFC7D871C99F7C000C52496 /* MWFeedParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CC89604119F0CED00ED61B6 /* MWFeedParser.m */; };
-		EAFC7D881C99F7C000C52496 /* MWFeedInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CC89605119F0CED00ED61B6 /* MWFeedInfo.h */; };
+		EAFC7D881C99F7C000C52496 /* MWFeedInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CC89605119F0CED00ED61B6 /* MWFeedInfo.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EAFC7D891C99F7C000C52496 /* MWFeedInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CC89606119F0CED00ED61B6 /* MWFeedInfo.m */; };
-		EAFC7D8A1C99F7C000C52496 /* MWFeedItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CC89607119F0CED00ED61B6 /* MWFeedItem.h */; };
+		EAFC7D8A1C99F7C000C52496 /* MWFeedItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 4CC89607119F0CED00ED61B6 /* MWFeedItem.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EAFC7D8B1C99F7C000C52496 /* MWFeedItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CC89608119F0CED00ED61B6 /* MWFeedItem.m */; };
 		EAFC7D941C99F92200C52496 /* NSString+HTML.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C65F317120863F800606CFC /* NSString+HTML.m */; };
 		EAFC7D951C99F92200C52496 /* NSDate+InternetDateTime.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C661F43125E3F2D007F1792 /* NSDate+InternetDateTime.m */; };
