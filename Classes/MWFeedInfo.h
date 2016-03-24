@@ -31,16 +31,19 @@
 
 @interface MWFeedInfo : NSObject <NSCoding> {
 	
-	NSString *title; // Feed title
-	NSString *link; // Feed link
-	NSString *summary; // Feed summary / description
-	NSURL *url; // Feed url
-	
+	NSString *title;                    // Feed title
+	NSString *link;                     // Feed link
+	NSString *summary;                  // Feed summary / description
+	NSURL *url;                         // Feed url
+
+    // Custom attributes:
+    // - NSDictionary with the keys related to custom attributes defined on parser
+    NSDictionary *customAttributes;
 }
 
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, copy) NSString *link;
 @property (nonatomic, copy) NSString *summary;
 @property (nonatomic, copy) NSURL *url;
-
+@property (nonatomic, copy) NSDictionary *customAttributes;
 @end

@@ -54,6 +54,7 @@
 @synthesize feedParseType, feedParser, currentPath, currentText, currentElementAttributes, item, info;
 @synthesize pathOfElementWithXHTMLType;
 @synthesize stopped, failed, parsing;
+@synthesize customFeedChannelKeys, customFeedItemKeys;
 
 #pragma mark -
 #pragma mark NSObject
@@ -196,6 +197,7 @@
 		MWFeedInfo *i = [[MWFeedInfo alloc] init];
         i.url = self.url;
 		self.info = i;
+        self.currentCustomPropertiesOfChannel = [NSMutableDictionary dictionary];
 		
 		// Check whether it's UTF-8
 		if (![[textEncodingName lowercaseString] isEqualToString:@"utf-8"]) {
@@ -515,7 +517,7 @@
             // New item
             MWFeedItem *newItem = [[MWFeedItem alloc] init];
             self.item = newItem;
-            
+            self.currentCustomPropertiesOfItem = [NSMutableDictionary dictionary];
             // Return
             return;
             
@@ -583,6 +585,34 @@
             // Remove newlines and whitespace from currentText
             NSString *processedText = [currentText stringByRemovingNewLinesAndWhitespace];
 
+            __weak typeof(self)selfB = self;
+            
+            void (^findCustomChannelKeysWithBasePath)(NSString *) = ^ (NSString *path){
+				[selfB.customFeedChannelKeys enumerateObjectsUsingBlock:^(id key, NSUInteger idx, BOOL *stop) {
+					NSString *searchPath = [NSString stringWithFormat:path, key];
+					if ([currentPath isEqualToString:searchPath]) {
+						if (processedText.length > 0) {
+							selfB.currentCustomPropertiesOfChannel[key] = processedText;
+						} else if (currentElementAttributes.count) {
+							selfB.currentCustomPropertiesOfChannel[key] = currentElementAttributes;
+						}
+					}
+				}];
+			};
+            
+			void (^findCustomItemKeysWithBasePath)(NSString *) = ^ (NSString *path){
+				[selfB.customFeedItemKeys enumerateObjectsUsingBlock:^(id key, NSUInteger idx, BOOL *stop) {
+					NSString *searchPath = [NSString stringWithFormat:path, key];
+					if ([currentPath isEqualToString:searchPath]) {
+						if (processedText.length > 0) {
+							selfB.currentCustomPropertiesOfItem[key] = processedText;
+						} else if (currentElementAttributes.count) {
+							selfB.currentCustomPropertiesOfItem[key] = currentElementAttributes;
+						}
+					}
+				}];
+			};
+            
             // Process
             switch (feedType) {
                 case FeedTypeRSS: {
@@ -603,6 +633,7 @@
                         else if ([currentPath isEqualToString:@"/rss/channel/item/pubDate"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC822]; processed = YES; }
                         else if ([currentPath isEqualToString:@"/rss/channel/item/enclosure"]) { [self createEnclosureFromAttributes:currentElementAttributes andAddToItem:item]; processed = YES; }
                         else if ([currentPath isEqualToString:@"/rss/channel/item/dc:date"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
+                        else if (self.customFeedItemKeys.count) { findCustomItemKeysWithBasePath(@"/rss/channel/item/%@"); }
                     }
                     
                     // Info
@@ -610,6 +641,7 @@
                         if ([currentPath isEqualToString:@"/rss/channel/title"]) { if (processedText.length > 0) info.title = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/rss/channel/description"]) { if (processedText.length > 0) info.summary = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/rss/channel/link"]) { if (processedText.length > 0) info.link = processedText; processed = YES; }
+                        else if (self.customFeedChannelKeys.count) { findCustomChannelKeysWithBasePath(@"/rss/channel/%@"); }
                     }
                     
                     break;
@@ -630,6 +662,7 @@
                         else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:creator"]) { if (processedText.length > 0) item.author = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/rdf:RDF/item/dc:date"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
                         else if ([currentPath isEqualToString:@"/rdf:RDF/item/enc:enclosure"]) { [self createEnclosureFromAttributes:currentElementAttributes andAddToItem:item]; processed = YES; }
+                        else if (self.customFeedItemKeys.count) { findCustomItemKeysWithBasePath(@"/rdf:RDF/item/%@"); }
                     }
                     
                     // Info
@@ -637,6 +670,7 @@
                         if ([currentPath isEqualToString:@"/rdf:RDF/channel/title"]) { if (processedText.length > 0) info.title = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/rdf:RDF/channel/description"]) { if (processedText.length > 0) info.summary = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/rdf:RDF/channel/link"]) { if (processedText.length > 0) info.link = processedText; processed = YES; }
+                        else if (self.customFeedChannelKeys.count) { findCustomChannelKeysWithBasePath(@"/rdf:RDF/channel/%@"); }
                     }
                     
                     break;
@@ -658,6 +692,7 @@
                         else if ([currentPath isEqualToString:@"/feed/entry/dc:creator"]) { if (processedText.length > 0) item.author = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/feed/entry/published"]) { if (processedText.length > 0) item.date = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
                         else if ([currentPath isEqualToString:@"/feed/entry/updated"]) { if (processedText.length > 0) item.updated = [NSDate dateFromInternetDateTimeString:processedText formatHint:DateFormatHintRFC3339]; processed = YES; }
+                        else if (self.customFeedItemKeys.count) { findCustomItemKeysWithBasePath(@"/feed/entry/%@"); }
                     }
                     
                     // Info
@@ -665,6 +700,7 @@
                         if ([currentPath isEqualToString:@"/feed/title"]) { if (processedText.length > 0) info.title = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/feed/description"]) { if (processedText.length > 0) info.summary = processedText; processed = YES; }
                         else if ([currentPath isEqualToString:@"/feed/link"]) { [self processAtomLink:currentElementAttributes andAddToMWObject:info]; processed = YES;}
+                        else if (self.customFeedChannelKeys.count) { findCustomChannelKeysWithBasePath(@"/feed/%@"); }
                     }
                     
                     break;
@@ -681,6 +717,10 @@
             if (((feedType == FeedTypeRSS || feedType == FeedTypeRSS1) && [qName isEqualToString:@"item"]) ||
                 (feedType == FeedTypeAtom && [qName isEqualToString:@"entry"])) {
                 
+                if(self.currentCustomPropertiesOfItem.count) {
+					item.customAttributes = self.currentCustomPropertiesOfItem;
+				}
+                
                 // Dispatch item to delegate
                 [self dispatchFeedItemToDelegate];
                 
@@ -692,6 +732,11 @@
             if ((feedType == FeedTypeRSS && [qName isEqualToString:@"rss"]) ||
                 (feedType == FeedTypeRSS1 && [qName isEqualToString:@"rdf:RDF"]) ||
                 (feedType == FeedTypeAtom && [qName isEqualToString:@"feed"])) {
+                
+                
+                if(self.currentCustomPropertiesOfChannel.count) {
+					info.customAttributes = self.currentCustomPropertiesOfChannel;
+				}
                 
                 // Document ending so if we havent sent off feed info yet, do so
                 if (info && feedParseType != ParseTypeItemsOnly) [self dispatchFeedInfoToDelegate];
@@ -804,6 +849,7 @@
 		
 		// Finish
 		self.info = nil;
+        self.currentCustomPropertiesOfChannel = nil;
 		
 	}
 }
@@ -824,6 +870,7 @@
 		
 		// Finish
 		self.item = nil;
+        self.currentCustomPropertiesOfItem = nil;
 		
 	}
 }

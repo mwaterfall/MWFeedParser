@@ -47,6 +47,10 @@
 	//     type: what its type is, a standard MIME type  (NSString)
 	NSArray *enclosures;
 
+    
+    // Custom attributes:
+    // - NSDictionary with the keys related to custom attributes defined on parser
+    NSDictionary *customAttributes;
 }
 
 @property (nonatomic, copy) NSString *identifier;
@@ -58,5 +62,6 @@
 @property (nonatomic, copy) NSString *content;
 @property (nonatomic, copy) NSString *author;
 @property (nonatomic, copy) NSArray *enclosures;
+@property (nonatomic, copy) NSDictionary *customAttributes;
 
 @end
