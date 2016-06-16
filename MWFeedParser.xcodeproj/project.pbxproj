@@ -221,7 +221,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0420;
+				LastUpgradeCheck = 0730;
 				ORGANIZATIONNAME = "Michael Waterfall";
 			};
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "MWFeedParser" */;
@@ -292,6 +292,7 @@
 				GCC_PREFIX_HEADER = MWFeedParser_Prefix.pch;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = "MWFeedParser-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yourcompany.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = MWFeedParser;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = NO;
@@ -308,6 +309,7 @@
 				GCC_PREFIX_HEADER = MWFeedParser_Prefix.pch;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				INFOPLIST_FILE = "MWFeedParser-Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.yourcompany.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = MWFeedParser;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = NO;
@@ -317,9 +319,9 @@
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_IDENTITY = "";
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -333,7 +335,6 @@
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
 				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_IDENTITY = "";
 				GCC_C_LANGUAGE_STANDARD = c99;
