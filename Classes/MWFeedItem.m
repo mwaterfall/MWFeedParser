@@ -59,7 +59,7 @@
 		summary = [decoder decodeObjectForKey:@"summary"];
 		content = [decoder decodeObjectForKey:@"content"];
 		author = [decoder decodeObjectForKey:@"author"];
-        categories = [decoder decodeObjectForKey:@"categories"];
+		categories = [decoder decodeObjectForKey:@"categories"];
 		enclosures = [decoder decodeObjectForKey:@"enclosures"];
 	}
 	return self;
@@ -74,7 +74,7 @@
 	if (summary) [encoder encodeObject:summary forKey:@"summary"];
 	if (content) [encoder encodeObject:content forKey:@"content"];
 	if (author) [encoder encodeObject:author forKey:@"author"];
-    if (categories) [encoder encodeObject:categories forKey:@"categories"];
+	if (categories) [encoder encodeObject:categories forKey:@"categories"];
 	if (enclosures) [encoder encodeObject:enclosures forKey:@"enclosures"];
 }
 
