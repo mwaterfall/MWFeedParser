@@ -39,8 +39,9 @@
 #pragma mark Application lifecycle
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {    
-    // Override point for customization after app launch    
-	[window addSubview:[navigationController view]];
+    // Override point for customization after app launch
+    [window setRootViewController:navigationController];
+    [window addSubview:[navigationController view]];
     [window makeKeyAndVisible];
 	return YES;
 }
