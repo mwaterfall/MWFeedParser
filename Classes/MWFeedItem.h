@@ -39,6 +39,7 @@
 	NSString *summary; // Description of item
 	NSString *content; // More detailed content (if available)
 	NSString *author; // Item author
+    NSArray *categories; // Array of categories as NSStrings (if available)
 	
 	// Enclosures: Holds 1 or more item enclosures (i.e. podcasts, mp3. pdf, etc)
 	//  - NSArray of NSDictionaries with the following keys:
@@ -57,6 +58,7 @@
 @property (nonatomic, copy) NSString *summary;
 @property (nonatomic, copy) NSString *content;
 @property (nonatomic, copy) NSString *author;
+@property (nonatomic, copy) NSArray *categories;
 @property (nonatomic, copy) NSArray *enclosures;
 
 @end
