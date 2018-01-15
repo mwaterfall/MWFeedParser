@@ -31,7 +31,7 @@
 #import "NSString+HTML.h"
 
 typedef enum { SectionHeader, SectionDetail } Sections;
-typedef enum { SectionHeaderTitle, SectionHeaderDate, SectionHeaderURL, SectionHeaderAuthor } HeaderRows;
+typedef enum { SectionHeaderTitle, SectionHeaderDate, SectionHeaderURL, SectionHeaderAuthor, SectionHeaderCategories } HeaderRows;
 typedef enum { SectionDetailSummary } DetailRows;
 
 @implementation DetailTableViewController
@@ -85,7 +85,7 @@ typedef enum { SectionDetailSummary } DetailRows;
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     // Return the number of rows in the section.
 	switch (section) {
-		case 0: return 4;
+		case 0: return 5;
 		default: return 1;
 	}
 }
@@ -130,6 +130,11 @@ typedef enum { SectionDetailSummary } DetailRows;
 					case SectionHeaderAuthor:
 						cell.textLabel.text = item.author ? item.author : @"[No Author]";
 						break;
+                    case SectionHeaderCategories:
+                        cell.textLabel.font = [UIFont systemFontOfSize:8];
+                        cell.textLabel.numberOfLines = 2;
+                        cell.textLabel.text = item.categories.count ? [item.categories componentsJoinedByString:@", "] : @"[No Categories]";
+                        break;
 				}
 				break;
 				
